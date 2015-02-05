@@ -1,20 +1,32 @@
-package org.jabelpeeps.jabeltris;
+package org.jabelpeeps.jabeltris.shapes;
 
-import com.badlogic.gdx.graphics.Color;
+import org.jabelpeeps.jabeltris.Master;
+import org.jabelpeeps.jabeltris.Shape;
 
-class CrossTwo extends Shape {
+public class CrossTwo extends Shape {
 	
 	public CrossTwo() {
 		this.setRegion(Master.crosstwo);
-		color = new Color(0f, 0f, 1f, 1f);
 		type = "crosstwo";
+	}
+
+	@Override
+	public void select() {
+		this.setColor(0f, 0f, 1f, 1f);
+	}
+
+	@Override
+	public void deselect() {
+		this.setColor(1f, 1f, 1f, 1f);
 	}
 	
 	@Override
-	boolean checkMatch(int x, int y) {
+	public boolean checkMatch() {
 		// checks for matches when swapped.
 		
 		boolean matchmade = false;
+		int x = (int) getX()/3;
+		int y = (int) getY()/3;
 		
 		// check for a full "X" cross
 		if ( m4(x-1, y-1, x+1, y+1, x-1, y+1, x+1, y-1, this) ) matchmade = true;

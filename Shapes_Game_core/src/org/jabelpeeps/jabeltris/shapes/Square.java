@@ -1,20 +1,32 @@
-package org.jabelpeeps.jabeltris;
+package org.jabelpeeps.jabeltris.shapes;
 
-import com.badlogic.gdx.graphics.Color;
+import org.jabelpeeps.jabeltris.Master;
+import org.jabelpeeps.jabeltris.Shape;
 
-class Square extends Shape {
+public class Square extends Shape {
 	
 	public Square() {
 		this.setRegion(Master.square);
-		color = new Color(0f, 1f, 1f, 1f);
 		type = "square";
 	}			
+
+	@Override
+	public void select() {
+		this.setColor(0f, 1f, 1f, 1f);
+	}
+
+	@Override
+	public void deselect() {
+		this.setColor(1f, 1f, 1f, 1f);
+	}	
 	
 	@Override
-	public boolean checkMatch(int x, int y) {
+	public boolean checkMatch() {
 		// checks for matches when swapped.
 		
 		boolean matchmade = false;
+		int x = (int) getX()/3;
+		int y = (int) getY()/3;
 		
 		if ( m3(x-1, y, x, y-1, x-1, y-1, this) ) matchmade = true;
 		if ( m3(x+1, y, x, y+1, x+1, y+1, this) ) matchmade = true;

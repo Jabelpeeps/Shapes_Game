@@ -1,20 +1,32 @@
-package org.jabelpeeps.jabeltris;
+package org.jabelpeeps.jabeltris.shapes;
 
-import com.badlogic.gdx.graphics.Color;
+import org.jabelpeeps.jabeltris.Master;
+import org.jabelpeeps.jabeltris.Shape;
 
-class Triangle extends Shape {
+public class Triangle extends Shape {
 	
 	public Triangle() {
 		this.setRegion(Master.triangle);
-		color = new Color(1f, 0f, 1f, 1f);
 		type = "triangle";
 	}		
+
+	@Override
+	public void select() {
+		this.setColor(1f, 0f, 1f, 1f);
+	}
+
+	@Override
+	public void deselect() {
+		this.setColor(1f, 1f, 1f, 1f);
+	}	
 	
 	@Override
-	public boolean checkMatch(int x, int y) {
+	public boolean checkMatch() {
 		// checks for matches when swapped.
 		
 		boolean matchmade = false;
+		int x = (int) getX()/3;
+		int y = (int) getY()/3;
 		
 		// calling block at centre (4 rotations, order: up, down, right, left)
 		if ( m3(x-1, y, x+1, y, x, y+1, this) ) matchmade = true;

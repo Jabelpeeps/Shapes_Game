@@ -1,9 +1,12 @@
 package org.jabelpeeps.jabeltris;
 
+import java.util.concurrent.TimeUnit;
+
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -18,8 +21,10 @@ public class Core extends Game {
 	static BitmapFont font;
 	static TextureAtlas atlas;
 	
-	static Sprite background;
+//	static Sprite background;
+	static Texture base;
 	static TextureRegion[][] baseTiles;
+	static Sprite[][] baseSprites = new Sprite[10][10];
 	
 // --------------------------------------------------Override Methods--	
 	@Override
@@ -56,6 +61,19 @@ public class Core extends Game {
 		atlas.dispose();
 		manager.dispose();
 		font.dispose();
+		base.dispose();
+	}
+
+	protected static void delay(long time) {
+//		System.out.println("delay() called by: " + getMethodName(1) 
+//										  + ", " + getMethodName(2) 
+//										  + ", " + getMethodName(3) 
+//										  + ", " + getMethodName(4));
+		try {  
+			TimeUnit.MILLISECONDS.sleep(time);
+		} catch (InterruptedException e) { 
+			e.printStackTrace();
+		}
 	}
 	
 //		/**
@@ -70,5 +88,7 @@ public class Core extends Game {
 //
 //			return ste[ste.length - 1 - depth].getMethodName(); 
 //		}
+	
+	
 	
 }
