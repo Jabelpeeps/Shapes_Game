@@ -4,6 +4,7 @@ import org.jabelpeeps.jabeltris.Master;
 import org.jabelpeeps.jabeltris.Shape;
 
 public class CrossTwo extends Shape {
+	// crosstwo is the 'X' shape
 	
 	public CrossTwo() {
 		this.setRegion(Master.crosstwo);
@@ -19,31 +20,32 @@ public class CrossTwo extends Shape {
 		this.setColor(1f, 1f, 1f, 1f);
 	}
 	@Override
-	public boolean checkMatch() {
-		boolean matchmade = false;
-		int x = (int) getX();
-		int y = (int) getY();
+	public boolean shapeMatch(int x, int y) {
 		
+		boolean matchmade = false;
 		// check for a full "X" cross
 		if ( m4(x-1, y-1, x+1, y+1, x-1, y+1, x+1, y-1, this) ) matchmade = true;
 		if ( m4(x+1, y+1, x+2, y+2, x, y+2, x+2, y, this) ) matchmade = true;
 		if ( m4(x-1, y-1, x-2, y-2, x, y-2, x-2, y, this) ) matchmade = true;
 		if ( m4(x+1, y-1, x+2, y-2, x, y-2, x+2, y, this) ) matchmade = true;
 		if ( m4(x-1, y+1, x-2, y+2, x, y+2, x-2, y, this) ) matchmade = true;
-
 		// check for the corners of an "X" only 
 		if ( m3(x+2, y, x, y-2, x+2, y-2, this) ) matchmade = true;
 		if ( m3(x-2, y, x, y+2, x-2, y+2, this) ) matchmade = true;
 		if ( m3(x+2, y, x, y+2, x+2, y+2, this) ) matchmade = true;
 		if ( m3(x-2, y, x, y-2, x-2, y-2, this) ) matchmade = true;
-		
 		return matchmade; 
-	}		
-
-	@Override			
-	public void findHint() {
-		// method to trigger shapes to search for possible matches if they 
-		// were to be swapped in each of the four cardinal directions.
+	}
+	@Override
+	protected boolean hintMatch(int x, int y) {
 		
+		boolean hintFound = false;
+		if ( shapeMatch(x, y+1) ) hintFound = true;
+		if ( shapeMatch(x, y-1) ) hintFound = true;
+		if ( shapeMatch(x+1, y) ) hintFound = true;
+		if ( shapeMatch(x-1, y) ) hintFound = true;
+		
+		//return false;
+		return hintFound;
 	}
 }

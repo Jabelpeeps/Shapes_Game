@@ -20,25 +20,48 @@ public class Line extends Shape {
 		this.setColor(1f, 1f, 1f, 1f);
 	}
 	@Override
-	public boolean checkMatch() {
-		boolean matchmade = false;
-		int x = (int) getX();
-		int y = (int) getY();
+	public boolean shapeMatch(int x, int y) {		
 		
+		boolean matchmade = false;
+		// horizontal lines
 		if ( m2(x-1, y, x+1, y, this) ) matchmade = true;
 		if ( m2(x-1, y, x-2, y, this) ) matchmade = true;
 		if ( m2(x+1, y, x+2, y, this) ) matchmade = true;
+		// vertical lines
 		if ( m2(x, y-1, x, y+1, this) ) matchmade = true;
 		if ( m2(x, y-1, x, y-2, this) ) matchmade = true;
 		if ( m2(x, y+1, x, y+2, this) ) matchmade = true;
 		
 		return matchmade;
-	}			
-
+	}
 	@Override
-	public void findHint() {
-		// method to trigger shapes to search for possible matches if they 
-		// were to be swapped in each of the four cardinal directions.
+	protected boolean hintMatch(int x, int y) {
 		
+		boolean hintFound = false;
+		// horizontal lines y+1
+		if ( m2(x-1, y+1, x+1, y+1, this) ) hintFound = true;
+		if ( m2(x-1, y+1, x-2, y+1, this) ) hintFound = true;
+		if ( m2(x+1, y+1, x+2, y+1, this) ) hintFound = true;
+		// horizontal lines y-1
+		if ( m2(x-1, y-1, x+1, y-1, this) ) hintFound = true;
+		if ( m2(x-1, y-1, x-2, y-1, this) ) hintFound = true;
+		if ( m2(x+1, y-1, x+2, y-1, this) ) hintFound = true;
+		// horizontal lines x +/- 1
+		if ( m2(x+2, y, x+3, y, this) ) hintFound = true;
+		if ( m2(x-2, y, x-3, y, this) ) hintFound = true;		
+		// vertical lines x+1
+		if ( m2(x+1, y-1, x+1, y+1, this) ) hintFound = true;
+		if ( m2(x+1, y-1, x+1, y-2, this) ) hintFound = true;
+		if ( m2(x+1, y+1, x+1, y+2, this) ) hintFound = true;
+		// vertical lines x-1
+		if ( m2(x-1, y-1, x-1, y+1, this) ) hintFound = true;
+		if ( m2(x-1, y-1, x-1, y-2, this) ) hintFound = true;
+		if ( m2(x-1, y+1, x-1, y+2, this) ) hintFound = true;
+		// vertical lines y +/- 1
+		if ( m2(x, y-2, x, y-3, this) ) hintFound = true;
+		if ( m2(x, y+2, x, y+3, this) ) hintFound = true;
+		
+		//return false;
+		return hintFound;
 	}
 }

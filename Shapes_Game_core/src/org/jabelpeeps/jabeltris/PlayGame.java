@@ -42,17 +42,16 @@ public class PlayGame extends Core implements Screen {
 		
 		batch.begin();
 		batch.disableBlending();
-//	    background.draw(batch);
 		
-		for( int i=0; i<=9; i++ ) {
-		    	for( int j=0; j<=9; j++ ) {
+		for( int i = 0; i < board.getX(); i++ ) {
+		    	for( int j = 0; j < board.getY(); j++ ) {
 				    	board.boardTile[i][j].draw(batch);
 				 	}           
 		}
 	    batch.enableBlending();
 	    
-	    for( int i=0; i<=9; i++ ) {
-		    	for( int j=0; j<=9; j++ ) {
+	    for( int i = 0; i < board.getX(); i++ ) {
+		    	for( int j = 0; j < board.getY(); j++ ) {
 				    	try {
 					    	board.getShape(i, j).draw(batch);
 					    } catch (NullPointerException e) {
