@@ -25,7 +25,8 @@ class InputEvents extends InputAdapter {
 			touch.set(x, y, 0);
 			Core.camera.unproject(touch);
 			board.tuX = (int) touch.x/3;
-			board.tdY = (int) touch.y/3;
+			board.tuY = (int) touch.y/3;
 			return true;
 		}
 }
+
