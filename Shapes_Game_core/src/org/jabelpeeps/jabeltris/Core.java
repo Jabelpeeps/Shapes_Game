@@ -8,7 +8,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -21,11 +20,9 @@ public class Core extends Game {
 	static BitmapFont font;
 	static TextureAtlas atlas;
 	
-//	static Sprite background;
-	static Texture base;
-	static TextureRegion[][] baseTiles;
-	static Sprite[][] baseSprites = new Sprite[10][10];
-	
+	static Texture boardBase;
+	protected static TextureRegion[][] boardBaseTiles;
+		
 // --------------------------------------------------Override Methods--	
 	@Override
 	public void create () {
@@ -34,17 +31,17 @@ public class Core extends Game {
 		atlas = new TextureAtlas();
 		manager = new AssetManager();
 		
-		font.setUseIntegerPositions(false);
-		font.setScale(0.15f);
+//		font.setUseIntegerPositions(false);
+//		font.setScale(0.2f);
 				
-		// set world view as 32 units wide, and enough high to keep units square.
-		// actual play area will be 30x30 with a small border at the edges.
+		// set world view as 42 units wide, and enough high to keep units square.
+		// actual play area will be 40x40 with a small border at the edges.
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
-		camera = new OrthographicCamera(32, 32*(h/w));
+		camera = new OrthographicCamera(42, 42*(h/w));
 				
 		// position camera, so that 0,0 is at bottom left of the playboard position.
-        camera.position.set((camera.viewportWidth/2)-1, (camera.viewportHeight-16*(h/w))/2, 0);
+        camera.position.set((camera.viewportWidth/2)-1, (camera.viewportHeight-21*(h/w))/2, 0);
         
         // calls splash screen
         this.setScreen(new Splash(this));
@@ -61,20 +58,21 @@ public class Core extends Game {
 		atlas.dispose();
 		manager.dispose();
 		font.dispose();
-		base.dispose();
+		boardBase.dispose();
 	}
 
 	protected static void delay(long time) {
-//		System.out.println("delay() called by: " + getMethodName(1) 
-//										  + ", " + getMethodName(2) 
-//										  + ", " + getMethodName(3) 
-//										  + ", " + getMethodName(4));
 		try {  
 			TimeUnit.MILLISECONDS.sleep(time);
 		} catch (InterruptedException e) { 
 			e.printStackTrace();
 		}
 	}
+	
+//		System.out.println("delay() called by: " + getMethodName(1) 
+//										  + ", " + getMethodName(2) 
+//										  + ", " + getMethodName(3) 
+//										  + ", " + getMethodName(4));
 	
 //		/**
 //		 * Get the method name for a depth in call stack. <br />

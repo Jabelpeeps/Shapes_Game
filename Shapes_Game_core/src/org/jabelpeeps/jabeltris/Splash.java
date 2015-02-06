@@ -27,8 +27,8 @@ public class Splash extends Core implements Screen {
 		Texture.setAssetManager(Core.manager);
 		
         logo = new Sprite(new Texture("badlogic.jpg"));  
-		logo.setOrigin(15, 15);
-		logo.setBounds(0, 0, 30, 30);
+		logo.setOrigin(20, 20);
+		logo.setBounds(0, 0, 40, 40);
 	}
 // ------------------------------------------------Methods---------	
 	
@@ -39,7 +39,7 @@ public class Splash extends Core implements Screen {
 	    					
 				// unpack the resources from the asset manager
 				atlas = manager.get("pack.atlas");
-				base = manager.get("board10x10.jpg");
+				boardBase = manager.get("board10x10.jpg");
 	
 				Master.line = atlas.findRegion("line");
 				Master.square = atlas.findRegion("square");
@@ -54,24 +54,7 @@ public class Splash extends Core implements Screen {
 //				background.setSize(30, 30);
 //				background.setPosition(0, 0);
 
-				baseTiles = TextureRegion.split(base, 51, 51);
-				
-				for( int i=0; i<=9; i++ ) {
-			    	for( int j=0; j<=9; j++ ) {
-					    baseSprites[i][j] = new Sprite(baseTiles[i][j]);
-					    baseSprites[i][j].setBounds(i*3, j*3, 3, 3);
-					}           
-				}
-				
-				// and finally, display some prompts...
-				
-				batch.begin();
-				font.setUseIntegerPositions(false);
-				font.setScale(0.15f);
-				font.draw(batch, "Loading Complete!", 6f, -3f);
-				font.draw(batch, "Tap Screen to Play!", 5.5f, -6f);
-				
-				batch.end();
+				boardBaseTiles = TextureRegion.split(boardBase, 51, 51);
 				
 				// we are done loading, let's move on..
 				nowLoaded = true;
@@ -101,6 +84,14 @@ public class Splash extends Core implements Screen {
 		batch.disableBlending();
 		logo.draw(batch);
 		batch.enableBlending();
+		
+		// when loaded, let's display some prompts...
+		if ( nowLoaded ) {
+			font.setUseIntegerPositions(false);
+			font.setScale(0.2f);
+			font.draw(batch, "Loading Complete!", 8, -4);
+			font.draw(batch, "Tap Screen to Play!", 7, -8);
+		}
 		batch.end();
 	}	
 				// REMEMBER to request renders with:-

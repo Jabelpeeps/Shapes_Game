@@ -15,19 +15,15 @@ public class Line extends Shape {
 	public void select() {
 		this.setColor(1f, 0f, 0f, 1f);
 	}
-
 	@Override
 	public void deselect() {
 		this.setColor(1f, 1f, 1f, 1f);
-	}	
-	
+	}
 	@Override
 	public boolean checkMatch() {
-		// checks for matches when swapped.
-		
 		boolean matchmade = false;
-		int x = (int) getX()/3;
-		int y = (int) getY()/3;
+		int x = (int) getX();
+		int y = (int) getY();
 		
 		if ( m2(x-1, y, x+1, y, this) ) matchmade = true;
 		if ( m2(x-1, y, x-2, y, this) ) matchmade = true;

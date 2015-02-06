@@ -32,15 +32,7 @@ public class PlayGame extends Core implements Screen {
 
 // ---------------------------------------------Methods----------
 	@Override
-	public void render(float delta) {
-//		System.out.println("Continuous Rendering is:- " + Gdx.graphics.isContinuousRendering());
-		
-//		try {
-//			wait();
-//		} catch (InterruptedException e1) {
-//			e1.printStackTrace();
-//		}
-		
+	public void render(float delta) {		
 		// clear screen and update camera
 	    Gdx.gl.glClearColor(0, 0, 0.2f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -54,7 +46,7 @@ public class PlayGame extends Core implements Screen {
 		
 		for( int i=0; i<=9; i++ ) {
 		    	for( int j=0; j<=9; j++ ) {
-				    	baseSprites[i][j].draw(batch);
+				    	board.boardTile[i][j].draw(batch);
 				 	}           
 		}
 	    batch.enableBlending();

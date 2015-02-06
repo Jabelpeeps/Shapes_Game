@@ -5,9 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 public abstract class Shape extends Sprite {	
 // -------------------------------------------------Field(s)---------
 		protected String type;
-		public static GameBoard board;
-		public boolean matched = false;
-												
+		public static GameBoard board;												
 //  ----------------------------------------------Methods--------------- 
 		
 		// the 'm' methods are called from the various shape objects
@@ -43,9 +41,17 @@ public abstract class Shape extends Sprite {
 			} catch (ArrayIndexOutOfBoundsException e) {};
 			return false;
 		}
+		@Override
+		public float getX() {
+			return super.getX()/4;
+		}
+		@Override
+		public float getY() {
+			return super.getY()/4;
+		}
 		
 		public void setCenter(int x, int y) {
-			setCenter(x*3+1.5f, y*3+1.5f);
+			super.setCenter(x*4+2, y*4+2);
 		}
 		public abstract void select();
 		

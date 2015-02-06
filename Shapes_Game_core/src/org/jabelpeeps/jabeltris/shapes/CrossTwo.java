@@ -14,19 +14,15 @@ public class CrossTwo extends Shape {
 	public void select() {
 		this.setColor(0f, 0f, 1f, 1f);
 	}
-
 	@Override
 	public void deselect() {
 		this.setColor(1f, 1f, 1f, 1f);
 	}
-	
 	@Override
 	public boolean checkMatch() {
-		// checks for matches when swapped.
-		
 		boolean matchmade = false;
-		int x = (int) getX()/3;
-		int y = (int) getY()/3;
+		int x = (int) getX();
+		int y = (int) getY();
 		
 		// check for a full "X" cross
 		if ( m4(x-1, y-1, x+1, y+1, x-1, y+1, x+1, y-1, this) ) matchmade = true;

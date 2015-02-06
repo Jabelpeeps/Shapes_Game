@@ -14,19 +14,15 @@ public class Square extends Shape {
 	public void select() {
 		this.setColor(0f, 1f, 1f, 1f);
 	}
-
 	@Override
 	public void deselect() {
 		this.setColor(1f, 1f, 1f, 1f);
-	}	
-	
+	}
 	@Override
 	public boolean checkMatch() {
-		// checks for matches when swapped.
-		
 		boolean matchmade = false;
-		int x = (int) getX()/3;
-		int y = (int) getY()/3;
+		int x = (int) getX();
+		int y = (int) getY();
 		
 		if ( m3(x-1, y, x, y-1, x-1, y-1, this) ) matchmade = true;
 		if ( m3(x+1, y, x, y+1, x+1, y+1, this) ) matchmade = true;

@@ -20,11 +20,9 @@ public class CrossOne extends Shape {
 	}
 	@Override
 	public boolean checkMatch() {
-		// checks for matches when swapped.
-		
 		boolean matchmade = false;
-		int x = (int) getX()/3;
-		int y = (int) getY()/3;
+		int x = (int) getX();
+		int y = (int) getY();
 		
 		// check for a full upright cross (possibly too hard to achieve?)
 		if ( m4(x, y-1, x, y+1, x-1, y, x+1, y, this) ) matchmade = true;

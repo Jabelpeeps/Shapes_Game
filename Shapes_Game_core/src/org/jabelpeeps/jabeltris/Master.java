@@ -17,10 +17,9 @@ public abstract class Master {
 	
 	protected static RandomXS128 rand = new RandomXS128();
 	
-	protected Shape setOriginScaleAndBounds(Shape s, int x, int y) {
-		s.setOrigin(1.5f, 1.5f);
-//		s.setScale(0.9f);
-		s.setBounds(x*3, y*3, 3f, 3f);
+	protected Shape setOriginAndBounds(Shape s, int x, int y) {
+		s.setOrigin(2, 2);
+		s.setBounds(x*4, y*4, 4, 4);
 		
 		return s;
 	}
