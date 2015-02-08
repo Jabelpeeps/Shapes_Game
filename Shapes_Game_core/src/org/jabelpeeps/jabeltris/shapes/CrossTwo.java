@@ -20,32 +20,32 @@ public class CrossTwo extends Shape {
 		this.setColor(1f, 1f, 1f, 1f);
 	}
 	@Override
-	public boolean shapeMatch(int x, int y) {
+	public float shapeMatch(int x, int y) {
 		
-		boolean matchmade = false;
+		float matchesmade = 0f;
 		// check for a full "X" cross
-		if ( m4(x-1, y-1, x+1, y+1, x-1, y+1, x+1, y-1, this) ) matchmade = true;
-		if ( m4(x+1, y+1, x+2, y+2, x, y+2, x+2, y, this) ) matchmade = true;
-		if ( m4(x-1, y-1, x-2, y-2, x, y-2, x-2, y, this) ) matchmade = true;
-		if ( m4(x+1, y-1, x+2, y-2, x, y-2, x+2, y, this) ) matchmade = true;
-		if ( m4(x-1, y+1, x-2, y+2, x, y+2, x-2, y, this) ) matchmade = true;
+		if ( m4(x-1, y-1, x+1, y+1, x-1, y+1, x+1, y-1, this) ) { matchesmade += 0.2f; }
+		if ( m4(x+1, y+1, x+2, y+2, x, y+2, x+2, y, this) ) { matchesmade += 0.2f; }
+		if ( m4(x-1, y-1, x-2, y-2, x, y-2, x-2, y, this) ) { matchesmade += 0.2f; }
+		if ( m4(x+1, y-1, x+2, y-2, x, y-2, x+2, y, this) ) { matchesmade += 0.2f; }
+		if ( m4(x-1, y+1, x-2, y+2, x, y+2, x-2, y, this) ) { matchesmade += 0.2f; }
 		// check for the corners of an "X" only 
-		if ( m3(x+2, y, x, y-2, x+2, y-2, this) ) matchmade = true;
-		if ( m3(x-2, y, x, y+2, x-2, y+2, this) ) matchmade = true;
-		if ( m3(x+2, y, x, y+2, x+2, y+2, this) ) matchmade = true;
-		if ( m3(x-2, y, x, y-2, x-2, y-2, this) ) matchmade = true;
-		return matchmade; 
+		if ( m3(x+2, y, x, y-2, x+2, y-2, this) ) { matchesmade += 0.25f; }
+		if ( m3(x-2, y, x, y+2, x-2, y+2, this) ) { matchesmade += 0.25f; }
+		if ( m3(x+2, y, x, y+2, x+2, y+2, this) ) { matchesmade += 0.25f; }
+		if ( m3(x-2, y, x, y-2, x-2, y-2, this) ) { matchesmade += 0.25f; }
+
+		return matchesmade; 
 	}
 	@Override
 	protected boolean hintMatch(int x, int y) {
 		
 		boolean hintFound = false;
-		if ( shapeMatch(x, y+1) ) hintFound = true;
-		if ( shapeMatch(x, y-1) ) hintFound = true;
-		if ( shapeMatch(x+1, y) ) hintFound = true;
-		if ( shapeMatch(x-1, y) ) hintFound = true;
+		if ( shapeMatch(x, y+1) > 0f ) hintFound = true;
+		if ( shapeMatch(x, y-1) > 0f ) hintFound = true;
+		if ( shapeMatch(x+1, y) > 0f ) hintFound = true;
+		if ( shapeMatch(x-1, y) > 0f ) hintFound = true;
 		
-		//return false;
 		return hintFound;
 	}
 }

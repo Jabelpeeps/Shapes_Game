@@ -54,11 +54,14 @@ public class Core extends Game {
 	
 	@Override
 	public void dispose () {
-		batch.dispose();	
+		//this.setScreen(null);
+		boardBase.dispose();
 		atlas.dispose();
 		manager.dispose();
 		font.dispose();
-		boardBase.dispose();
+		batch.dispose();
+		//Gdx.app.exit();
+		//System.exit(0);
 	}
 
 	protected static void delay(long time) {

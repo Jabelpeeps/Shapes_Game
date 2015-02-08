@@ -63,12 +63,12 @@ public class Splash extends Core implements Screen {
 				Gdx.graphics.setContinuousRendering(false);
 				Gdx.graphics.requestRendering();
 			
-		} else if ( nowLoaded && !Gdx.input.isTouched() ) {
-				Gdx.graphics.requestRendering();
-				
+//		} else if ( nowLoaded && !Gdx.input.isTouched() ) {
+//				Gdx.graphics.requestRendering();
+//				
 		} else if ( nowLoaded && Gdx.input.isTouched() ) {
 				game.setScreen(new PlayGame(game, level));
-			    this.dispose();
+				dispose();
 		} 	
 	    logo.setScale(logoScale);
 		if (logoScale < 1 ) {

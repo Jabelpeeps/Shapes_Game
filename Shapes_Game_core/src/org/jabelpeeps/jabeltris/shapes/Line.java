@@ -20,19 +20,19 @@ public class Line extends Shape {
 		this.setColor(1f, 1f, 1f, 1f);
 	}
 	@Override
-	public boolean shapeMatch(int x, int y) {		
+	public float shapeMatch(int x, int y) {		
 		
-		boolean matchmade = false;
+		float matchesmade = 0f;
 		// horizontal lines
-		if ( m2(x-1, y, x+1, y, this) ) matchmade = true;
-		if ( m2(x-1, y, x-2, y, this) ) matchmade = true;
-		if ( m2(x+1, y, x+2, y, this) ) matchmade = true;
+		if ( m2(x-1, y, x+1, y, this) ) { matchesmade += 1f/3f; }
+		if ( m2(x-1, y, x-2, y, this) ) { matchesmade += 1f/3f; }
+		if ( m2(x+1, y, x+2, y, this) ) { matchesmade += 1f/3f; }
 		// vertical lines
-		if ( m2(x, y-1, x, y+1, this) ) matchmade = true;
-		if ( m2(x, y-1, x, y-2, this) ) matchmade = true;
-		if ( m2(x, y+1, x, y+2, this) ) matchmade = true;
-		
-		return matchmade;
+		if ( m2(x, y-1, x, y+1, this) ) { matchesmade += 1f/3f; }
+		if ( m2(x, y-1, x, y-2, this) ) { matchesmade += 1f/3f; }
+		if ( m2(x, y+1, x, y+2, this) ) { matchesmade += 1f/3f; }
+
+		return matchesmade;
 	}
 	@Override
 	protected boolean hintMatch(int x, int y) {
@@ -61,7 +61,6 @@ public class Line extends Shape {
 		if ( m2(x, y-2, x, y-3, this) ) hintFound = true;
 		if ( m2(x, y+2, x, y+3, this) ) hintFound = true;
 		
-		//return false;
 		return hintFound;
 	}
 }

@@ -20,9 +20,9 @@ public abstract class Master {
 	protected Shape setOriginAndBounds(Shape s, int x, int y) {
 		s.setOrigin(2, 2);
 		s.setBounds(x*4, y*4, 4, 4);
-		
 		return s;
 	}
 
 	public abstract Shape makeNewShape(int i, int j);
+	
 }

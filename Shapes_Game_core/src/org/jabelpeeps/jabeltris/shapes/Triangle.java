@@ -20,31 +20,31 @@ public class Triangle extends Shape {
 		this.setColor(1f, 1f, 1f, 1f);
 	}
 	@Override
-	public boolean shapeMatch(int x, int y) {		
+	public float shapeMatch(int x, int y) {		
 		
-		boolean matchmade = false;
+		float matchesmade = 0f;
 		// calling block at centre (4 rotations, order: up, down, right, left)
-		if ( m3(x-1, y, x+1, y, x, y+1, this) ) matchmade = true;
-		if ( m3(x-1, y, x+1, y, x, y-1, this) ) matchmade = true;
-		if ( m3(x+1, y, x, y-1, x, y+1, this) ) matchmade = true;
-		if ( m3(x-1, y, x, y-1, x, y+1, this) ) matchmade = true;
+		if ( m3(x-1, y, x+1, y, x, y+1, this) ) { matchesmade += 0.25f; }
+		if ( m3(x-1, y, x+1, y, x, y-1, this) ) { matchesmade += 0.25f; }
+		if ( m3(x+1, y, x, y-1, x, y+1, this) ) { matchesmade += 0.25f; }
+		if ( m3(x-1, y, x, y-1, x, y+1, this) ) { matchesmade += 0.25f; }
 		// calling block on left arm
-		if ( m3(x+1, y, x+2, y, x+1, y+1, this) ) matchmade = true;
-		if ( m3(x-1, y, x-2, y, x-1, y-1, this) ) matchmade = true;
-		if ( m3(x, y-1, x, y-2, x+1, y-1, this) ) matchmade = true;
-		if ( m3(x, y+1, x, y+2, x-1, y+1, this) ) matchmade = true;
+		if ( m3(x+1, y, x+2, y, x+1, y+1, this) ) { matchesmade += 0.25f; }
+		if ( m3(x-1, y, x-2, y, x-1, y-1, this) ) { matchesmade += 0.25f; }
+		if ( m3(x, y-1, x, y-2, x+1, y-1, this) ) { matchesmade += 0.25f; }
+		if ( m3(x, y+1, x, y+2, x-1, y+1, this) ) { matchesmade += 0.25f; }
 		// calling block on right arm
-		if ( m3(x-1, y, x-2, y, x-1, y+1, this) ) matchmade = true;
-		if ( m3(x+1, y, x+2, y, x+1, y-1, this) ) matchmade = true;
-		if ( m3(x, y+1, x, y+2, x+1, y+1, this) ) matchmade = true;
-		if ( m3(x, y-1, x, y-2, x-1, y-1, this) ) matchmade = true;
+		if ( m3(x-1, y, x-2, y, x-1, y+1, this) ) { matchesmade += 0.25f; }
+		if ( m3(x+1, y, x+2, y, x+1, y-1, this) ) { matchesmade += 0.25f; }
+		if ( m3(x, y+1, x, y+2, x+1, y+1, this) ) { matchesmade += 0.25f; }
+		if ( m3(x, y-1, x, y-2, x-1, y-1, this) ) { matchesmade += 0.25f; }
 		// calling block on centre arm
-		if ( m3(x-1, y-1, x+1, y-1, x, y-1, this) ) matchmade = true;
-		if ( m3(x-1, y+1, x+1, y+1, x, y+1, this) ) matchmade = true;
-		if ( m3(x-1, y+1, x-1, y-1, x-1, y, this) ) matchmade = true;
-		if ( m3(x+1, y+1, x+1, y-1, x+1, y, this) ) matchmade = true;
-		
-		return matchmade; 
+		if ( m3(x-1, y-1, x+1, y-1, x, y-1, this) ) { matchesmade += 0.25f; }
+		if ( m3(x-1, y+1, x+1, y+1, x, y+1, this) ) { matchesmade += 0.25f; }
+		if ( m3(x-1, y+1, x-1, y-1, x-1, y, this) ) { matchesmade += 0.25f; }
+		if ( m3(x+1, y+1, x+1, y-1, x+1, y, this) ) { matchesmade += 0.25f; }
+
+		return matchesmade; 
 	}
 	@Override
 	protected boolean hintMatch(int x, int y) {
@@ -88,6 +88,17 @@ public class Triangle extends Shape {
 			if ( m2(x+1, y, x+1, y-2, this) ) hintFound = true;
 			if ( m2(x+1, y+1, x+2, y, this) ) hintFound = true;
 		}
+		// the last block covers the moving of a block beside an 'L' shape.
+		// moving horizontally
+		if ( m3(x+2, y, x+3, y, x+2, y+1, this) ) hintFound = true;
+		if ( m3(x-2, y, x-3, y, x-2, y+1, this) ) hintFound = true;
+		if ( m3(x+2, y, x+3, y, x+2, y-1, this) ) hintFound = true;
+		if ( m3(x-2, y, x-3, y, x-2, y-1, this) ) hintFound = true;
+		// moving vertically
+		if ( m3(x, y+2, x, y+3, x+1, y+2, this) ) hintFound = true;
+		if ( m3(x, y+2, x, y+3, x-1, y+2, this) ) hintFound = true;
+		if ( m3(x, y-2, x, y-3, x+1, y-2, this) ) hintFound = true;
+		if ( m3(x, y-2, x, y-3, x-1, y-2, this) ) hintFound = true;
 		
 		return hintFound;
 	}

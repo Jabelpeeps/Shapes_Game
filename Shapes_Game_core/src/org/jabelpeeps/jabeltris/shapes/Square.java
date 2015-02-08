@@ -19,15 +19,15 @@ public class Square extends Shape {
 		this.setColor(1f, 1f, 1f, 1f);
 	}
 	@Override
-	public boolean shapeMatch(int x, int y) {		
+	public float shapeMatch(int x, int y) {		
 		
-		boolean matchmade = false;
-		if ( m3(x-1, y, x, y-1, x-1, y-1, this) ) matchmade = true;
-		if ( m3(x+1, y, x, y+1, x+1, y+1, this) ) matchmade = true;
-		if ( m3(x-1, y, x, y+1, x-1, y+1, this) ) matchmade = true;
-		if ( m3(x+1, y, x, y-1, x+1, y-1, this) ) matchmade = true;
-		
-		return matchmade; 
+		float matchesmade = 0f;
+		if ( m3(x-1, y, x, y-1, x-1, y-1, this) ) { matchesmade += 0.25f; }
+		if ( m3(x+1, y, x, y+1, x+1, y+1, this) ) { matchesmade += 0.25f; }
+		if ( m3(x-1, y, x, y+1, x-1, y+1, this) ) { matchesmade += 0.25f; }
+		if ( m3(x+1, y, x, y-1, x+1, y-1, this) ) { matchesmade += 0.25f; }
+
+		return matchesmade; 
 	}
 	@Override
 	protected boolean hintMatch(int x, int y) {
@@ -45,8 +45,7 @@ public class Square extends Shape {
 		// for position (x , y-1)
 		if ( m3(x-1, y-1, x-1, y-2, x, y-2, this) ) hintFound = true;
 		if ( m3(x+1, y-1, x+1, y-2, x, y-2, this) ) hintFound = true;
-		
-		//return false;
+
 		return hintFound; 
 	}
 }
