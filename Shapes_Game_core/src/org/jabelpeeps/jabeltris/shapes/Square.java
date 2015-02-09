@@ -19,33 +19,12 @@ public class Square extends Shape {
 		this.setColor(1f, 1f, 1f, 1f);
 	}
 	@Override
-	public float shapeMatch(int x, int y) {		
-		
+	public float shapeMatch(int x, int y, int xx, int yy) {	
 		float matchesmade = 0f;
-		if ( m3(x-1, y, x, y-1, x-1, y-1, this) ) { matchesmade += 0.25f; }
-		if ( m3(x+1, y, x, y+1, x+1, y+1, this) ) { matchesmade += 0.25f; }
-		if ( m3(x-1, y, x, y+1, x-1, y+1, this) ) { matchesmade += 0.25f; }
-		if ( m3(x+1, y, x, y-1, x+1, y-1, this) ) { matchesmade += 0.25f; }
-
+		if ( (yy != y-1) && (xx != x-1) && m(this, v(x-1, y), v(x, y-1), v(x-1, y-1)) ) { matchesmade += 0.25f; }
+		if ( (yy != y+1) && (xx != x+1) && m(this, v(x+1, y), v(x, y+1), v(x+1, y+1)) ) { matchesmade += 0.25f; }
+		if ( (yy != y+1) && (xx != x-1) && m(this, v(x-1, y), v(x, y+1), v(x-1, y+1)) ) { matchesmade += 0.25f; }
+		if ( (yy != y-1) && (xx != x+1) && m(this, v(x+1, y), v(x, y-1), v(x+1, y-1)) ) { matchesmade += 0.25f; }
 		return matchesmade; 
-	}
-	@Override
-	protected boolean hintMatch(int x, int y) {
-
-		boolean hintFound = false;
-		// for position (x+1 , y)
-		if ( m3(x+1, y+1, x+2, y+1, x+2, y, this) ) hintFound = true;
-		if ( m3(x+1, y-1, x+2, y-1, x+2, y, this) ) hintFound = true;
-		// for position (x-1 , y)
-		if ( m3(x-2, y, x-1, y+1, x-2, y+1, this) ) hintFound = true;
-		if ( m3(x-2, y, x-2, y-1, x-1, y-1, this) ) hintFound = true;
-		// for position (x , y+1)
-		if ( m3(x-1, y+1, x-1, y+2, x, y+2, this) ) hintFound = true;
-		if ( m3(x+1, y+1, x+1, y+2, x, y+2, this) ) hintFound = true;
-		// for position (x , y-1)
-		if ( m3(x-1, y-1, x-1, y-2, x, y-2, this) ) hintFound = true;
-		if ( m3(x+1, y-1, x+1, y-2, x, y-2, this) ) hintFound = true;
-
-		return hintFound; 
-	}
+	}	
 }

@@ -1,6 +1,7 @@
 package org.jabelpeeps.jabeltris;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Vector2;
 
 public abstract class Shape extends Sprite {	
 // -------------------------------------------------Field(s)---------
@@ -8,62 +9,25 @@ public abstract class Shape extends Sprite {
 		public static GameLogic logic;
 //  ----------------------------------------------Methods--------------- 
 		
-		// The 'm' methods are called from the various shape objects
-		// depending how many objects make up their matching shape.
+		// The 'm' method is called from the various shape objects, 
+		// to check for matches with their neighbours.
 		//
-		// The try/catch blocks are the quickest way to detect being
-		// asked to search for matches with shapes that would be off 
-		// the edge of the play area.
+		// The try/catch blocks are the quickest way to exclude matches
+		// with shapes that would be off the edge of the play area.
 		
-		protected boolean m1(int x1, int y1, Shape s) {
-			try {
-				if ( logic.getShape(x1, y1).type.equals(s.type) ) {
-						return true;
+		protected boolean m(Shape s, Vector2... xy) {
+			int matchesNeeded = xy.length;
+			try {		
+				for ( Vector2 each : xy ) {
+					if ( logic.getShape(each).type.equals(s.type) ) { matchesNeeded--; };
 				}
 			} catch (ArrayIndexOutOfBoundsException e) {};
+			if (  matchesNeeded == 0 ) return true;
 			return false;
 		}
-		protected boolean m2(int x1, int y1, int x2, int y2, Shape s) {
-			try {
-				if ( logic.getShape(x1, y1).type.equals(s.type)
-				  && logic.getShape(x2, y2).type.equals(s.type) ) {
-						return true;
-				}
-			} catch (ArrayIndexOutOfBoundsException e) {};
-			return false;
-		}
-		protected boolean m3(int x1, int y1, int x2, int y2, int x3, int y3, Shape s) {
-			try {
-				if ( logic.getShape(x1, y1).type.equals(s.type)
-				  && logic.getShape(x2, y2).type.equals(s.type)
-				  && logic.getShape(x3, y3).type.equals(s.type) ) {
-						return true;
-				}
-			} catch (ArrayIndexOutOfBoundsException e) {};
-			return false;
-		}
-		protected boolean m4(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Shape s) {
-			try {
-				if ( logic.getShape(x1, y1).type.equals(s.type)
-				  && logic.getShape(x2, y2).type.equals(s.type)
-				  && logic.getShape(x3, y3).type.equals(s.type)
-				  && logic.getShape(x4, y4).type.equals(s.type) ) {
-						return true;
-				}
-			} catch (ArrayIndexOutOfBoundsException e) {};
-			return false;
-		}
-		protected boolean m5(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, int x5, int y5, Shape s) {
-			try {
-				if ( logic.getShape(x1, y1).type.equals(s.type)
-				  && logic.getShape(x2, y2).type.equals(s.type)
-				  && logic.getShape(x3, y3).type.equals(s.type)
-				  && logic.getShape(x4, y4).type.equals(s.type)
-				  && logic.getShape(x5, y5).type.equals(s.type) ) {
-						return true;
-				}
-			} catch (ArrayIndexOutOfBoundsException e) {};
-			return false;
+		
+		protected Vector2 v(int x, int y) {
+			return new Vector2(x, y);			
 		}
 		@Override
 		public float getX() {
@@ -77,18 +41,26 @@ public abstract class Shape extends Sprite {
 		public void setPosition(float x, float y) {
 			super.setPosition(x*4, y*4);
 		}
-		
 		public float checkMatch() {
-			return shapeMatch( (int)getX(), (int)getY() );
+			int x = (int)getX();
+			int y = (int)getY();
+			return shapeMatch(x, y, x, y);
 		}
-		protected abstract float shapeMatch(int x, int y);
 		
 		public void findHint() {
 			if ( hintMatch( (int)getX(), (int)getY() ) ) {
-				logic.hintList.add(this);
+					logic.hintList.add(this);
 			}
 		}
-		protected abstract boolean hintMatch(int x, int y);
+		protected boolean hintMatch(int x, int y) {
+			boolean hintFound = false;
+			if ( shapeMatch(x+1, y, x, y) > 0f ) hintFound = true;
+			if ( shapeMatch(x-1, y, x, y) > 0f ) hintFound = true;
+			if ( shapeMatch(x, y+1, x, y) > 0f ) hintFound = true;
+			if ( shapeMatch(x, y-1, x, y) > 0f ) hintFound = true;
+			return hintFound;
+		}
+		protected abstract float shapeMatch(int x, int y, int xx, int yy);
 		
 		public abstract void select();
 		
