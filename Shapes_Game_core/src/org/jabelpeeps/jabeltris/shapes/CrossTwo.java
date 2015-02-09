@@ -24,16 +24,16 @@ public class CrossTwo extends Shape {
 		
 		float matchesmade = 0f;
 		// check for a full "X" cross
-		if ( m5(xx, yy, x-1, y-1, x+1, y+1, x-1, y+1, x+1, y-1, this) ) { matchesmade += 0.2f; }
-		if ( m5(xx, yy, x+1, y+1, x+2, y+2, x, y+2, x+2, y, this) ) { matchesmade += 0.2f; }
-		if ( m5(xx, yy, x-1, y-1, x-2, y-2, x, y-2, x-2, y, this) ) { matchesmade += 0.2f; }
-		if ( m5(xx, yy, x+1, y-1, x+2, y-2, x, y-2, x+2, y, this) ) { matchesmade += 0.2f; }
-		if ( m5(xx, yy, x-1, y+1, x-2, y+2, x, y+2, x-2, y, this) ) { matchesmade += 0.2f; }
+		if ( m(this, v(x-1, y-1), v(x+1, y+1), v(x-1, y+1), v(x+1, y-1)) ) { matchesmade += 0.2f; }
+		if ( m(this, v(x+1, y+1), v(x+2, y+2), v(x, y+2), v(x+2, y)) ) { matchesmade += 0.2f; }
+		if ( m(this, v(x-1, y-1), v(x-2, y-2), v(x, y-2), v(x-2, y)) ) { matchesmade += 0.2f; }
+		if ( m(this, v(x+1, y-1), v(x+2, y-2), v(x, y-2), v(x+2, y)) ) { matchesmade += 0.2f; }
+		if ( m(this, v(x-1, y+1), v(x-2, y+2), v(x, y+2), v(x-2, y)) ) { matchesmade += 0.2f; }
 		// check for the corners of an "X" only 
-		if ( m4(xx, yy, x+2, y, x, y-2, x+2, y-2, this) ) { matchesmade += 0.25f; }
-		if ( m4(xx, yy, x-2, y, x, y+2, x-2, y+2, this) ) { matchesmade += 0.25f; }
-		if ( m4(xx, yy, x+2, y, x, y+2, x+2, y+2, this) ) { matchesmade += 0.25f; }
-		if ( m4(xx, yy, x-2, y, x, y-2, x-2, y-2, this) ) { matchesmade += 0.25f; }
+		if ( m(this, v(x+2, y), v(x, y-2), v(x+2, y-2)) ) { matchesmade += 0.25f; }
+		if ( m(this, v(x-2, y), v(x, y+2), v(x-2, y+2)) ) { matchesmade += 0.25f; }
+		if ( m(this, v(x+2, y), v(x, y+2), v(x+2, y+2)) ) { matchesmade += 0.25f; }
+		if ( m(this, v(x-2, y), v(x, y-2), v(x-2, y-2)) ) { matchesmade += 0.25f; }
 
 		return matchesmade; 
 	}

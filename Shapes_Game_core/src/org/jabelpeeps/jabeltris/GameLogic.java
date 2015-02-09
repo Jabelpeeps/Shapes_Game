@@ -2,6 +2,7 @@ package org.jabelpeeps.jabeltris;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.ObjectSet.ObjectSetIterator;
 
@@ -272,11 +273,17 @@ public class GameLogic implements Runnable {
 //		System.out.println("---------------------------------");
 //		System.out.println("Test Score = " + score);
 //		System.out.println("---------------------------------");
+
+		Gdx.graphics.requestRendering();
+		Core.delay(500);
 		return;
 	}
 // ---------------------------------------------------------------------Getters and Setters
 	public Shape getShape(int x, int y) {
 		return shapeTile[x][y];
+	}
+	public Shape getShape(Vector2 xy) {
+		return shapeTile[ (int)xy.x ][ (int)xy.y ];
 	}
 	public int getXsize() {
 		return x_size;
