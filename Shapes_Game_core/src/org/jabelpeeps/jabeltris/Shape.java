@@ -79,16 +79,25 @@ public abstract class Shape extends Sprite {
 		}
 		
 		public float checkMatch() {
-			return shapeMatch( (int)getX(), (int)getY() );
+			int x = (int)getX();
+			int y = (int)getY();
+			return shapeMatch(x, y, x, y);
 		}
-		protected abstract float shapeMatch(int x, int y);
 		
 		public void findHint() {
 			if ( hintMatch( (int)getX(), (int)getY() ) ) {
-				logic.hintList.add(this);
+					logic.hintList.add(this);
 			}
 		}
-		protected abstract boolean hintMatch(int x, int y);
+		protected boolean hintMatch(int x, int y) {
+			boolean hintFound = false;
+			if ( shapeMatch(x+1, y, x, y) > 0f ) hintFound = true;
+			if ( shapeMatch(x-1, y, x, y) > 0f ) hintFound = true;
+			if ( shapeMatch(x, y+1, x, y) > 0f ) hintFound = true;
+			if ( shapeMatch(x, y-1, x, y) > 0f ) hintFound = true;
+			return hintFound;
+		}
+		protected abstract float shapeMatch(int x, int y, int xx, int yy);
 		
 		public abstract void select();
 		
