@@ -3,9 +3,9 @@ package org.jabelpeeps.jabeltris;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.math.Vector3;
 
-class InputEvents extends InputAdapter {
+class PlayAreaInput extends InputAdapter {
 // ---------------------------------------------Field(s)-------------
-		private final GameBoard board;
+		private final GameLogic logic;
 		private Vector3 touch = new Vector3();
 		private int dX = -10;
 		private int dY = -10;
@@ -14,13 +14,13 @@ class InputEvents extends InputAdapter {
 		private int xSaved = -10;
 		private int ySaved = -10;
 // ---------------------------------------------Constructor----------	
-		InputEvents(GameBoard b) {
-			board = b;
+		PlayAreaInput(GameLogic l) {
+			logic = l;
 		}
 // ---------------------------------------------Methods--------------	
 		@Override
 		public boolean touchDown(int x, int y, int pointer, int button) {
-			if ( board.isReadyForNewCandidates() ) {
+			if ( logic.isReadyForNewCandidates() ) {
 					
 				touch.set(x, y, 0);
 				Core.camera.unproject(touch);
@@ -29,7 +29,7 @@ class InputEvents extends InputAdapter {
 				
 				if ( outOfBounds(dX, dY) ) {                      // end event if touch was out of bounds 
 						if ( xSaved != -10 && ySaved != -10 ) {
-								board.getShape(xSaved, ySaved).deselect();
+								logic.getShape(xSaved, ySaved).deselect();
 						}
 						resetSavedTile();
 					
@@ -37,16 +37,16 @@ class InputEvents extends InputAdapter {
 						setSavedTile(dX, dY);
 						 
 				} else if ( xSaved == dX && ySaved == dY ) {      	// resets if this is second touch on same tile.
-						board.getShape(xSaved, ySaved).deselect();
+						logic.getShape(xSaved, ySaved).deselect();
 						resetSavedTile();
 						 
 				} else if ( !touching(xSaved, ySaved, dX, dY) ) { 	// runs if touch is not adjacent to selected tile.
-						board.getShape(xSaved, ySaved).deselect();
+						logic.getShape(xSaved, ySaved).deselect();
 						setSavedTile(dX, dY);
 						
 				} else {                                            // runs if none of the above conditions are true.
-						board.getShape(dX, dY).select();
-						board.setSwapCandidates(xSaved, ySaved, dX, dY);
+						logic.getShape(dX, dY).select();
+						logic.setSwapCandidates(xSaved, ySaved, dX, dY);
 						resetSavedTile();
 				}
 			}
@@ -54,7 +54,7 @@ class InputEvents extends InputAdapter {
 		}
 		@Override
 		public boolean touchUp(int x, int y, int pointer, int button) {
-			if ( board.isReadyForNewCandidates() ) {
+			if ( logic.isReadyForNewCandidates() ) {
 				
 				touch.set(x, y, 0);
 				Core.camera.unproject(touch);
@@ -66,11 +66,11 @@ class InputEvents extends InputAdapter {
 					|| ( outOfBounds(uX, uY) ) ) {            // - if touch released out of bounds
 				
 				} else if ( !touching(xSaved, ySaved, uX, uY) ) {    // end event if touch released too far from first tile.
-						board.getShape(xSaved, ySaved).deselect();
+						logic.getShape(xSaved, ySaved).deselect();
 						resetSavedTile();
 				} else {
-						board.getShape(uX, uY).select();
-						board.setSwapCandidates(xSaved, ySaved, uX, uY);
+						logic.getShape(uX, uY).select();
+						logic.setSwapCandidates(xSaved, ySaved, uX, uY);
 						resetSavedTile();
 				}
 			}
@@ -95,7 +95,7 @@ class InputEvents extends InputAdapter {
 			ySaved = -10;
 		}
 		private void setSavedTile(int x, int y) {
-			board.getShape(x, y).select();
+			logic.getShape(x, y).select();
 			xSaved = x;
 			ySaved = y;				
 		}

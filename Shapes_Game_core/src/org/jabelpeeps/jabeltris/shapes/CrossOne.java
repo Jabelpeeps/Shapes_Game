@@ -35,7 +35,7 @@ public class CrossOne extends Shape {
 	}
 	private float unfilledCross(int x, int y) {
 		float ufc = 0f;
-		if ( x >= 0 && y >=0 && x <= logic.getX() && y <= logic.getY() ) {
+		if ( x >= 0 && y >=0 && x <= logic.getXsize() && y <= logic.getYsize() ) {
 			// check for an unfilled cross (a rhomboid diamond)
 			if ( m3(x-1, y+1, x+1, y+1, x, y+2, this) ) { ufc += 0.25f; }
 			if ( m3(x-1, y-1, x+1, y-1, x, y-2, this) ) { ufc += 0.25f; }

@@ -1,6 +1,7 @@
 package org.jabelpeeps.jabeltris;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 
@@ -9,7 +10,7 @@ public class PlayGame extends Core implements Screen {
 // ---------------------------------------------Field(s)------------
 	final Core game;
 	final Master level;
-	final GameLogic logic;
+	static GameLogic logic;
 	static Thread gameLogic;
 	
 // ---------------------------------------------Constructor(s)--------	
@@ -22,8 +23,11 @@ public class PlayGame extends Core implements Screen {
 		logic = new GameLogic(level);
 		
 		// setup the actions to respond to user input.
-		Gdx.input.setInputProcessor( new InputEvents(logic) );
-		
+		InputMultiplexer multiplexer = new InputMultiplexer();
+		multiplexer.addProcessor( new BorderButtonsInput(logic) );
+		multiplexer.addProcessor( new PlayAreaInput(logic) );
+		Gdx.input.setInputProcessor(multiplexer);
+				
 		gameLogic = new Thread(logic);
 		gameLogic.start();
 		
@@ -35,7 +39,14 @@ public class PlayGame extends Core implements Screen {
 	@Override
 	public void render(float delta) {
 		
-		if ( !gameLogic.isAlive() ) return;
+		if ( !gameLogic.isAlive() ) {
+			font.setScale(0.3f);
+			batch.begin();
+			font.draw(batch, "GAME", 10, -2);
+			font.draw(batch, "OVER", 10, -8);
+			batch.end();
+			return;
+		}
 				
 		// clear screen and update camera
 	    Gdx.gl.glClearColor(0, 0, 0.2f, 1);
@@ -45,17 +56,20 @@ public class PlayGame extends Core implements Screen {
 		batch.setProjectionMatrix(camera.combined);
 		
 		batch.begin();
-		batch.disableBlending();
+
+		font.draw(batch, "Score:- " + logic.getScore(), 4, 50);
+		font.draw(batch, "Possible moves:- " + logic.getNumberOfHints(), 4, 46);
 		
-		for( int i = 0; i < logic.getX(); i++ ) {
-		    	for( int j = 0; j < logic.getY(); j++ ) {
+		batch.disableBlending();
+		for( int i = 0; i < logic.getXsize(); i++ ) {
+		    	for( int j = 0; j < logic.getYsize(); j++ ) {
 				    	logic.boardTile[i][j].draw(batch);
 				 	}           
 		}
 	    batch.enableBlending();
 	    
-	    for( int i = 0; i < logic.getX(); i++ ) {
-		    	for( int j = 0; j < logic.getY(); j++ ) {
+	    for( int i = 0; i < logic.getXsize(); i++ ) {
+		    	for( int j = 0; j < logic.getYsize(); j++ ) {
 				    	try {
 					    	logic.getShape(i, j).draw(batch);
 					    } catch (NullPointerException e) {

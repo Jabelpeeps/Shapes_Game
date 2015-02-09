@@ -85,7 +85,6 @@ public abstract class Shape extends Sprite {
 		
 		public void findHint() {
 			if ( hintMatch( (int)getX(), (int)getY() ) ) {
-//				System.out.print("(" + (int)getX() + ", " + (int)getY() + ") ");
 				logic.hintList.add(this);
 			}
 		}
