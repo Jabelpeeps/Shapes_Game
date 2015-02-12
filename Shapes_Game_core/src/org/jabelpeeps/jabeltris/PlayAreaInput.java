@@ -1,31 +1,36 @@
 package org.jabelpeeps.jabeltris;
 
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
-class PlayAreaInput extends InputAdapter {
+public class PlayAreaInput extends InputAdapter {
 // ---------------------------------------------Field(s)-------------
 		private final GameLogic logic;
 		private Vector3 touch = new Vector3();
-		private int dX = -10;
-		private int dY = -10;
-		private int uX = -10;
-		private int uY = -10;
+		private final Vector2 DIAG = new Vector2(1, 1);
 		private int xSaved = -10;
 		private int ySaved = -10;
+		private int x_size, y_size;
 // ---------------------------------------------Constructor----------	
-		PlayAreaInput(GameLogic l) {
-			logic = l;
+		public PlayAreaInput(GameLogic l) {
+				this(l, 10, 10);
 		}
-// ---------------------------------------------Methods--------------	
+		public PlayAreaInput(GameLogic l, int x, int y) {
+				logic = l;
+				x_size = x;
+				y_size = y;
+		}
+		// ---------------------------------------------Methods--------------	
 		@Override
 		public boolean touchDown(int x, int y, int pointer, int button) {
 			if ( logic.isReadyForNewCandidates() ) {
 					
 				touch.set(x, y, 0);
 				Core.camera.unproject(touch);
-				dX = (int) touch.x/4;
-				dY = (int) touch.y/4;
+				int dX = (int) touch.x/4;
+				int dY = (int) touch.y/4;
 				
 				if ( outOfBounds(dX, dY) ) {                      // end event if touch was out of bounds 
 						if ( xSaved != -10 && ySaved != -10 ) {
@@ -53,18 +58,40 @@ class PlayAreaInput extends InputAdapter {
 			return true;
 		}
 		@Override
+		public boolean touchDragged(int x, int y, int pointer) {
+			if ( logic.isReadyForNewCandidates() ) {
+				touch.set(x, y, 0);
+				Core.camera.unproject(touch);
+				int tX = (int) touch.x/4;
+				int tY = (int) touch.y/4;
+				int dragUP = MathUtils.clamp( (tY-ySaved), -1, 1);
+				int dragRIGHT = MathUtils.clamp( (tX-xSaved), -1, 1);
+				float diagTest = DIAG.dot(dragRIGHT, dragUP);
+				if ( 	   !(tX == xSaved && tY == ySaved) 
+						&& !(xSaved == -10 && ySaved == -10)
+						&& !outOfBounds(tX, tY) 
+						&& diagTest*diagTest == 1 
+						&& touching(xSaved, ySaved, tX, tY) ) {
+					logic.setSwapCandidates(xSaved, ySaved, tX, tY);
+					resetSavedTile();
+					return true;
+				}
+			}
+			return false;
+		}
+		@Override
 		public boolean touchUp(int x, int y, int pointer, int button) {
 			if ( logic.isReadyForNewCandidates() ) {
 				
 				touch.set(x, y, 0);
 				Core.camera.unproject(touch);
-				uX = (int) touch.x/4;
-				uY = (int) touch.y/4;
-															// end event if any of these are true (leaving tile selected by touchDown):- 
+				int uX = (int) touch.x/4;
+				int uY = (int) touch.y/4;
+															
 				if ( ( uX == xSaved && uY == ySaved )  		// - if touch released where started
 					|| ( xSaved == -10 && ySaved == -10 )  	// - if it is still the end of the first touch.
-					|| ( outOfBounds(uX, uY) ) ) {            // - if touch released out of bounds
-				
+					|| ( outOfBounds(uX, uY) ) ) {          // - if touch released out of bounds
+															// Do nothing...
 				} else if ( !touching(xSaved, ySaved, uX, uY) ) {    // end event if touch released too far from first tile.
 						logic.getShape(xSaved, ySaved).deselect();
 						resetSavedTile();
@@ -78,7 +105,7 @@ class PlayAreaInput extends InputAdapter {
 		}
 
 		private boolean outOfBounds(int x, int y) {
-			if ( x < 0 || y < 0 || x > 9 || y > 9 ) {
+			if ( x < 0 || y < 0 || x >= x_size || y >= y_size ) {
 					return true;
 			} 
 			return false;

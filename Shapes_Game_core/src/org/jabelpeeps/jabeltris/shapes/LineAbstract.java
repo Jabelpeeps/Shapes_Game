@@ -1,24 +1,11 @@
 package org.jabelpeeps.jabeltris.shapes;
 
-import org.jabelpeeps.jabeltris.Master;
 import org.jabelpeeps.jabeltris.Shape;
 
 
-public class Line extends Shape {
+public abstract class LineAbstract extends Shape {
 	
-	public Line() {
-		this.setRegion(Master.line);
-		type = "line";
-	}
-
-	@Override
-	public void select() {
-		this.setColor(1f, 0f, 0f, 1f);
-	}
-	@Override
-	public void deselect() {
-		this.setColor(1f, 1f, 1f, 1f);
-	}
+	
 	@Override
 	protected float shapeMatch(int x, int y, int xx, int yy) {
 		

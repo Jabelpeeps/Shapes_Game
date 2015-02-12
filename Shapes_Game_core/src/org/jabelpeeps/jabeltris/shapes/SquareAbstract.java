@@ -1,23 +1,9 @@
 package org.jabelpeeps.jabeltris.shapes;
 
-import org.jabelpeeps.jabeltris.Master;
 import org.jabelpeeps.jabeltris.Shape;
 
-public class Square extends Shape {
-	
-	public Square() {
-		this.setRegion(Master.square);
-		type = "square";
-	}			
+public abstract class SquareAbstract extends Shape {
 
-	@Override
-	public void select() {
-		this.setColor(0f, 1f, 1f, 1f);
-	}
-	@Override
-	public void deselect() {
-		this.setColor(1f, 1f, 1f, 1f);
-	}
 	@Override
 	public float shapeMatch(int x, int y, int xx, int yy) {	
 		float matchesmade = 0f;

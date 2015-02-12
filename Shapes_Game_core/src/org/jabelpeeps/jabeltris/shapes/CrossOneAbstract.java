@@ -1,27 +1,14 @@
 package org.jabelpeeps.jabeltris.shapes;
 
-import org.jabelpeeps.jabeltris.Master;
 import org.jabelpeeps.jabeltris.Shape;
 
-public class CrossOne extends Shape {
+public abstract class CrossOneAbstract extends Shape {
 	// crossone is the '+' shape.
 	
-	public CrossOne() {
-		this.setRegion(Master.crossone);
-		type = "crossone";
-	}
-	
-	@Override
-	public void select() {
-		this.setColor(0f, 1f, 0f, 1f);
-	}
-	@Override
-	public void deselect() {
-		this.setColor(1f, 1f, 1f, 1f);
-	}
 	@Override
 	protected float shapeMatch(int x, int y, int xx, int yy) {
-		
+		int xs = logic.getXsize()-1;
+		int ys = logic.getYsize()-1;
 		float matchesmade = 0f;
 		// check for a full upright cross
 		if ( (yy != y-1) && (yy != y+1) && (xx != x+1) && (xx != x-1) 
@@ -31,10 +18,10 @@ public class CrossOne extends Shape {
 		if ( (xx != x+1) && m(this, v(x+1, y), v(x+2, y), v(x+1, y-1), v(x+1, y+1)) ) { matchesmade += 0.2f; }
 		if ( (xx != x-1) && m(this, v(x-1, y), v(x-2, y), v(x-1, y-1), v(x-1, y+1)) ) { matchesmade += 0.2f; }
 		// check for an unfilled cross (a rhomboid diamond)
-		if ( m(this, v(x-1, y+1), v(x+1, y+1), v(x, y+2)) ) { matchesmade += 0.25f; }
-		if ( m(this, v(x-1, y-1), v(x+1, y-1), v(x, y-2)) ) { matchesmade += 0.25f; }
-		if ( m(this, v(x+1, y+1), v(x+1, y-1), v(x+2, y)) ) { matchesmade += 0.25f; }
-		if ( m(this, v(x-1, y+1), v(x-1, y-1), v(x-2, y)) ) { matchesmade += 0.25f; }
+		if ( !(yy == y+1 && yy == 0) && m(this, v(x-1, y+1), v(x+1, y+1), v(x, y+2)) ) { matchesmade += 0.25f; }
+		if ( !(yy == y-1 && yy == ys) && m(this, v(x-1, y-1), v(x+1, y-1), v(x, y-2)) ) { matchesmade += 0.25f; }
+		if ( !(xx == x+1 && xx == 0) && m(this, v(x+1, y+1), v(x+1, y-1), v(x+2, y)) ) { matchesmade += 0.25f; }
+		if ( !(xx == x-1 && xx == xs) && m(this, v(x-1, y+1), v(x-1, y-1), v(x-2, y)) ) { matchesmade += 0.25f; }
 		
 		return matchesmade; 
 	}

@@ -1,20 +1,21 @@
 package org.jabelpeeps.jabeltris;
 
-import org.jabelpeeps.jabeltris.levels.Level1;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 
 public class Splash extends Core implements Screen {
 	
 // -------------------------------------------------Fields---------	
 	private final Core game;
 	private Sprite logo;
-	Master level = new Level1();
+	private int loadingStage = 1;
 	private boolean nowLoaded = false;
 	private float logoScale = 0.1f;
 	private String logoScaling = "up";
@@ -32,25 +33,63 @@ public class Splash extends Core implements Screen {
 	public void render(float delta) {
 		
 		if ( manager.update() && !nowLoaded ) {
-	    					
+			
+			switch (loadingStage++) {
+			case 1:			
 				// unpack the resources from the asset manager
 				atlas = manager.get("pack.atlas");
 				boardBase = manager.get("board10x10.jpg");
-	
-				Master.line = atlas.findRegion("line");
-				Master.square = atlas.findRegion("square");
-				Master.triangle = atlas.findRegion("triangle");
-				Master.crossone = atlas.findRegion("crossone");
-				Master.crosstwo = atlas.findRegion("crosstwo");
-				
-
+				break;
+			case 2:	
+				LevelMaster.line = atlas.findRegion("line");
+				LevelMaster.square = atlas.findRegion("square");
+				LevelMaster.triangle = atlas.findRegion("triangle");
+				break;
+			case 3:
+				LevelMaster.crossone = atlas.findRegion("crossone");
+				LevelMaster.crosstwo = atlas.findRegion("crosstwo");
+				LevelMaster.invcrone = atlas.findRegion("invcrone");
+				break;
+			case 4:
+				LevelMaster.invcrtwo = atlas.findRegion("invcrtwo");
+				LevelMaster.invline = atlas.findRegion("invline");
+				LevelMaster.invsqr = atlas.findRegion("invsqr");
+				break;
+			case 5:
+				LevelMaster.invtri = atlas.findRegion("invtri");
+				LevelMaster.greysqr = atlas.findRegion("greysqr");
+				LevelMaster.greytri = atlas.findRegion("greytri");
+				break;
+			case 6:
+				LevelMaster.greyline = atlas.findRegion("greyline");
+				LevelMaster.greycrone = atlas.findRegion("greycrone");
+				LevelMaster.greycrtwo = atlas.findRegion("greycrtwo");
+				break;
+			case 7:
 				boardBaseTiles = TextureRegion.split(boardBase, 51, 51);
-				
+				break;
+			case 8:
+				// Font Loader
+				FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("ComfortaaRegular.ttf"));
+				FreeTypeFontParameter parameter = new FreeTypeFontParameter();
+				parameter.size = 18;
+				parameter.characters = MY_CHARS;
+				parameter.packer = null;
+				parameter.genMipMaps = true;
+				parameter.minFilter = TextureFilter.MipMapLinearLinear;
+				parameter.magFilter = TextureFilter.Linear;
+				font = generator.generateFont(parameter); 
+				generator.dispose();                                   // dispose to avoid memory leaks!
+				font.setScale(0.2f);
+				font.setUseIntegerPositions(false);
+								
 				// we are done loading, let's move on..
 				nowLoaded = true;
-				
+				break;
+			}	
 		} else if ( nowLoaded && Gdx.input.isTouched() ) {
-				game.setScreen(new PlayGame(game, level));
+				game.setScreen(new MainMenu(game));
+				//game.setScreen(new PlayGame(game, level));
 				dispose();
 		} 	
 	    
@@ -74,7 +113,7 @@ public class Splash extends Core implements Screen {
 		} else {
 			logo.setScale(logoScale);
 		    if ( logoScale >= 1f ) {
-		    		Core.delay(400);
+		    		Core.delay(200);
 		    		logoScaling = "down";
 		    }
 			if ( logoScaling == "up" ) {

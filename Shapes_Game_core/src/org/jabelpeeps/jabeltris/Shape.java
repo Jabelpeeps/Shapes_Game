@@ -7,6 +7,7 @@ public abstract class Shape extends Sprite {
 // -------------------------------------------------Field(s)---------
 		protected String type;
 		public static GameLogic logic;
+		private Vector2 oldXY = new Vector2();
 //  ----------------------------------------------Methods--------------- 
 		
 		// The 'm' method is called from the various shape objects, 
@@ -14,20 +15,27 @@ public abstract class Shape extends Sprite {
 		//
 		// The try/catch blocks are the quickest way to exclude matches
 		// with shapes that would be off the edge of the play area.
+		//
+		// As the checking of matches gets through many Vector2 objects, 
+		// they are provided from a pool, and reused (in method 'v').
 		
 		protected boolean m(Shape s, Vector2... xy) {
 			int matchesNeeded = xy.length;
+			
 			try {		
 				for ( Vector2 each : xy ) {
-					if ( logic.getShape(each).type.equals(s.type) ) { matchesNeeded--; };
+					if ( logic.getShape(each).type.equals(s.type) ) { 
+						matchesNeeded--; 
+					}
+					Core.vector2Pool.free(each);
 				}
 			} catch (ArrayIndexOutOfBoundsException e) {};
+			
 			if (  matchesNeeded == 0 ) return true;
 			return false;
 		}
-		
 		protected Vector2 v(int x, int y) {
-			return new Vector2(x, y);			
+			return Core.vector2Pool.obtain().set(x, y);
 		}
 		@Override
 		public float getX() {
@@ -41,15 +49,21 @@ public abstract class Shape extends Sprite {
 		public void setPosition(float x, float y) {
 			super.setPosition(x*4, y*4);
 		}
-		public float checkMatch() {
-			int x = (int)getX();
-			int y = (int)getY();
+		public void saveXY() {
+			oldXY.set( getX(), getY() );
+		}
+		public int getSavedX() {
+			return (int) oldXY.x;
+		}
+		public int getSavedY() {
+			return (int) oldXY.y;
+		}
+		public float checkMatch(int x, int y) {
 			return shapeMatch(x, y, x, y);
 		}
-		
-		public void findHint() {
+		public void addHintsToHintList() {
 			if ( hintMatch( (int)getX(), (int)getY() ) ) {
-					logic.hintList.add(this);
+					logic.addHint(this);
 			}
 		}
 		protected boolean hintMatch(int x, int y) {
@@ -65,4 +79,5 @@ public abstract class Shape extends Sprite {
 		public abstract void select();
 		
 		public abstract void deselect();
+		
 	}

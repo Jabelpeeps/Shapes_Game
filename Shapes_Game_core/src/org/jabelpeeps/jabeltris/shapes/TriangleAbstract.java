@@ -1,24 +1,10 @@
 package org.jabelpeeps.jabeltris.shapes;
 
-import org.jabelpeeps.jabeltris.Master;
 import org.jabelpeeps.jabeltris.Shape;
 
-public class Triangle extends Shape {
+public abstract class TriangleAbstract extends Shape {
 	// really a short 'T' shape, but triangle sounded better.
 	
-	public Triangle() {
-		this.setRegion(Master.triangle);
-		type = "triangle";
-	}		
-
-	@Override
-	public void select() {
-		this.setColor(1f, 0f, 1f, 1f);
-	}
-	@Override
-	public void deselect() {
-		this.setColor(1f, 1f, 1f, 1f);
-	}
 	@Override
 	public float shapeMatch(int x, int y, int xx, int yy) {		
 		

@@ -1,24 +1,10 @@
 package org.jabelpeeps.jabeltris.shapes;
 
-import org.jabelpeeps.jabeltris.Master;
 import org.jabelpeeps.jabeltris.Shape;
 
-public class CrossTwo extends Shape {
+public abstract class CrossTwoAbstract extends Shape {
 	// crosstwo is the 'X' shape
 	
-	public CrossTwo() {
-		this.setRegion(Master.crosstwo);
-		type = "crosstwo";
-	}
-
-	@Override
-	public void select() {
-		this.setColor(0f, 0f, 1f, 1f);
-	}
-	@Override
-	public void deselect() {
-		this.setColor(1f, 1f, 1f, 1f);
-	}
 	@Override
 	public float shapeMatch(int x, int y, int xx, int yy) {
 		
