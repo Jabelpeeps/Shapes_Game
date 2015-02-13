@@ -5,6 +5,7 @@ import org.jabelpeeps.jabeltris.levels.EndlessLevelDark;
 import org.jabelpeeps.jabeltris.levels.TrainingLevel1;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -15,21 +16,32 @@ public class MainMenu extends Core implements Screen {
 // -------------------------------------------------Fields---------	
 	private final Core game;
 	Vector3 touch = new Vector3();
+	char key;
 	private int menuScreen = 1;
 	LevelMaster level;
 // ------------------------------------------------Constructor-----
 	MainMenu(final Core g) {
 		game = g;
-		
+		Gdx.input.setCatchBackKey(true);		
 		Gdx.input.setInputProcessor(new InputAdapter() {
-			
+						
 			@Override
 			public boolean touchDown(int x, int y, int p, int b) {
 				touch.set(x, y, 0);
 				camera.update();
 				batch.setProjectionMatrix(camera.combined);
 				Core.camera.unproject(touch);
-				
+				key = Keys.UNKNOWN;
+				return switchCase();
+			}
+			@Override
+			public boolean keyTyped(char typed) {
+				key = typed;
+				touch.set(0, 0, 0);
+				return switchCase();
+			}
+			
+			private boolean switchCase() {
 				switch ( menuScreen ) {
 				case 1:
 					optionsCase1();
@@ -41,7 +53,7 @@ public class MainMenu extends Core implements Screen {
 					optionsCase5();
 				default:
 					break;
-				}				
+				}
 				return true;
 			}
 		});
@@ -98,7 +110,7 @@ public class MainMenu extends Core implements Screen {
 	private void displayCase2() {
 			batch.begin();
 			font.draw(batch, "Endless Play", 6, 48);
-			font.draw(batch, "________________", 6, 47);
+			font.draw(batch, "______________", 6, 47);
 			font.draw(batch, "For practice...", 4, 40);
 			font.draw(batch, "...or meditation", 8, 36);
 			font.draw(batch, "The board will be", 4, 30);
@@ -113,7 +125,7 @@ public class MainMenu extends Core implements Screen {
 	private void optionsCase2() {
 		if ( touchY(10) ) menuScreen = 3;
 		if ( touchY(6) ) menuScreen = 4;
-		if ( touchY(-6) ) menuScreen = 1;
+		if ( touchY(-6) || key == Keys.BACK || key == Keys.BACKSPACE ) menuScreen = 1;
 	}
 // ------------------------------------------MenuLevel 5----------	
 	private void displayCase5() {
@@ -134,7 +146,7 @@ public class MainMenu extends Core implements Screen {
 	}
 	private void optionsCase5() {
 		if ( touchY(4) ) menuScreen = 6;
-		if ( touchY(-6) ) menuScreen = 1;
+		if ( touchY(-6) || key == Keys.BACK || key == Keys.BACKSPACE ) menuScreen = 1;
 	}
 // -------------------------------------------------------------------
 	private boolean touchY(int min) {

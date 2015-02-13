@@ -66,7 +66,7 @@ public class Splash extends Core implements Screen {
 				LevelMaster.greycrtwo = atlas.findRegion("greycrtwo");
 				break;
 			case 7:
-				boardBaseTiles = TextureRegion.split(boardBase, 51, 51);
+				boardBaseTiles = TextureRegion.split(boardBase, 50, 50);
 				break;
 			case 8:
 				// Font Loader

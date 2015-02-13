@@ -14,7 +14,7 @@ public class GameLogic implements Runnable {
 	private static int x_size, y_size;
 	private Array<Shape> matchList = new Array<Shape>(false, 32);
 	private Array<Shape> newShapeList = new Array<Shape>(false, 32);
-	Array<Shape> hintList = new Array<Shape>(false, 32);
+	private Array<Shape> hintList = new Array<Shape>(false, 32);
 	private Array<Shape> shuffleListTopLeft = new Array<Shape>(false, 32, Shape.class);
 	private Array<Shape> shuffleListTopRight = new Array<Shape>(false, 32, Shape.class);
 	private Array<Shape> shuffleListBottomLeft = new Array<Shape>(false, 32, Shape.class);
@@ -30,6 +30,7 @@ public class GameLogic implements Runnable {
 	private boolean shuffleCalled = false;
 	private boolean hintRequested = false;
 	private boolean endlessPlayMode = false;
+	private boolean backKeyPressed = false;
 	private String message = "Game Initialising";
 // ---------------------------------------------Constructor(s)--------
 		
@@ -46,7 +47,7 @@ public class GameLogic implements Runnable {
 		   		
    		for( int i = 0; i < x_size; i++ ) {
 	    	for( int j = 0; j < y_size; j++ ) {
-			    boardTile[i][j] = new Sprite(Core.boardBaseTiles[i][y_size - j -1]);
+			    boardTile[i][j] = new Sprite(Core.boardBaseTiles[i][(y_size-j-1)%10]);
 			    boardTile[i][j].setBounds(i*4, j*4, 4, 4);
 			}           
 		}
@@ -63,6 +64,15 @@ public class GameLogic implements Runnable {
 		findHintsOnBoard();
 		            			       // From here, this is is the main loop of the game logic.
 		do { 
+			if ( backKeyPressed ) {
+				synchronized ( level ) {
+					try {
+						wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 			if ( hintRequested ) {
 				hintList.first().select();
 			}
@@ -88,7 +98,8 @@ public class GameLogic implements Runnable {
 	}							                  // The end of the main logic loop.
 // -------------------------------------------------------------------------------------
 	
-	void findHintsOnBoard() {   			// method adds potential moves to hintList.
+	void findHintsOnBoard() {   			// adds potential moves to hintList.
+		hintList.clear();
 		for ( int i = 0; i < x_size; i++ ) {
 			for ( int j = 0; j < y_size; j++ ) {
 			    	shapeTile[i][j].addHintsToHintList();	      
@@ -131,8 +142,18 @@ public class GameLogic implements Runnable {
 	    }
 		return matchesFound;
 	}
-	
+	void blinkList(long time, int repeats, Array<Shape> list) {
+		for ( int i = 1; i<= repeats; i++ ) {
+			for ( Shape each : matchList ) each.select();
+			Gdx.graphics.requestRendering();
+			Core.delay(time);
+			for ( Shape each : matchList ) each.deselect();
+			Gdx.graphics.requestRendering();
+			Core.delay(time);
+		}
+	}
 	void replaceMatchedShapes() {
+		blinkList(100, 2, matchList);
 		for ( int a = 1; a <= 9; a++ ) {      		// animates the shrinking of the Shape sprites.
 			for ( Shape each : matchList ) {
 				each.setScale( 1f - a * 0.1f );
@@ -158,8 +179,7 @@ public class GameLogic implements Runnable {
 			Core.delay(40);
 		}
 		matchList.clear();
-		newShapeList.clear();								
-		hintList.clear();
+		newShapeList.clear();
 		message = " ";
 	}	
 	
@@ -168,7 +188,14 @@ public class GameLogic implements Runnable {
 		shapesClearedSinceLastMove = 0;
 		matchesSinceLastMove = 0f;
 		
-		selectAndSwap(x1, y1, x2, y2);              			// Swap the shapes... 
+		shapeTile[x1][y1].select();
+		Core.delay(20);
+		Gdx.graphics.requestRendering();
+		animateSwap(x1, y1, x2, y2);              				// Swap the shapes... 
+		shapeTile[x2][y2].deselect();
+		Core.delay(20);
+		Gdx.graphics.requestRendering();
+		
 		while ( boardHasMatches(60) ) {							// run the board...
 			shapesClearedSinceLastMove += matchList.size;
 			matchesWereFound = true; 	
@@ -182,29 +209,25 @@ public class GameLogic implements Runnable {
 			totalShapesCleared += shapesClearedSinceLastMove;
 			score += Math.pow(matchesSinceLastMove, 3) * totalMatches * shapesClearedSinceLastMove;
 			Gdx.graphics.requestRendering();
+			findHintsOnBoard();
 		} else {
 			Core.delay(80);
-			selectAndSwap(x1, y1, x2, y2);						// or swap shapes back no match found
+			animateSwap(x1, y1, x2, y2);						// or swap shapes back no match found
 		}
 		candidatesAreSet = false;               	// re-open input variables from graphics/input thread.
 	}
-	
-	void selectAndSwap(int x1, int y1, int x2, int y2) {
-		shapeTile[x1][y1].select();
-		shapeTile[x2][y2].select();
-		Gdx.graphics.requestRendering();
+	void animateSwap(int x1, int y1, int x2, int y2) {
 		
-		for ( int a = 1; a <= 8; a++ ) {			// animate shapes into their new positions.
+		for ( int a = 1; a <= 8; a++ ) {	// animate shapes into their new positions.
 			moveShape(x1, y1, x2, y2, a);
 			moveShape(x2, y2, x1, y1, a);
 			Gdx.graphics.requestRendering();
 			Core.delay(20);
-		}
-		shapeTile[x1][y1].deselect();
-		shapeTile[x2][y2].deselect();
-		Gdx.graphics.requestRendering();
-		
-		Shape tmpShape = shapeTile[x1][y1];			// update game board with new positions.
+		}		
+		shapeTileArraySwap(x1, y1, x2, y2); // update game board with new positions.
+	}
+	void shapeTileArraySwap(int x1, int y1, int x2, int y2) {
+		Shape tmpShape = shapeTile[x1][y1];			
 		shapeTile[x1][y1] = shapeTile[x2][y2];
 		shapeTile[x2][y2] = tmpShape;
 	}
@@ -217,6 +240,8 @@ public class GameLogic implements Runnable {
 		s.setPosition( oldX + (newX-oldX)*anim8/8, oldY + (newY-oldY)*anim8/8 );
 	}
 	void shuffleBoard() {
+		message = "Shuffling Board";
+		Gdx.graphics.requestRendering();
 		int halfX = (x_size+1)/2;        // produce halves that round up, instead of down.
 		int halfY = (y_size+1)/2;
 		for ( int i = 0; i < x_size/2; i++ ) {					// divide shapes between four Arrays, depending on their quadrant.
@@ -239,7 +264,7 @@ public class GameLogic implements Runnable {
 				shuffleListTopRight.add( shapeTile[i + halfX][y_size/2] );
 			}
 		}
-		for ( int i = 0; i < x_size; i++ ) {
+		for ( int i = 0; i < x_size; i++ ) {			// saving x&y now makes the animation easier to run smoothly.
 			for (int j = 0; j < y_size; j++ ) {
 				shapeTile[i][j].saveXY();
 			}
@@ -260,7 +285,7 @@ public class GameLogic implements Runnable {
 				}
 			}
 			int savedArrayIndex = arrayIndex;
-			if ( halfX != x_size/2 ) {                              // a couple more short loops to cover odd sized boards
+			if ( halfX != x_size/2 ) {                             	// a couple more short loops for odd sized boards
 				for ( int j = 0; j < y_size/2; j++ ) {
 					shapeTile[x_size/2][j] = shuffleListTopLeft.items[arrayIndex];
 					shapeTile[x_size/2][j + halfY] = shuffleListBottomRight.items[arrayIndex];
@@ -275,10 +300,10 @@ public class GameLogic implements Runnable {
 					arrayIndex++;
 				}
 			}
-		} while ( boardHasMatches(0) );
+		} while ( boardHasMatches(0) );    // repeat shuffle without animation until position found without any matches.
 		matchList.clear();
 		
-		for ( int a = 1; a <= 8; a++ ) {							// animate moves
+		for ( int a = 1; a <= 8; a++ ) {							// animate shapes into new positions.
 			for ( int i = 0; i < x_size; i++ ) {
 				for (int j = 0; j < y_size; j++ ) {
 					moveShape(shapeTile[i][j], i, j, a);
@@ -287,83 +312,99 @@ public class GameLogic implements Runnable {
 			Gdx.graphics.requestRendering();
 			Core.delay(80);
 		}
-		shuffleListBottomLeft.clear();								// do some clean up.
+		message = "Searching...";
+		findHintsOnBoard();	
+		
+		shuffleCalled  = false;										// do some cleaning.
+		shuffleListBottomLeft.clear();
 		shuffleListBottomRight.clear();
 		shuffleListTopLeft.clear();
 		shuffleListTopRight.clear();
-
-		hintList.clear();		
-		shuffleCalled  = false;
-		message = "Searching...";
 	}
-	private void clear() {			
+	private void clear() {			                               // runs when level is finished.
 		Gdx.graphics.requestRendering();
 		Core.delay(500);
 		return;
 	}
 // ---------------------------------------------------------------------Getters and Setters
-	public Sprite getBoardTile(int x, int y) {
+	public Sprite getBoardTile(int x, int y) {   		// used by renderBoard() in LevelMaster
 		return boardTile[x][y];
 	}
-	public void setBoardTile(Sprite s, int x, int y) {
+	public void setBoardTile(Sprite s, int x, int y) {  // currently unused?
 		boardTile[x][y] = s;
 	}
-	public Shape getShape(int x, int y) {
+	public Shape getShape(int x, int y) {    			// used by input processing & renderBoard()
 		return shapeTile[x][y];
 	}
-	public Shape getShape(Vector2 xy) {
+	public Shape getShape(Vector2 xy) {      			// used by match checking in Shape
 		return shapeTile[ (int)xy.x ][ (int)xy.y ];
 	}
-	public int getXsize() {
-		return x_size;
-	}
-	public int getYsize() {
-		return y_size;
+	public int getXsize() {								// used by renderBoard() and CrossOne 
+		return x_size;									// match checking (in CrossOneAbstract)
+	}													//
+	public int getYsize() {								// 
+		return y_size;									//
 	}
 	public void setSwapCandidates(int x1, int y1, int x2, int y2) {
-		c1x = x1;
-		c1y = y1;
+		c1x = x1;										// used by PlayAreaInput to hand in sets
+		c1y = y1;										// to this class in a thread-safe way.
 		c2x = x2;
 		c2y = y2;
 		candidatesAreSet = true;
 	}
-	public boolean isReadyForNewCandidates() {
+	public boolean isReadyForNewCandidates() {			// second part of above.
 		return !candidatesAreSet;
 	}
-	public int getShapesCleared() {
-		return totalShapesCleared;
+	public int getShapesCleared() {						// used to report various stats for 
+		return totalShapesCleared;						// display purposes (atm).
+	}													//
+	public int getTotalMatches() {						// 
+		return (int) totalMatches;						//		
+	}													//	
+	public int getScore() {								// 
+		return score;									//
 	}
-	public int getTotalMatches() {
-		return (int) totalMatches;
-	}	
-	public int getScore() {
-		return score;
+	public int getHintListSize() {						// This group of calls are used by 
+		return hintList.size;							// DemoGameLogic to extract the
+	}													// information it needs to choose its
+	public int getMatchListSize() {						// next moves, and also reset the values
+		return matchList.size;							// in private fields of this class.
+	}													//
+	public Array<Shape> getHintList() {					//
+		return hintList;								//
+	}													//
+	public void clearMatchList() {						//
+		matchList.clear();								//
 	}
-	public int getNumberOfHints() {
-		return hintList.size;
+	public boolean hintHasBeenGiven() {					// currently used by BorderButtonsInput
+		return hintRequested;							// for debugging, may be used for other
+	}													// purposes in future.
+	public void requestHint() {							//
+		hintRequested = true;							//
+	}													//
+	public void setShuffle() {							//
+		shuffleCalled = true;							//
 	}
-	public void setShuffle() {
-		shuffleCalled = true;
+	public void setEndlessPlayMode() {					// sets boolean to allow automatic shuffling
+		endlessPlayMode = true;							// of the board
 	}
-	public boolean hintHasBeenGiven() {
-		return hintRequested;
-	}
-	public void requestHint() {
-		hintRequested = true;
-	}
-	public void setEndlessPlayMode() {
-		endlessPlayMode = true;
-	}
-	public void addHint(Shape s) {
+	public void addHint(Shape s) {						// used by addHintToList() in Shape
 		hintList.add(s);
 	}
-	public String getMessage() {
+	public String getMessage() {						// used to get status message string.
 		return message;
 	}
-	public void setMessage(String s) {
-		message = s;
+	public void setBackKeyPressed() {					// used by BorderButtonsInput to report
+		backKeyPressed = true;							// key-press in thread-safe way.
+	}
+	public void setMessage(String s) {                	// made for DemoGameLogic, but seem to be
+		message = s;									// currently unused.
+	}													//
+	public boolean getjjBackKeyPressed() {				//
+		return backKeyPressed;							//		
 	}
 //----------------------------------------------End-of-Class--------
+	
 }	
 
 

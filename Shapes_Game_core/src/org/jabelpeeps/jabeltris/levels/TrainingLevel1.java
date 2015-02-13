@@ -30,7 +30,7 @@ public class TrainingLevel1 extends LevelMaster {
 	@Override
 	public void render(float delta) {
 		
-		if ( !gameLogic.isAlive() ) {
+		if ( !logicThread.isAlive() ) {
 			camera.combined.set(coreCameraSettings);
 		}
 		prepScreenAndCamera();		
@@ -60,7 +60,7 @@ public class TrainingLevel1 extends LevelMaster {
 	}
 	@Override
 	public boolean IsFinished() {
-		if ( logic.getNumberOfHints() <= 0 ) {
+		if ( logic.getHintListSize() <= 0 ) {
 			return true;
 		}
 		return false;

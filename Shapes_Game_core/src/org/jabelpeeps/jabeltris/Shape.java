@@ -1,5 +1,6 @@
 package org.jabelpeeps.jabeltris;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 
@@ -35,7 +36,7 @@ public abstract class Shape extends Sprite {
 			return false;
 		}
 		protected Vector2 v(int x, int y) {
-			return Core.vector2Pool.obtain().set(x, y);
+			return Core.obtainVectorFromPool(x, y);
 		}
 		@Override
 		public float getX() {
@@ -65,6 +66,16 @@ public abstract class Shape extends Sprite {
 			if ( hintMatch( (int)getX(), (int)getY() ) ) {
 					logic.addHint(this);
 			}
+		}
+		public void blink(long time, int repeats) {
+			for ( int i = 1; i <= repeats; i++) {
+				select();
+				Gdx.graphics.requestRendering();
+				Core.delay(time);
+				deselect();
+				Gdx.graphics.requestRendering();
+				Core.delay(time);
+				}
 		}
 		protected boolean hintMatch(int x, int y) {
 			boolean hintFound = false;

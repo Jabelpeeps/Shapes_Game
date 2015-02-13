@@ -1,5 +1,7 @@
 package org.jabelpeeps.jabeltris;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 
 public class BorderButtonsInput extends InputAdapter {
@@ -10,15 +12,21 @@ public class BorderButtonsInput extends InputAdapter {
 // ---------------------------------------------Constructor----------	
 		public BorderButtonsInput(GameLogic l) {
 			logic = l;
+
+			Gdx.input.setCatchBackKey(true);
 		}
 // ---------------------------------------------Methods--------------	
-	    // keys only active for debugging on desktop version.
-		@Override
+	    @Override
 		public boolean keyTyped(char typed) {
-			if ( typed == 's') {
+			if ( typed == Keys.BACK ) {
+				logic.setBackKeyPressed();
+			}
+			
+			// letter keys only used for debugging on desktop version.
+			if ( typed == Keys.S ) {
 				logic.setShuffle();
 			}
-			if ( typed == 'h' ) {
+			if ( typed == Keys.H ) {
 				if ( !logic.hintHasBeenGiven() ) {
 					logic.requestHint();
 				}

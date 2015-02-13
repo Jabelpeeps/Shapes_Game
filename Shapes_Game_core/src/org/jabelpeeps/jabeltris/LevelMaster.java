@@ -5,6 +5,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.math.RandomXS128;
 
@@ -33,7 +34,7 @@ public abstract class LevelMaster extends Core implements Screen {
 	
 	final Core game;
 	protected static GameLogic logic;
-	protected static Thread gameLogic;
+	protected static Thread logicThread;
 	
 	protected static RandomXS128 rand = Core.rand;
 	protected int x = 10;
@@ -62,42 +63,73 @@ public abstract class LevelMaster extends Core implements Screen {
 		Gdx.input.setInputProcessor(multiplexer);
 	}
 	protected void startInteractiveLogicThread() {
-		gameLogic = new Thread(logic);
-		gameLogic.start();
+		logicThread = new Thread(logic);
+		logicThread.start();
 	}
 	protected void startDemoLogicThread() {
-		gameLogic = new Thread(new DemoGameLogic(logic));
-		gameLogic.start();
+		logicThread = new Thread(new DemoGameLogic(logic));
+		logicThread.start();
 	}
 	protected void prepScreenAndCamera() {
-		Gdx.gl.glClearColor(0, 0, 0.2f, 1);
+		Gdx.gl.glClearColor(0, 0, 0.3f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
 	}
 	protected void renderBoard() {
+		renderBoard(1f);
+	}
+	protected void renderBoard(float alpha) {
 		int x = logic.getXsize();
 		int y = logic.getYsize();
-		batch.begin();
-		batch.disableBlending();
-		for( int i = 0; i < x; i++ ) {
-		    	for( int j = 0; j < y; j++ ) {
+		boolean batchStarted = false;
+		if ( !batch.isDrawing() ) {
+			batchStarted = true;
+			batch.begin();
+		}
+		if ( alpha == 1f ) {
+				batch.disableBlending();
+				for( int i = 0; i < x; i++ ) {
+			    	for( int j = 0; j < y; j++ ) {
 		    			try {
 		    				logic.getBoardTile(i, j).draw(batch);
 					    } catch (NullPointerException e) { } 
-				 }           
-		}
-	    batch.enableBlending();
-	    
-	    for( int i = 0; i < x; i++ ) {
-		    	for( int j = 0; j < y; j++ ) {
+					 }           
+				}
+			    batch.enableBlending();
+			    for( int i = 0; i < x; i++ ) {
+			    	for( int j = 0; j < y; j++ ) {
 				    	try {
-					    	logic.getShape(i, j).draw(batch);
+				    		logic.getShape(i, j).draw(batch);
 					    } catch (NullPointerException e) { } 
-		    	}           
+			    	}           
+				}
+		} else {
+				Sprite tmpSprite;
+				Shape tmpShape;
+				for( int i = 0; i < x; i++ ) {
+			    	for( int j = 0; j < y; j++ ) {
+		    			try {
+		    				tmpSprite = logic.getBoardTile(i, j);
+		    				tmpSprite.setAlpha(alpha);
+		    				tmpSprite.draw(batch);
+		    				tmpSprite.setAlpha(1f);
+					    } catch (NullPointerException e) { } 
+					 }           
+				}
+			    for( int i = 0; i < x; i++ ) {
+			    	for( int j = 0; j < y; j++ ) {
+				    	try {
+				    		tmpShape = logic.getShape(i, j);
+				    		tmpShape.setAlpha(alpha);
+					    	tmpShape.draw(batch);
+					    	tmpShape.setAlpha(1f);
+					    } catch (NullPointerException e) { } 
+			    	}           
+				}
 		}
-	    batch.end();
+	    if ( batchStarted ) batch.end();
 	}
 	
 	protected static Shape setOriginAndBounds(Shape s, int x, int y) {

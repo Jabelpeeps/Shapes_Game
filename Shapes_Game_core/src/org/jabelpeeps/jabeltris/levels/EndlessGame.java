@@ -21,7 +21,7 @@ public abstract class EndlessGame extends LevelMaster {
 	public void render(float delta) {
 		prepScreenAndCamera();
 		synchronized ( logic ) {
-			int hints = logic.getNumberOfHints();
+			int hints = logic.getHintListSize();
 			batch.begin();
 			if ( hints > 0 ) {
 				font.draw(batch, "Possible moves:- " + hints, 4, 48);

@@ -28,11 +28,11 @@ public class Core extends Game {
 	static Texture boardBase;
 	protected static TextureRegion[][] boardBaseTiles;
 	protected static RandomXS128 rand = new RandomXS128();
-	
+		
 	final static Pool<Vector2> vector2Pool = Pools.get(Vector2.class);
 	protected static Matrix4 initialMatrix;	
 	
-// --------------------------------------------------Override Methods--	
+// --------------------------------------------------Methods-----------
 	@Override
 	public void create () {
 		batch = new SpriteBatch(500);
@@ -45,7 +45,7 @@ public class Core extends Game {
 		Texture.setAssetManager(Core.manager);
 		
 		// set world view as 42 units wide, and enough high to keep units square.
-		// actual play area will be 40x40 with a small border at the edges.
+		// (standard play area will be 40x40 with a small border at the edges.)
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
 		camera = new OrthographicCamera(42, 42*(h/w));
@@ -57,6 +57,18 @@ public class Core extends Game {
         
         // calls splash screen
         this.setScreen(new Splash(this));
+	}
+	
+	public static Vector2 obtainVectorFromPool(int x, int y) {
+		return Core.vector2Pool.obtain().set(x, y);
+	}
+	
+	protected static void delay(long time) {
+		try {  
+			TimeUnit.MILLISECONDS.sleep(time);
+		} catch (InterruptedException e) { 
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -74,14 +86,6 @@ public class Core extends Game {
 		batch.dispose();
 		//Gdx.app.exit();
 		//System.exit(0);
-	}
-
-	protected static void delay(long time) {
-		try {  
-			TimeUnit.MILLISECONDS.sleep(time);
-		} catch (InterruptedException e) { 
-			e.printStackTrace();
-		}
 	}
 	
 //		System.out.println("delay() called by: " + getMethodName(1) 
@@ -101,7 +105,4 @@ public class Core extends Game {
 //
 //			return ste[ste.length - 1 - depth].getMethodName(); 
 //		}
-	
-	
-	
 }
