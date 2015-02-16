@@ -7,8 +7,8 @@ public abstract class CrossOneAbstract extends Shape {
 	
 	@Override
 	protected float shapeMatch(int x, int y, int xx, int yy) {
-		int xs = logic.getXsize()-1;
-		int ys = logic.getYsize()-1;
+		int xs = game.getXsize()-1;
+		int ys = game.getYsize()-1;
 		float matchesmade = 0f;
 		// check for a full upright cross
 		if ( (yy != y-1) && (yy != y+1) && (xx != x+1) && (xx != x-1) 

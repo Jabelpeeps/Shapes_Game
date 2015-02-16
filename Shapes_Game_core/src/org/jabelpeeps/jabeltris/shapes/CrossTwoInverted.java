@@ -11,7 +11,7 @@ public class CrossTwoInverted extends CrossTwoAbstract {
 }
 @Override
 public void select() {
-	this.setColor(0f, 0f, 1f, 1f);
+	this.setColor(0f, 0.75f, 0f, 1f);
 }
 @Override
 public void deselect() {

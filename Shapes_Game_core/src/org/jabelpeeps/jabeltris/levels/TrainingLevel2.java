@@ -17,14 +17,14 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Vector3;
 
-public class TrainingLevel1 extends LevelMaster {
+public class TrainingLevel2 extends LevelMaster {
 
 	private Shape newShape;
 	private int demoStage = 1;
 	private Vector3 touch = new Vector3();
 	
-// ---------------------------------------------Constructor--------	
-	public TrainingLevel1(Core c) {
+// ---------------------------------------------Constructor--------		
+	public TrainingLevel2(Core c) {
 		super(c);
 		baseColor = new Color(1f, 1f, 1f, 1f);
 		x = 6;
@@ -34,6 +34,7 @@ public class TrainingLevel1 extends LevelMaster {
 		setupInput(new BorderButtonsInput(game, logic));
 		logic.start();
 	}
+
 // ---------------------------------------------Methods----------
 	@Override
 	public void render(float delta) {
@@ -46,11 +47,11 @@ public class TrainingLevel1 extends LevelMaster {
 			renderBoard(0.6f);
 			batch.begin();
 			font.drawWrapped(batch, "Level 1 - Squares\n\n"
-					+ "Squares match when placed in square groups.\n\n\n"
+					+ "Squares match when placed in square groups.\n\n"
 					+ "AutoPlay is showing you how this works."
-					, 2, 48, 37, BitmapFont.HAlignment.CENTER);
+					, 2, 48, 37, BitmapFont.HAlignment.LEFT);
 			font.drawWrapped(batch, "Touch here remove the text."
-					,2 ,0 , 37, BitmapFont.HAlignment.CENTER);
+					,2 ,0 , 37, BitmapFont.HAlignment.LEFT );
 			batch.end();
 			if ( Gdx.input.isTouched() ) {
 				touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
@@ -66,7 +67,7 @@ public class TrainingLevel1 extends LevelMaster {
 			renderBoard(0.8f);
 			batch.begin();
 			font.drawWrapped(batch, "Touch the board to take over."
-					,2 ,0 , 37, BitmapFont.HAlignment.CENTER);
+					,2 ,0 , 37, BitmapFont.HAlignment.LEFT );
 			batch.end();
 			if ( Gdx.input.isTouched() ) {
 				touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
@@ -82,57 +83,53 @@ public class TrainingLevel1 extends LevelMaster {
 			renderBoard(0.9f);
 			batch.begin();
 			font.drawWrapped(batch, "Ending AutoPlay..."
-					,2 ,0 , 37, BitmapFont.HAlignment.CENTER);
+					,2 ,0 , 37, BitmapFont.HAlignment.CENTER );
 			batch.end();
-			logic.endDemo();
 			demoStage++;
 			Gdx.graphics.requestRendering();
 			break;
 		case 4:
-			while ( logic.isAlive() ) {
-				break;
-			}
-			demoStage++;
-			Gdx.graphics.requestRendering();
-			break;
-		case 5:
 			Core.delay(300);
 			prepScreenAndCamera();
 			renderBoard();
+			logic.endDemo();
+			while ( logic.isAlive() ) {
+				Core.delay(50);
+			}
 			logic = new InteractiveGameLogic(game);
 			logic.setEndlessPlayModeOn();
 			demoStage++;
 			Gdx.graphics.requestRendering();
 			break;
-		case 6:
+		case 5:
 			prepScreenAndCamera();
 			renderBoard();
 			batch.begin();
 			font.drawWrapped(batch, "Get Ready to Play..."
-					,2 ,0 , 37, BitmapFont.HAlignment.CENTER);
+					,2 ,0 , 37, BitmapFont.HAlignment.CENTER );
 			batch.end();
 			demoStage++;
 			Gdx.graphics.requestRendering();
 			break;
-		case 7:
+		case 6:
 			Core.delay(800);
 			prepScreenAndCamera();
 			renderBoard();
 			batch.begin();
 			font.drawWrapped(batch, "Go!"
-					,2 ,0 , 37, BitmapFont.HAlignment.CENTER);
+					,2 ,0 , 37, BitmapFont.HAlignment.CENTER );
 			batch.end();
 			setupInput(new BorderButtonsInput(game, logic), new PlayAreaInput(game, logic));
 			logic.start();
 			demoStage++;
 			Gdx.graphics.requestRendering();
 			break;
-		case 8:
+		case 7:
 			Core.delay(600);
 			demoStage++;
 			Gdx.graphics.requestRendering();
 			break;
-		case 9:	
+		case 8:	
 			prepScreenAndCamera();
 			batch.begin();
 			font.draw(batch, "Sets Matched:- " + game.getTotalMatches(), 6, 46);
@@ -143,7 +140,7 @@ public class TrainingLevel1 extends LevelMaster {
 		    renderBoard();
 		}		                 
 	}
-	
+
 	@Override
 	public Shape makeNewShape(int x, int y) {
 				
@@ -164,10 +161,10 @@ public class TrainingLevel1 extends LevelMaster {
 	}
 	@Override
 	public boolean IsFinished() {
-//		if ( game.getHintListSize() <= 0 ) {
-//			System.out.println("No Further Moves.");
-//			return true;
-//		}
+	//	if ( game.getHintListSize() <= 0 ) {
+	//		System.out.println("No Further Moves.");
+	//		return true;
+	//	}
 		return false;
 	}
 	@Override

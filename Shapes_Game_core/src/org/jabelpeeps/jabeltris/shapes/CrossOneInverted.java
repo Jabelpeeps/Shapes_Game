@@ -11,7 +11,7 @@ public class CrossOneInverted extends CrossOneAbstract {
 	
 	@Override
 	public void select() {
-		this.setColor(0f, 1f, 0f, 1f);
+		this.setColor(0f, 1f, 0.5f, 1f);
 	}
 	@Override
 	public void deselect() {

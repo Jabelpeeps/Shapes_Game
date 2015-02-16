@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
@@ -32,28 +33,30 @@ public abstract class LevelMaster extends Core implements Screen {
 	public static AtlasRegion greycrone;
 	public static AtlasRegion greycrtwo;
 	
-	final Core game;
+	protected final Core core;
+	protected static PlayArea game;
 	protected static GameLogic logic;
-	protected static Thread logicThread;
 	
 	protected static RandomXS128 rand = Core.rand;
 	protected int x = 10;
 	protected int y = 10;
+	public Color baseColor;
 // ---------------------------------------------Constructor(s)--------	
 
-	protected LevelMaster(Core g) {
-		game = g;
+	protected LevelMaster(Core c) {
+		core = c;
 		
 		// turn off continuous rendering (to save battery on android)
 		Gdx.graphics.setContinuousRendering(false);
 	}
 // ---------------------------------------------Methods----------
-	protected void setLogic() {
+	protected void initPlayArea(LevelMaster l) {
 		// instantiates the GameBoard
-		logic = new GameLogic(x, y, this);
+		game = new PlayArea(x, y, l);
 	}
 	protected void setupInput(InputProcessor sole) {
 		Gdx.input.setInputProcessor(sole);
+		Gdx.input.setCatchBackKey(true);
 	}
 	protected void setupInput(InputProcessor first, InputProcessor second) {
 		// setup the actions to respond to user input.
@@ -61,73 +64,46 @@ public abstract class LevelMaster extends Core implements Screen {
 		multiplexer.addProcessor(first);
 		multiplexer.addProcessor(second);
 		Gdx.input.setInputProcessor(multiplexer);
-	}
-	protected void startInteractiveLogicThread() {
-		logicThread = new Thread(logic);
-		logicThread.start();
-	}
-	protected void startDemoLogicThread() {
-		logicThread = new Thread(new DemoGameLogic(logic));
-		logicThread.start();
+		Gdx.input.setCatchBackKey(true);
 	}
 	protected void prepScreenAndCamera() {
 		Gdx.gl.glClearColor(0, 0, 0.3f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
 	}
+	
 	protected void renderBoard() {
 		renderBoard(1f);
 	}
 	protected void renderBoard(float alpha) {
-		int x = logic.getXsize();
-		int y = logic.getYsize();
 		boolean batchStarted = false;
 		if ( !batch.isDrawing() ) {
-			batchStarted = true;
-			batch.begin();
+				batchStarted = true;
+				batch.begin();
 		}
+		Sprite[] boardTiles = game.getAllBoardTiles();
+		Shape[] gameShapes = game.getAllShapes();
 		if ( alpha == 1f ) {
 				batch.disableBlending();
-				for( int i = 0; i < x; i++ ) {
-			    	for( int j = 0; j < y; j++ ) {
-		    			try {
-		    				logic.getBoardTile(i, j).draw(batch);
-					    } catch (NullPointerException e) { } 
-					 }           
+				for ( Sprite each : boardTiles ) {
+					each.draw(batch);
 				}
 			    batch.enableBlending();
-			    for( int i = 0; i < x; i++ ) {
-			    	for( int j = 0; j < y; j++ ) {
-				    	try {
-				    		logic.getShape(i, j).draw(batch);
-					    } catch (NullPointerException e) { } 
-			    	}           
-				}
+			    for ( Shape each : gameShapes ) {
+				    each.draw(batch);
+			    }  	
 		} else {
-				Sprite tmpSprite;
-				Shape tmpShape;
-				for( int i = 0; i < x; i++ ) {
-			    	for( int j = 0; j < y; j++ ) {
-		    			try {
-		    				tmpSprite = logic.getBoardTile(i, j);
-		    				tmpSprite.setAlpha(alpha);
-		    				tmpSprite.draw(batch);
-		    				tmpSprite.setAlpha(1f);
-					    } catch (NullPointerException e) { } 
-					 }           
+				for ( Sprite each : boardTiles ) {
+					each.setAlpha(alpha);
+					each.draw(batch);
+					each.setAlpha(1f);
 				}
-			    for( int i = 0; i < x; i++ ) {
-			    	for( int j = 0; j < y; j++ ) {
-				    	try {
-				    		tmpShape = logic.getShape(i, j);
-				    		tmpShape.setAlpha(alpha);
-					    	tmpShape.draw(batch);
-					    	tmpShape.setAlpha(1f);
-					    } catch (NullPointerException e) { } 
-			    	}           
-				}
+				for ( Shape each : gameShapes ) {
+		    		each.setAlpha(alpha);
+			    	each.draw(batch);
+			    	each.setAlpha(1f);
+			    }
 		}
 	    if ( batchStarted ) batch.end();
 	}
@@ -135,7 +111,7 @@ public abstract class LevelMaster extends Core implements Screen {
 	protected static Shape setOriginAndBounds(Shape s, int x, int y) {
 		s.setOrigin(2, 2);
 		s.setScale(0.9f);
-		s.setBounds(x*4, y*4, 4, 4);
+		s.setBounds(x*4 + game.getXoffset(), y*4 + game.getYoffset(), 4, 4);
 		return s;
 	}
 	protected abstract Shape makeNewShape(int i, int j);
@@ -143,7 +119,7 @@ public abstract class LevelMaster extends Core implements Screen {
 	public abstract LevelMaster nextLevel();
 
 	public abstract boolean IsFinished();
-
+	
 	@Override
 	public void show() {
 	}

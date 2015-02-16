@@ -1,35 +1,39 @@
 package org.jabelpeeps.jabeltris;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 
 public class BorderButtonsInput extends InputAdapter {
 // ---------------------------------------------Field(s)-------------
 		private final GameLogic logic;
+		@SuppressWarnings("unused")
+		private final PlayArea game;
 //		private Vector3 touch = new Vector3();
 		
 // ---------------------------------------------Constructor----------	
-		public BorderButtonsInput(GameLogic l) {
+		public BorderButtonsInput(PlayArea p, GameLogic l) {
+			game = p;
 			logic = l;
-
-			Gdx.input.setCatchBackKey(true);
+			
 		}
 // ---------------------------------------------Methods--------------	
 	    @Override
 		public boolean keyTyped(char typed) {
-			if ( typed == Keys.BACK ) {
-				logic.setBackKeyPressed();
+//	    	System.out.println("---------------");
+//	    	System.out.println(typed);
+//	    	System.out.println("---------------");
+	    	
+			if ( typed == '' ) {
+				logic.setBackKeyPressed();				
 			}
 			
 			// letter keys only used for debugging on desktop version.
-			if ( typed == Keys.S ) {
+			if ( typed == 's' ) {
 				logic.setShuffle();
 			}
-			if ( typed == Keys.H ) {
+			if ( typed == 'h' ) {
 				if ( !logic.hintHasBeenGiven() ) {
 					logic.requestHint();
-				}
+				} 
 			}
 			return true;
 		}

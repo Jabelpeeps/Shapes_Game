@@ -3,12 +3,21 @@ package org.jabelpeeps.jabeltris;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Pool;
 
 public abstract class Shape extends Sprite {	
 // -------------------------------------------------Field(s)---------
 		protected String type;
-		public static GameLogic logic;
-		private Vector2 oldXY = new Vector2();
+		public static PlayArea game;
+		
+		private final Pool<Vector2> vector2Pool = new Pool<Vector2>(){
+			    @Override
+			    protected Vector2 newObject() {
+			        return new Vector2();
+			    }
+		};
+		private Vector2 oldXY = vector2Pool.obtain().set(0, 0);
+		private Vector2 newXY = vector2Pool.obtain().set(0, 0);
 //  ----------------------------------------------Methods--------------- 
 		
 		// The 'm' method is called from the various shape objects, 
@@ -25,10 +34,11 @@ public abstract class Shape extends Sprite {
 			
 			try {		
 				for ( Vector2 each : xy ) {
-					if ( logic.getShape(each).type.equals(s.type) ) { 
+					if ( game.getShape(each).type.equals(s.type) ) { 
 						matchesNeeded--; 
-					}
-					Core.vector2Pool.free(each);
+					};
+					each.set(0, 0);
+					vector2Pool.free(each);
 				}
 			} catch (ArrayIndexOutOfBoundsException e) {};
 			
@@ -36,35 +46,14 @@ public abstract class Shape extends Sprite {
 			return false;
 		}
 		protected Vector2 v(int x, int y) {
-			return Core.obtainVectorFromPool(x, y);
-		}
-		@Override
-		public float getX() {
-			return super.getX()/4;
-		}
-		@Override
-		public float getY() {
-			return super.getY()/4;
-		}
-		@Override
-		public void setPosition(float x, float y) {
-			super.setPosition(x*4, y*4);
-		}
-		public void saveXY() {
-			oldXY.set( getX(), getY() );
-		}
-		public int getSavedX() {
-			return (int) oldXY.x;
-		}
-		public int getSavedY() {
-			return (int) oldXY.y;
+			return vector2Pool.obtain().set(x, y);
 		}
 		public float checkMatch(int x, int y) {
 			return shapeMatch(x, y, x, y);
 		}
 		public void addHintsToHintList() {
 			if ( hintMatch( (int)getX(), (int)getY() ) ) {
-					logic.addHint(this);
+					game.addHint(this);
 			}
 		}
 		public void blink(long time, int repeats) {
@@ -90,5 +79,50 @@ public abstract class Shape extends Sprite {
 		public abstract void select();
 		
 		public abstract void deselect();
-		
+
+		@Override
+		public float getX() {
+			return (super.getX() - game.getXoffset())/4;
+		}
+		@Override
+		public float getY() {
+			return (super.getY() - game.getYoffset())/4;
+		}
+		@Override
+		public void setPosition(float x, float y) {
+			super.setPosition(x*4 + game.getXoffset() , y*4 + game.getYoffset());
+		}
+		public void saveXY() {
+			oldXY.set( getX(), getY() );
+		}
+		public float getSavedX() {
+			return oldXY.x;
+		}
+		public float getSavedY() {
+			return oldXY.y;
+		}
+		public void setNewXY(float x, float y) {
+			newXY.set(x, y);
+		}
+		public void setNewX(float x) {
+			newXY.set(x, getY());
+		}
+		public void setNewY(float y) {
+			newXY.set(getX(), y);
+		}
+		public float getNewX() {
+			return newXY.x;
+		}
+		public float getNewY() {
+			return newXY.y;
+		}
+		@Override
+		protected void finalize() {
+			vector2Pool.free(oldXY);
+			vector2Pool.free(newXY);
+		}
 	}
+
+
+
+

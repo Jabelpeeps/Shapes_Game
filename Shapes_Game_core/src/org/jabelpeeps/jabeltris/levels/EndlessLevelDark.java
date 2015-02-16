@@ -9,12 +9,15 @@ import org.jabelpeeps.jabeltris.shapes.LineInverted;
 import org.jabelpeeps.jabeltris.shapes.SquareInverted;
 import org.jabelpeeps.jabeltris.shapes.TriangleInverted;
 
+import com.badlogic.gdx.graphics.Color;
+
 public class EndlessLevelDark extends EndlessGame {
 
 	private static Shape newShape;
 	
 	public EndlessLevelDark(Core g) {
 			super(g);
+			baseColor = new Color(0.75f, 1f, 0.75f, 1f);
 		}
 	
 	@Override

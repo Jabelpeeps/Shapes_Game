@@ -13,9 +13,6 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.RandomXS128;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Pool;
-import com.badlogic.gdx.utils.Pools;
 
 public class Core extends Game {
 // --------------------------------------------------Fields------------	
@@ -29,7 +26,6 @@ public class Core extends Game {
 	protected static TextureRegion[][] boardBaseTiles;
 	protected static RandomXS128 rand = new RandomXS128();
 		
-	final static Pool<Vector2> vector2Pool = Pools.get(Vector2.class);
 	protected static Matrix4 initialMatrix;	
 	
 // --------------------------------------------------Methods-----------
@@ -58,11 +54,7 @@ public class Core extends Game {
         // calls splash screen
         this.setScreen(new Splash(this));
 	}
-	
-	public static Vector2 obtainVectorFromPool(int x, int y) {
-		return Core.vector2Pool.obtain().set(x, y);
-	}
-	
+		
 	protected static void delay(long time) {
 		try {  
 			TimeUnit.MILLISECONDS.sleep(time);

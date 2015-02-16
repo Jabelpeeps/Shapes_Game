@@ -11,7 +11,7 @@ public class TriangleInverted extends TriangleAbstract {
 	}
 	@Override
 	public void select() {
-		this.setColor(1f, 0f, 1f, 1f);
+		this.setColor(0.25f, 0.5f, 1f, 1f);
 	}
 	@Override
 	public void deselect() {

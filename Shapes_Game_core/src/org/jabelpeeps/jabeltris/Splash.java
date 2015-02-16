@@ -13,15 +13,15 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFont
 public class Splash extends Core implements Screen {
 	
 // -------------------------------------------------Fields---------	
-	private final Core game;
+	private final Core core;
 	private Sprite logo;
 	private int loadingStage = 1;
 	private boolean nowLoaded = false;
 	private float logoScale = 0.1f;
 	private String logoScaling = "up";
 // ------------------------------------------------Constructor-----
-	Splash(final Core g) {
-		game = g;
+	Splash(final Core c) {
+		core = c;
 
         logo = new Sprite(new Texture("badlogic.jpg"));  
 		logo.setOrigin(20, 20);
@@ -76,6 +76,7 @@ public class Splash extends Core implements Screen {
 				parameter.characters = MY_CHARS;
 				parameter.packer = null;
 				parameter.genMipMaps = true;
+				parameter.kerning = true;
 				parameter.minFilter = TextureFilter.MipMapLinearLinear;
 				parameter.magFilter = TextureFilter.Linear;
 				font = generator.generateFont(parameter); 
@@ -88,8 +89,7 @@ public class Splash extends Core implements Screen {
 				break;
 			}	
 		} else if ( nowLoaded && Gdx.input.isTouched() ) {
-				game.setScreen(new MainMenu(game));
-				//game.setScreen(new PlayGame(game, level));
+				core.setScreen(new MainMenu(core));
 				dispose();
 		} 	
 	    

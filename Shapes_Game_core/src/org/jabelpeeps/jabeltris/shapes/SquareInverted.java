@@ -11,7 +11,7 @@ public class SquareInverted extends SquareAbstract {
 	}
 	@Override
 	public void select() {
-		this.setColor(0f, 0.5f, 1f, 1f);
+		this.setColor(0f, 0.25f, 0.75f, 1f);
 	}
 	@Override
 	public void deselect() {

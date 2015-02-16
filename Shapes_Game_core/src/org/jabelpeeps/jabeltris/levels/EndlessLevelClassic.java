@@ -9,12 +9,15 @@ import org.jabelpeeps.jabeltris.shapes.LineOriginal;
 import org.jabelpeeps.jabeltris.shapes.SquareOriginal;
 import org.jabelpeeps.jabeltris.shapes.TriangleOriginal;
 
+import com.badlogic.gdx.graphics.Color;
+
 public class EndlessLevelClassic extends EndlessGame {
 
 	private static Shape newShape;
 	
 	public EndlessLevelClassic(Core g) {
 		super(g);
+		baseColor = new Color(0.9f, 0.8f, 0.9f, 1f);
 	}
 
 	@Override

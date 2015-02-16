@@ -3,9 +3,8 @@ package org.jabelpeeps.jabeltris;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
-public class DemoGameLogic implements Runnable {
+public class DemoGameLogic extends GameLogic implements Runnable {
 
-	private GameLogic game;
 	private boolean demoIsFinished = false;
 	private final Vector2 UP = new Vector2(0, 1); 
 	private final Vector2 DOWN = new Vector2(0, -1);
@@ -14,28 +13,45 @@ public class DemoGameLogic implements Runnable {
 	private Vector2[] directions = {UP, DOWN, LEFT, RIGHT};
 	private Array<Shape> localHintList = new Array<Shape>(false, 32, Shape.class);
 	
-	DemoGameLogic(GameLogic g) {
-		game = g;
+	public DemoGameLogic(PlayArea g) {
+		super(g);
+	}
+	@Override
+	public void endDemo() {
+		demoIsFinished = true;
+	}
+	@Override
+	public void setBackKeyPressed() {
+		endDemo();
 	}
 
 	@Override
 	public void run() {
 		int highestNumberOfMatches;
-		Shape bestHintShape;
+		Shape mostMatchedShape;
 		Vector2 bestMove = new Vector2(0, 0);
 		int bestX = 0, bestY = 0;
 		
-		game.fillBoard();
+		if ( !game.boardIsAlreadySet() ) {
+			game.setupBoard();
+			game.fillBoard();
+			game.dropShapesIntoPlace();
+			game.setBoardReadyForPlay();
+		}
 		Core.delay(60);
-		while ( game.boardHasMatches(300) ) {		// clear the board of any pre-existing matches.
-			game.replaceMatchedShapes();
-		} 
-		game.findHintsOnBoard();
 		do {
+			while ( game.boardHasMatches(200) ) {
+				game.replaceMatchedShapes();
+			}
+			game.findHintsOnBoard();
+			while ( game.getHintListSize() <= 0 ) {
+				game.shuffleBoard();
+				game.findHintsOnBoard();
+			}			
 			localHintList = game.getHintList();
 			localHintList.shuffle();
 			highestNumberOfMatches = 0;
-			bestHintShape = localHintList.first();
+			mostMatchedShape = localHintList.first();
 			bestX = 0; 
 			bestY = 0;
 			
@@ -48,7 +64,7 @@ public class DemoGameLogic implements Runnable {
 						if ( game.boardHasMatches(0) 
 								&& ( game.getMatchListSize() > highestNumberOfMatches ) ) {
 							highestNumberOfMatches = game.getMatchListSize();
-							bestHintShape = eachShape;
+							mostMatchedShape = eachShape;
 							bestMove = whichWay;
 							bestX = x;
 							bestY = y;
@@ -58,20 +74,10 @@ public class DemoGameLogic implements Runnable {
 					game.clearMatchList();
 				}	
 			}
-			bestHintShape.blink(100, 5);
+			mostMatchedShape.blink(100, 4);
 			game.animateSwap(bestX, bestY, bestX+(int)bestMove.x, bestY+(int)bestMove.y);
-			while ( game.boardHasMatches(150) ) game.replaceMatchedShapes();
-			game.findHintsOnBoard();
-			if ( game.getHintListSize() <= 0 ) {
-				game.shuffleBoard();
-				while ( game.boardHasMatches(200) ) game.replaceMatchedShapes();
-				game.findHintsOnBoard();
-			}
-			Core.delay(200);
-		} while ( !demoIsFinished );		
+			
+		} while ( !demoIsFinished );	
 		return;
-	}
-	public void endDemo() {
-		demoIsFinished = true;
 	}
 }
