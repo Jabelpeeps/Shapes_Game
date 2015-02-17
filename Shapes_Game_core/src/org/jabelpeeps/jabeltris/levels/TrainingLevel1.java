@@ -14,7 +14,6 @@ import org.jabelpeeps.jabeltris.shapes.SquareYellow;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Vector3;
 
 public class TrainingLevel1 extends LevelMaster {
@@ -22,14 +21,22 @@ public class TrainingLevel1 extends LevelMaster {
 	private Shape newShape;
 	private int demoStage = 1;
 	private Vector3 touch = new Vector3();
+	private float alpha = 0.3f;
+	private boolean playOn = true;
+	private boolean levelIsFinished = false;
 	
-// ---------------------------------------------Constructor--------	
+// ---------------------------------------------Constructors--------	
 	public TrainingLevel1(Core c) {
+		this(c, true);
+	}
+	
+	public TrainingLevel1(Core c, boolean playNext) {
 		super(c);
+		playOn = playNext;
 		baseColor = new Color(1f, 1f, 1f, 1f);
 		x = 6;
 		y = 6;
-		initPlayArea(this);
+		initPlayArea();
 		logic = new DemoGameLogic(game);
 		setupInput(new BorderButtonsInput(game, logic));
 		logic.start();
@@ -37,20 +44,34 @@ public class TrainingLevel1 extends LevelMaster {
 // ---------------------------------------------Methods----------
 	@Override
 	public void render(float delta) {
-		if ( !logic.isAlive() && demoStage < 3 ) {
-			core.setScreen(new MainMenu(core, 5));
+		if ( logic.getBackKeyWasPressed() ) {
+			if ( !logic.isAlive() && alpha <= 0f ) {
+				core.setScreen(new MainMenu(core, 3));
+				dispose();
+			} else if ( demoStage < 3 || demoStage > 5 ) {
+				logic.endDemo();
+				levelIsFinished = true;
+				demoStage = 0;
+			} 
+			if ( alpha > 0f ) {
+				alpha -= 0.01f;
+			}
+			if ( logic.isAlive() ) {
+				prepScreenAndCamera();
+				renderBoard(alpha);
+			}
+			Gdx.graphics.requestRendering();
+			return;
 		}
 		switch ( demoStage ) {
 		case 1:
 			prepScreenAndCamera();
-			renderBoard(0.6f);
+			renderBoard(alpha);
 			batch.begin();
-			font.drawWrapped(batch, "Level 1 - Squares\n\n"
+			messageCentered("Level 1 - Squares\n\n"
 					+ "Squares match when placed in square groups.\n\n\n"
-					+ "AutoPlay is showing you how this works."
-					, 2, 48, 37, BitmapFont.HAlignment.CENTER);
-			font.drawWrapped(batch, "Touch here remove the text."
-					,2 ,0 , 37, BitmapFont.HAlignment.CENTER);
+					+ "AutoPlay is showing you how this works.", 48);
+			messageCentered("[#FFD700]Touch here[] to remove the text above.", 0);
 			batch.end();
 			if ( Gdx.input.isTouched() ) {
 				touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
@@ -62,86 +83,108 @@ public class TrainingLevel1 extends LevelMaster {
 			Gdx.graphics.requestRendering();
 			break;
 		case 2:
+			if ( alpha < 1f ) {
+				alpha += 0.003f;
+			}
 			prepScreenAndCamera();
-			renderBoard(0.8f);
+			renderBoard(alpha);
 			batch.begin();
-			font.drawWrapped(batch, "Touch the board to take over."
-					,2 ,0 , 37, BitmapFont.HAlignment.CENTER);
+			messageCentered("Level 1 - Squares", 48);
+			messageCentered("[#FFD700]Touch the board[] when you are ready to take over.", 2);
 			batch.end();
 			if ( Gdx.input.isTouched() ) {
 				touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 				Core.camera.unproject(touch);
 				if ( touch.y > 8 ) {
 					demoStage = 3;
+					logic.endDemo();
 				}
 			}
 			Gdx.graphics.requestRendering();
 			break;
 		case 3:
+			if ( alpha < 1f ) {
+				alpha += 0.003f;
+			}
 			prepScreenAndCamera();
-			renderBoard(0.9f);
+			renderBoard(alpha);
 			batch.begin();
-			font.drawWrapped(batch, "Ending AutoPlay..."
-					,2 ,0 , 37, BitmapFont.HAlignment.CENTER);
+			messageCentered("Level 1 - Squares", 48);
+			messageCentered("Ending AutoPlay...", 2);
 			batch.end();
-			logic.endDemo();
-			demoStage++;
+			if ( !logic.isAlive() ) {
+				demoStage++;
+			}
 			Gdx.graphics.requestRendering();
 			break;
 		case 4:
-			while ( logic.isAlive() ) {
-				break;
-			}
+			Core.delay(300);
+			prepScreenAndCamera();
+			renderBoard(alpha);
+			logic = new InteractiveGameLogic(game);
+			logic.setEndlessPlayModeOn();
+			batch.begin();
+			messageCentered("Sets Matched:- 0", 46);
+			messageCentered("Target:- 20", 40);
+			messageCentered("Get Ready to Play...", 2);
+			batch.end();
 			demoStage++;
 			Gdx.graphics.requestRendering();
 			break;
 		case 5:
-			Core.delay(300);
-			prepScreenAndCamera();
-			renderBoard();
-			logic = new InteractiveGameLogic(game);
-			logic.setEndlessPlayModeOn();
-			demoStage++;
-			Gdx.graphics.requestRendering();
-			break;
-		case 6:
-			prepScreenAndCamera();
-			renderBoard();
-			batch.begin();
-			font.drawWrapped(batch, "Get Ready to Play..."
-					,2 ,0 , 37, BitmapFont.HAlignment.CENTER);
-			batch.end();
-			demoStage++;
-			Gdx.graphics.requestRendering();
-			break;
-		case 7:
-			Core.delay(800);
-			prepScreenAndCamera();
-			renderBoard();
-			batch.begin();
-			font.drawWrapped(batch, "Go!"
-					,2 ,0 , 37, BitmapFont.HAlignment.CENTER);
-			batch.end();
+			Core.delay(1000);
 			setupInput(new BorderButtonsInput(game, logic), new PlayAreaInput(game, logic));
 			logic.start();
 			demoStage++;
 			Gdx.graphics.requestRendering();
 			break;
-		case 8:
-			Core.delay(600);
-			demoStage++;
-			Gdx.graphics.requestRendering();
-			break;
-		case 9:	
+		case 6:
+		case 7:
 			prepScreenAndCamera();
+			int matches = game.getTotalMatches();
 			batch.begin();
-			font.draw(batch, "Sets Matched:- " + game.getTotalMatches(), 6, 46);
+			font.draw(batch, "Sets Matched:- " + matches, 6, 46);
 			font.draw(batch, "Target:- 20", 10, 40);
-			font.drawWrapped(batch, "Touch and drag shapes where you want them to go."
-					, 2, 4, 36, BitmapFont.HAlignment.CENTER);
+			if ( matches < 6 ) {
+				messageCentered("Touch and drag shapes where you want them to go.", 2);
+			} else if ( matches < 11 ) {
+				messageCentered("[#FFD700]Pro Tip[]:- Look for moves that make more than one match.", 4);
+			} else if ( matches < 16 ) {
+				messageCentered("Multiple matches will score [#FFD700]extra points[] in the scoring levels.", 4);
+			} else if ( matches < 20 ) {
+				messageCentered("Almost there...", 2);
+			} else if ( matches > 19 ) {
+				demoStage = 7;
+				if ( playOn ) {
+					messageCentered("Well done! You may play on, or [#FFD700]touch here[] to continue.", 4);
+				} else {
+					messageCentered("Well done! You may play on, or [#FFD700]touch here[] to finish.", 4);
+				}
+			} 		
 		    batch.end();
-		    renderBoard();
-		}		                 
+		    renderBoard(alpha);
+		    
+			if ( demoStage == 7 && Gdx.input.isTouched() ) {
+				touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+				Core.camera.unproject(touch);
+				if ( touch.y < 8 ) {
+					levelIsFinished = true;
+				} 
+			}
+			if ( !logic.isAlive() && alpha <= 0f ) {
+				Core.delay(500);
+				if ( demoStage == 7 && playOn ) {
+					core.setScreen(new TrainingLevel2(core));
+				} else {
+					core.setScreen(new MainMenu(core, 4));
+				}
+				dispose();
+			}
+			if ( levelIsFinished ) {
+				alpha -= 0.01f;
+				Gdx.graphics.requestRendering();
+			}
+		}
 	}
 	
 	@Override
@@ -164,14 +207,6 @@ public class TrainingLevel1 extends LevelMaster {
 	}
 	@Override
 	public boolean IsFinished() {
-//		if ( game.getHintListSize() <= 0 ) {
-//			System.out.println("No Further Moves.");
-//			return true;
-//		}
-		return false;
-	}
-	@Override
-	public LevelMaster nextLevel() {
-			return null;
+		return levelIsFinished;
 	}
 }

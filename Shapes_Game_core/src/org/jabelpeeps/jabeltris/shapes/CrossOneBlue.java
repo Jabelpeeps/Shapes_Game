@@ -2,11 +2,11 @@ package org.jabelpeeps.jabeltris.shapes;
 
 import org.jabelpeeps.jabeltris.LevelMaster;
 
-public class SquareBlue extends SquareAbstract {
+public class CrossOneBlue extends CrossOneAbstract {
 
-	public SquareBlue() {
-		this.setRegion(LevelMaster.greysqr);
-		type = "SquareBlue";
+	public CrossOneBlue() {
+		this.setRegion(LevelMaster.greycrone);
+		type = "CrossOneBlue";
 		deselect();
 	}
 	@Override

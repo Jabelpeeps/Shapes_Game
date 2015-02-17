@@ -7,6 +7,7 @@ public class CrossOneInverted extends CrossOneAbstract {
 	public CrossOneInverted() {
 		this.setRegion(LevelMaster.invcrone);
 		type = "CrossOneInverted";
+		deselect();
 	}
 	
 	@Override

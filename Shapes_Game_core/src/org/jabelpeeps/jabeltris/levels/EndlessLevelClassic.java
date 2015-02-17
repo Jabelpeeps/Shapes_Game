@@ -1,7 +1,6 @@
 package org.jabelpeeps.jabeltris.levels;
 
 import org.jabelpeeps.jabeltris.Core;
-import org.jabelpeeps.jabeltris.LevelMaster;
 import org.jabelpeeps.jabeltris.Shape;
 import org.jabelpeeps.jabeltris.shapes.CrossOneOriginal;
 import org.jabelpeeps.jabeltris.shapes.CrossTwoOriginal;
@@ -17,7 +16,7 @@ public class EndlessLevelClassic extends EndlessGame {
 	
 	public EndlessLevelClassic(Core g) {
 		super(g);
-		baseColor = new Color(0.9f, 0.8f, 0.9f, 1f);
+		baseColor = Color.valueOf("B0C4DE");
 	}
 
 	@Override
@@ -43,14 +42,5 @@ public class EndlessLevelClassic extends EndlessGame {
 		}
 		Shape tmpShape = setOriginAndBounds(newShape, x , y);
 		return tmpShape;
-	}
-
-	@Override
-	public LevelMaster nextLevel() {
-		return null;
-	}
-	@Override
-	public boolean IsFinished() {
-		return false;
 	}
 }

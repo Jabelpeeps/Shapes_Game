@@ -12,7 +12,7 @@ public abstract class EndlessGame extends LevelMaster {
 // ---------------------------------------------Constructor(s)--------	
 	public EndlessGame(Core g) {
 		super(g);
-		initPlayArea(this);
+		initPlayArea();
 		logic = new InteractiveGameLogic(game);
 		logic.setEndlessPlayModeOn();
 		setupInput(new BorderButtonsInput(game, logic), new PlayAreaInput(game, logic));
@@ -23,6 +23,8 @@ public abstract class EndlessGame extends LevelMaster {
 	public void render(float delta) {
 		if ( !logic.isAlive() ) {
 			core.setScreen(new MainMenu(core));	
+			dispose();
+			return;
 		}
 		prepScreenAndCamera();
 		int hints = game.getHintListSize();

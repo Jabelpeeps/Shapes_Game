@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.math.RandomXS128;
@@ -34,8 +35,8 @@ public abstract class LevelMaster extends Core implements Screen {
 	public static AtlasRegion greycrtwo;
 	
 	protected final Core core;
-	protected static PlayArea game;
-	protected static GameLogic logic;
+	protected PlayArea game;
+	protected GameLogic logic;
 	
 	protected static RandomXS128 rand = Core.rand;
 	protected int x = 10;
@@ -50,9 +51,9 @@ public abstract class LevelMaster extends Core implements Screen {
 		Gdx.graphics.setContinuousRendering(false);
 	}
 // ---------------------------------------------Methods----------
-	protected void initPlayArea(LevelMaster l) {
+	protected void initPlayArea() {
 		// instantiates the GameBoard
-		game = new PlayArea(x, y, l);
+		game = new PlayArea(x, y, this);
 	}
 	protected void setupInput(InputProcessor sole) {
 		Gdx.input.setInputProcessor(sole);
@@ -72,11 +73,21 @@ public abstract class LevelMaster extends Core implements Screen {
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
 	}
+	protected void messageCentered(String message, int y) {
+		font.drawWrapped(batch, message, 1, y, 38, BitmapFont.HAlignment.CENTER);
+	}
+	protected void messageLeft(String message, float y) {
+		font.drawWrapped(batch, message, 2, y, 36, BitmapFont.HAlignment.LEFT);
+	}
+	protected void messageRight(String message, float y) {
+		font.drawWrapped(batch, message, 2, y, 36, BitmapFont.HAlignment.RIGHT);
+	}
 	
 	protected void renderBoard() {
 		renderBoard(1f);
 	}
 	protected void renderBoard(float alpha) {
+		if (!game.boardIsReadyForPlay() ) return;
 		boolean batchStarted = false;
 		if ( !batch.isDrawing() ) {
 				batchStarted = true;
@@ -108,22 +119,26 @@ public abstract class LevelMaster extends Core implements Screen {
 	    if ( batchStarted ) batch.end();
 	}
 	
-	protected static Shape setOriginAndBounds(Shape s, int x, int y) {
+	protected Shape setOriginAndBounds(Shape s, int x, int y) {
 		s.setOrigin(2, 2);
 		s.setScale(0.9f);
 		s.setBounds(x*4 + game.getXoffset(), y*4 + game.getYoffset(), 4, 4);
 		return s;
 	}
 	protected abstract Shape makeNewShape(int i, int j);
-
-	public abstract LevelMaster nextLevel();
-
-	public abstract boolean IsFinished();
+	
+	public boolean IsFinished() {
+		return false;
+	}
 	
 	@Override
 	public void show() {
 	}
 	@Override
 	public void hide() {
+	}
+	@Override
+	public void dispose() {
+		game.dispose();
 	}
 }	

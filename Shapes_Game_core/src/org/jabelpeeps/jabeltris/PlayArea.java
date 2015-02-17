@@ -11,12 +11,12 @@ public class PlayArea {
 
 // ---------------------------------------------Fields------------
 	final LevelMaster level;
-	private static Sprite[][] boardTile;
-	private static Shape[][] shapeTile;
-	private static int x_size, y_size, x_offset, y_offset;
-	private Array<Shape> matchList = new Array<Shape>(false, 32);
+	private Sprite[][] boardTile;
+	private Shape[][] shapeTile;
+	private int x_size, y_size, x_offset, y_offset;
+	private Array<Shape> matchList = new Array<Shape>(false, 32, Shape.class);
 	private Array<Shape> newShapeList = new Array<Shape>(false, 32);
-	private Array<Shape> hintList = new Array<Shape>(false, 32);
+	private Array<Shape> hintList = new Array<Shape>(false, 32, Shape.class);
 	private Array<Shape> allShapes = new Array<Shape>(false, 128, Shape.class);
 	private Array<Sprite> allBaseTiles = new Array<Sprite>(false, 128, Sprite.class);
 	
@@ -25,7 +25,7 @@ public class PlayArea {
 	private int totalShapesCleared = 0;
 	private int shapesClearedSinceLastMove = 0;
 	private int score = 0;
-	private boolean boardIsSetForPlay = false;
+	private boolean boardIsReadyForPlay = false;
 	private String message = "Game Initialising";
 // ---------------------------------------------Constructor(s)--------
 		
@@ -56,12 +56,14 @@ public class PlayArea {
 			}           
 		}
 	}
-	void findHintsOnBoard() {   			// adds potential moves to hintList.
+	int findHintsOnBoard() {   			// adds potential moves to hintList.
 		hintList.clear();
 		for ( Shape each : allShapes ) {
-			each.addHintsToHintList();
+			each.addHintsToList();
 		}
-	Gdx.graphics.requestRendering();
+		hintList.shuffle();
+		Gdx.graphics.requestRendering();
+		return hintList.size;
 	}
 	
 	void spinShapesIntoPlace() {
@@ -109,9 +111,9 @@ public class PlayArea {
 		bottomRight.shuffle();
 		topLeft.shuffle();
 		topRight.shuffle();
-		ArrayMap<Shape, Integer> shapesInMotion = new ArrayMap<Shape, Integer>(false, x_size*4);
-		Array<Shape> shapesInPlace = new Array<Shape>();
-		Array<Shape> next4Shapes = new Array<Shape>();
+		ArrayMap<Shape, Integer> shapesInMotion = new ArrayMap<Shape, Integer>(false, 32);
+		Array<Shape> shapesInPlace = new Array<Shape>(4);
+		Array<Shape> next4Shapes = new Array<Shape>(4);
 		int a = 0;
 		for ( a = 0; a < allShapes.size/4 + 8 ; a++ ) {
 			if ( a*4 < allShapes.size ) {
@@ -123,8 +125,10 @@ public class PlayArea {
 				next4Shapes.clear();
 			}
 			for ( Entry<Shape, Integer> each : shapesInMotion ) {
+				
 				each.key.setRotation(180-(20*(1 + (a - each.value)%8)));
 				moveShape(each.key.getNewX(), each.key.getNewY(), each.key, (1 + (a - each.value)%8) );
+				
 				if ( each.key.getSavedY() == each.key.getY() ) {
 						shapesInPlace.add(each.key);	
 				}	
@@ -134,6 +138,7 @@ public class PlayArea {
 				each.setRotation(0);
 				shapesInMotion.removeKey(each);
 			}
+			shapesInPlace.clear();
 			Core.delay(50);
 		}
 	}
@@ -144,8 +149,7 @@ public class PlayArea {
 		}
 		ArrayMap<Shape, Integer> tmpList = new ArrayMap<Shape, Integer>(false, x_size);
 		Shape tmpShape = null;
-		int a = 0;
-		for ( a = 0; a < allShapes.size + 8 ; a++ ) {
+		for ( int a = 0; a < allShapes.size + 8 ; a++ ) {
 			if ( a < allShapes.size ) {
 				allShapes.items[a].setAlpha(1f);
 				tmpList.put(allShapes.items[a], a);
@@ -185,17 +189,20 @@ public class PlayArea {
 		return matchesFound;
 	}
 	void blinkList(long time, int repeats, Array<Shape> list) {
+		blinkList(time, repeats, list.toArray());
+	}
+	void blinkList(long time, int repeats, Shape[] list) {
 		for ( int i = 1; i<= repeats; i++ ) {
-			for ( Shape each : matchList ) each.select();
+			for ( Shape each : list ) each.select();
 			Gdx.graphics.requestRendering();
 			Core.delay(time);
-			for ( Shape each : matchList ) each.deselect();
+			for ( Shape each : list ) each.deselect();
 			Gdx.graphics.requestRendering();
 			Core.delay(time);
 		}
 	}
 	void replaceMatchedShapes() {
-		blinkList(100, 2, matchList);
+		blinkList(100, 3, matchList);
 		for ( int a = 1; a <= 9; a++ ) {      		// animates the shrinking of the Shape sprites.
 			for ( Shape each : matchList ) {
 				each.setScale( 1f - a * 0.1f );
@@ -358,7 +365,7 @@ public class PlayArea {
 					arrayIndex++;
 				}
 			}
-		} while ( boardHasMatches(0) );    // repeat shuffle without animation until position found without any matches.
+		} while ( boardHasMatches(0) || findHintsOnShapeTile() <= 0 );    // repeat shuffle without animation until position found without any matches.
 		matchList.clear();
 		
 		for ( int a = 1; a <= 8; a++ ) {							// animate shapes into new positions.
@@ -371,12 +378,22 @@ public class PlayArea {
 			Core.delay(80);
 		}
 		message = "Searching...";
-		findHintsOnBoard();	
 				
 		shuffleListBottomLeft.clear();							// do some cleaning.
 		shuffleListBottomRight.clear();
 		shuffleListTopLeft.clear();
 		shuffleListTopRight.clear();
+	}
+	int findHintsOnShapeTile() {   			// adds potential moves to hintList.
+		hintList.clear();
+		for ( int i = 0; i < x_size; i++ ) {
+			for (int j = 0; j < y_size; j++ ) {
+				shapeTile[i][j].addHintsToList(i, j);
+			}
+		}
+		hintList.shuffle();
+		Gdx.graphics.requestRendering();
+		return hintList.size;
 	}
 // ---------------------------------------------------------------------Getters and Setters
 	public Sprite getBoardTile(int x, int y) {   		// currently unused
@@ -391,7 +408,7 @@ public class PlayArea {
 	public Shape getShape(Vector2 xy) {      			// used by match checking in Shape
 		return shapeTile[ (int)xy.x ][ (int)xy.y ];
 	}
-	public int getXsize() {								// used CrossOne 
+	public int getXsize() {								// used in CrossOne 
 		return x_size;									// match checking (in CrossOneAbstract)
 	}													//
 	public int getYsize() {								// 
@@ -418,8 +435,8 @@ public class PlayArea {
 	public int getMatchListSize() {						// next moves, and also reset the values
 		return matchList.size;							// in private fields of this class.
 	}													//
-	public Array<Shape> getHintList() {					//
-		return hintList;								//
+	public Shape[] getHintList() {						//
+		return hintList.toArray();						//
 	}													//
 	public void clearMatchList() {						//
 		matchList.clear();								//
@@ -433,17 +450,27 @@ public class PlayArea {
 	public void setMessage(String s) {                	// made for DemoGameLogic, but seem to be
 		message = s;									// currently unused.
 	}
-	public boolean boardIsAlreadySet() {
-		return boardIsSetForPlay;
+	public boolean boardIsReadyForPlay() {;
+		return boardIsReadyForPlay;
 	}
 	public void setBoardReadyForPlay() {
-		boardIsSetForPlay = true;
+		boardIsReadyForPlay = true;
 	}
-	public Shape[] getAllShapes(){
+	public Shape[] getAllShapes() {
 		return allShapes.toArray();
 	}
 	public Sprite[] getAllBoardTiles() {
 		return allBaseTiles.toArray();
+	}
+	public void dispose() {
+		boardIsReadyForPlay = false;
+		allBaseTiles = null;
+		allShapes = null;
+		hintList = null;
+		matchList = null;
+		newShapeList = null;
+		shapeTile = null;
+		boardTile = null;
 	}
 	
 //----------------------------------------------End-of-Class--------

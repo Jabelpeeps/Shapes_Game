@@ -1,7 +1,6 @@
 package org.jabelpeeps.jabeltris.levels;
 
 import org.jabelpeeps.jabeltris.Core;
-import org.jabelpeeps.jabeltris.LevelMaster;
 import org.jabelpeeps.jabeltris.Shape;
 import org.jabelpeeps.jabeltris.shapes.CrossOneInverted;
 import org.jabelpeeps.jabeltris.shapes.CrossTwoInverted;
@@ -43,14 +42,5 @@ public class EndlessLevelDark extends EndlessGame {
 		}
 		Shape tmpShape = setOriginAndBounds(newShape, x , y);
 		return tmpShape;
-	}
-
-	@Override
-	public LevelMaster nextLevel() {
-		return null;
-	}
-	@Override
-	public boolean IsFinished() {
-		return false;
 	}
 }

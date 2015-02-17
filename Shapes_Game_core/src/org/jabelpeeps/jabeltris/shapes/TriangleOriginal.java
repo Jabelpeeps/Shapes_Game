@@ -8,8 +8,7 @@ public class TriangleOriginal extends TriangleAbstract {
 		this.setRegion(LevelMaster.triangle);
 		type = "triangle";
 		deselect();
-	}		
-
+	}
 	@Override
 	public void select() {
 		this.setColor(1f, 0f, 1f, 1f);

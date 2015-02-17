@@ -3,18 +3,20 @@ package org.jabelpeeps.jabeltris;
 import org.jabelpeeps.jabeltris.levels.EndlessLevelClassic;
 import org.jabelpeeps.jabeltris.levels.EndlessLevelDark;
 import org.jabelpeeps.jabeltris.levels.TrainingLevel1;
+import org.jabelpeeps.jabeltris.levels.TrainingLevel2;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector3;
 
 public class MainMenu extends Core implements Screen {
 
 // -------------------------------------------------Fields---------	
-	private final Core game;
+	private final Core core;
 	Vector3 touch = new Vector3();
 	char key;
 	private int menuScreen = 1;
@@ -25,7 +27,7 @@ public class MainMenu extends Core implements Screen {
 		this(g, 1);
 	}
 	public MainMenu(final Core g, int menu) {
-		game = g;
+		core = g;
 		menuScreen = menu;
 		Gdx.graphics.requestRendering();	
 		Gdx.input.setInputProcessor(new InputAdapter() {
@@ -48,7 +50,6 @@ public class MainMenu extends Core implements Screen {
 				}
 				return switchCase();
 			}
-			
 			private boolean switchCase() {
 				switch ( menuScreen ) {
 				case 1:
@@ -57,13 +58,11 @@ public class MainMenu extends Core implements Screen {
 				case 2:
 					optionsCase2();
 					break;
-				case 5:
-					optionsCase5();
+				case 3:
+					optionsCase3();
 					break;
-				case 8:
-					optionsCase8();
-					break;
-				default:
+				case 4:
+					optionsCase4();
 					break;
 				}
 				return true;
@@ -89,50 +88,37 @@ public class MainMenu extends Core implements Screen {
 			displayCase2();	
 		    break;
 		case 3:
-			game.setScreen(new EndlessLevelClassic(game) );
-			break;
-		case 4:
-			game.setScreen(new EndlessLevelDark(game) );
-			break;
-		case 5:
-			displayCase5();	
+			displayCase3();	
 		    break;
-		case 6:
-			game.setScreen(new TrainingLevel1(game));
-			break;
-		case 7:
-			game.setScreen(new DemoMode(game));
-			break;
-		case 8:
-			displayCase8();
+		case 4:
+			displayCase4();
 			break;
 		}
 	}
 // -------------------------------------------MenuLevel 1------------
 	private void displayCase1() {
 			batch.begin();
-			font.draw(batch, "Welcome to ........", 4, 42);
-			font.draw(batch, "Select option:", 4, 36);
-			font.draw(batch, "- Learning Levels", 4, 30);
-			font.draw(batch, "- Endless Play", 4, 26);
-			font.draw(batch, "...further options TBC", 2, 0);
+			messageCentered("Welcome to <[#FFD700]Insert Name of Game Here[]>.", 48);
+			messageLeft("Select option:\n"
+							+ "- Learning Levels\n"
+							+ "- Endless Play\n"
+							+ "- Wall-paper Mode.", 32);
+			messageCentered("...further options TBC", 0);
 			batch.end();
 	}
 	private void optionsCase1() {
-		if ( touchY(30) ) menuScreen = 5;
-		if ( touchY(26) ) menuScreen = 2;
-		if ( touchY(20) ) menuScreen = 7;
+		if ( touchY(28) ) menuScreen = 3;
+		if ( touchY(24) ) menuScreen = 2;
+		if ( touchY(20) ) core.setScreen(new DemoMode(core));
 	}
 // -------------------------------------------MenuLevel 2------------
 	private void displayCase2() {
 			batch.begin();
-			font.draw(batch, "Endless Play", 6, 48);
-			font.draw(batch, "______________", 6, 47);
-			font.draw(batch, "For practice...", 4, 40);
-			font.draw(batch, "...or meditation", 8, 36);
-			font.draw(batch, "The board will be", 4, 30);
-			font.draw(batch, "shuffled if no more", 4, 26);
-			font.draw(batch, "swaps are possible.", 4, 22);
+			messageCentered("Endless Play", 48);
+			messageCentered("______________", 47);
+			messageLeft("For practice...", 40);
+			messageRight("...or meditation", 36);
+			messageCentered("The board will be shuffled if no more swaps are possible.", 30);
 			font.draw(batch, "Select Shape set:-", 4, 16);
 			font.draw(batch, "- Light", 8, 10);
 			font.draw(batch, "- Dark", 8, 6);
@@ -140,35 +126,30 @@ public class MainMenu extends Core implements Screen {
 			batch.end();
 	}
 	private void optionsCase2() {
-		if ( touchY(10) ) menuScreen = 3;
-		if ( touchY(6) ) menuScreen = 4;
+		if ( touchY(10) ) core.setScreen(new EndlessLevelClassic(core) );
+		if ( touchY(6) ) core.setScreen(new EndlessLevelDark(core) );
 		if ( touchY(-6) || keyPressed == "BACK" ) menuScreen = 1;
 	}
-// ------------------------------------------MenuLevel 5----------	
-	private void displayCase5() {
+// ------------------------------------------MenuLevel 3----------	
+	private void displayCase3() {
 			batch.begin();
 			font.draw(batch, "Learning Levels", 6, 48);
 			font.draw(batch, "__________________", 6, 47);
-			font.draw(batch, "To Learn how the", 2, 40);
-			font.draw(batch, "shapes move, before", 2, 36);
-			font.draw(batch, "trying harder levels.", 2, 32);
-			font.draw(batch, "Each level will start", 2, 26);
-			font.draw(batch, "by showing you the", 2, 22);
-			font.draw(batch, "matching pattern for", 2, 18);
-			font.draw(batch, "each shape, before", 2, 14);
-			font.draw(batch, "letting you practise.", 2, 10);
+			messageCentered("Need to learn (or remember) how shapes match?\n"
+					+ "AutoPlay will demonstrate,  "
+					+ "before letting you practise.", 40);
 			font.draw(batch, "- Play Through All", 4, 4);
 			font.draw(batch, "- Choose a Shape.", 4, 0);
 			font.draw(batch, "Go Back", 22, -6);
 			batch.end();
 	}
-	private void optionsCase5() {
-		if ( touchY(4) ) menuScreen = 6;
-		if ( touchY(0) ) menuScreen = 8;
+	private void optionsCase3() {
+		if ( touchY(4) ) core.setScreen(new TrainingLevel1(core));
+		if ( touchY(0) ) menuScreen = 4;
 		if ( touchY(-6) || keyPressed == "BACK" ) menuScreen = 1;
 	}
-// ------------------------------------------MenuLevel 8----------	
-		private void displayCase8() {
+// ------------------------------------------MenuLevel 4----------	
+		private void displayCase4() {
 				batch.begin();
 				font.draw(batch, "Learning Levels", 6, 48);
 				font.draw(batch, "__________________", 6, 47);
@@ -179,25 +160,22 @@ public class MainMenu extends Core implements Screen {
 				square.draw(batch);
 				invsquare.draw(batch);
 				font.draw(batch, "- Squares", 8, 40);
-//				font.draw(batch, " ", 2, 36);
-//				font.draw(batch, " ", 2, 32);
-//				font.draw(batch, " ", 2, 26);
-//				font.draw(batch, " ", 2, 22);
-//				font.draw(batch, " ", 2, 18);
-//				font.draw(batch, " ", 2, 14);
-//				font.draw(batch, " ", 2, 10);
-//				font.draw(batch, " ", 4, 4);
-//				font.draw(batch, " ", 4, 0);
-				
-				
-				
-				
+				Sprite triangle = new Sprite(LevelMaster.triangle);
+				Sprite invtriangle = new Sprite(LevelMaster.invtri);
+				triangle.setBounds(2, 31, 4, 4);
+				invtriangle.setBounds(4, 29, 4, 4);
+				triangle.draw(batch);
+				invtriangle.draw(batch);
+				font.draw(batch, "- Triangles", 8, 34);
+
+				font.draw(batch, "Go Back", 22, -6);
 				batch.end();
 		}
-		private void optionsCase8() {
-			if ( touchY(40) ) menuScreen = 6;
-			//if ( touchY(0) ) menuScreen = 8;
-			if ( touchY(-6) || keyPressed == "BACK" ) menuScreen = 5;
+		private void optionsCase4() {
+			if ( touchY(40) ) core.setScreen(new TrainingLevel1(core, false));
+			if ( touchY(36) ) core.setScreen(new TrainingLevel2(core, false));
+			
+			if ( touchY(-6) || keyPressed == "BACK" ) menuScreen = 3;
 		}	
 	
 	
@@ -210,10 +188,22 @@ public class MainMenu extends Core implements Screen {
 		if ( touch.y > min-4 && touch.y < max-4) return true;
 		return false;
 	}
+	protected void messageCentered(String message, float y) {
+		font.drawWrapped(batch, message, 2, y, 36, BitmapFont.HAlignment.CENTER);
+	}
+	protected void messageLeft(String message, float y) {
+		font.drawWrapped(batch, message, 2, y, 36, BitmapFont.HAlignment.LEFT);
+	}
+	protected void messageRight(String message, float y) {
+		font.drawWrapped(batch, message, 2, y, 36, BitmapFont.HAlignment.RIGHT);
+	}
 	@Override
 	public void hide() {
 	}
 	@Override
 	public void show() {
+	}
+	@Override
+	public void dispose() {
 	}
 }

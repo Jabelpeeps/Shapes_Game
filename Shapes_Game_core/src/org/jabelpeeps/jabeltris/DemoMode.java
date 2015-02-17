@@ -12,8 +12,8 @@ import com.badlogic.gdx.graphics.Color;
 public class DemoMode extends LevelMaster {
 	
 	private Shape newShape;
-	private float alpha = 0.2f;
-	private String alphaDirection = "up";
+//	private float alpha = 0.2f;
+//	private String alphaDirection = "up";
 	
 	public DemoMode(Core g) {
 		super(g);
@@ -25,7 +25,7 @@ public class DemoMode extends LevelMaster {
 		x = 10;
 		y = (int) (10f*h/w);
 		
-		initPlayArea(this);
+		initPlayArea();
 		logic = new DemoGameLogic(game);
 		setupInput(new BorderButtonsInput(game, logic));
 		logic.start();
@@ -35,17 +35,20 @@ public class DemoMode extends LevelMaster {
 	public void render(float delta) {
 		if ( !logic.isAlive() ) {
 			core.setScreen(new MainMenu(core));	
+			dispose();
 		}
-		
+		if ( logic.getBackKeyWasPressed() ) {
+			logic.endDemo();
+		}
 		prepScreenAndCamera();
 		
-		if ( alphaDirection == "up" ) {
-			alpha += 0.003f;
-			if ( alpha >= 0.65f ) alphaDirection = "down";
-		} else {
-			alpha -= 0.003f;
-			if ( alpha <= 0.2f ) alphaDirection = "up";
-		}
+//		if ( alphaDirection == "up" ) {
+//			alpha += 0.003f;
+//			if ( alpha >= 0.65f ) alphaDirection = "down";
+//		} else {
+//			alpha -= 0.003f;
+//			if ( alpha <= 0.2f ) alphaDirection = "up";
+//		}
 						
 //		batch.begin();
 //		font.draw(batch, "This ", 4, 39);
@@ -100,14 +103,4 @@ public class DemoMode extends LevelMaster {
 		Shape tmpShape = setOriginAndBounds(newShape, x , y);
 		return tmpShape;
 	}
-
-	@Override
-	public LevelMaster nextLevel() {
-		return null;
-	}
-	@Override
-	public boolean IsFinished() {
-		return false;
-	}
-
 }

@@ -16,7 +16,7 @@ public abstract class Shape extends Sprite {
 			        return new Vector2();
 			    }
 		};
-		private Vector2 oldXY = vector2Pool.obtain().set(0, 0);
+		private Vector2 savedXY = vector2Pool.obtain().set(0, 0);
 		private Vector2 newXY = vector2Pool.obtain().set(0, 0);
 //  ----------------------------------------------Methods--------------- 
 		
@@ -37,7 +37,7 @@ public abstract class Shape extends Sprite {
 					if ( game.getShape(each).type.equals(s.type) ) { 
 						matchesNeeded--; 
 					};
-					each.set(0, 0);
+//					each.set(0, 0);
 					vector2Pool.free(each);
 				}
 			} catch (ArrayIndexOutOfBoundsException e) {};
@@ -51,11 +51,15 @@ public abstract class Shape extends Sprite {
 		public float checkMatch(int x, int y) {
 			return shapeMatch(x, y, x, y);
 		}
-		public void addHintsToHintList() {
-			if ( hintMatch( (int)getX(), (int)getY() ) ) {
+		public void addHintsToList() {
+			addHintsToList( (int)getX(), (int)getY() );
+		}
+		public void addHintsToList(int x, int y) {
+			if ( hintMatch(x, y) ) {
 					game.addHint(this);
 			}
 		}
+		
 		public void blink(long time, int repeats) {
 			for ( int i = 1; i <= repeats; i++) {
 				select();
@@ -93,13 +97,13 @@ public abstract class Shape extends Sprite {
 			super.setPosition(x*4 + game.getXoffset() , y*4 + game.getYoffset());
 		}
 		public void saveXY() {
-			oldXY.set( getX(), getY() );
+			savedXY.set( getX(), getY() );
 		}
 		public float getSavedX() {
-			return oldXY.x;
+			return savedXY.x;
 		}
 		public float getSavedY() {
-			return oldXY.y;
+			return savedXY.y;
 		}
 		public void setNewXY(float x, float y) {
 			newXY.set(x, y);
@@ -118,7 +122,7 @@ public abstract class Shape extends Sprite {
 		}
 		@Override
 		protected void finalize() {
-			vector2Pool.free(oldXY);
+			vector2Pool.free(savedXY);
 			vector2Pool.free(newXY);
 		}
 	}

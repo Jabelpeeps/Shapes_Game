@@ -2,19 +2,19 @@ package org.jabelpeeps.jabeltris.shapes;
 
 import org.jabelpeeps.jabeltris.LevelMaster;
 
-public class SquareBlue extends SquareAbstract {
+public class SquareGreen extends SquareAbstract {
 
-	public SquareBlue() {
+	public SquareGreen() {
 		this.setRegion(LevelMaster.greysqr);
-		type = "SquareBlue";
+		type = "SquareGreen";
 		deselect();
 	}
 	@Override
 	public void select() {
-		this.setColor(0, 0.25f, 0.5f, 1f);
+		this.setColor(0, 0.5f, 0, 1f);
 	}
 	@Override
 	public void deselect() {
-		this.setColor(0, 0.5f, 1f, 1f);
+		this.setColor(0, 1f, 0, 1f);
 	}
 }

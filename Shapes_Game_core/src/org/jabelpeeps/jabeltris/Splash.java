@@ -2,6 +2,7 @@ package org.jabelpeeps.jabeltris;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
@@ -79,10 +80,13 @@ public class Splash extends Core implements Screen {
 				parameter.kerning = true;
 				parameter.minFilter = TextureFilter.MipMapLinearLinear;
 				parameter.magFilter = TextureFilter.Linear;
+				parameter.borderWidth = 0.5f;
+				parameter.borderColor = Color.BLACK;
 				font = generator.generateFont(parameter); 
 				generator.dispose();                                   // dispose to avoid memory leaks!
 				font.setScale(0.2f);
 				font.setUseIntegerPositions(false);
+				font.setMarkupEnabled(true);
 								
 				// we are done loading, let's move on..
 				nowLoaded = true;

@@ -23,7 +23,7 @@ public class BorderButtonsInput extends InputAdapter {
 //	    	System.out.println("---------------");
 	    	
 			if ( typed == '' ) {
-				logic.setBackKeyPressed();				
+				logic.setBackKeyPressed(true);				
 			}
 			
 			// letter keys only used for debugging on desktop version.

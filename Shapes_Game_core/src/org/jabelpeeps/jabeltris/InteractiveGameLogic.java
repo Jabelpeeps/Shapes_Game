@@ -9,7 +9,6 @@ public class InteractiveGameLogic extends GameLogic implements Runnable {
 	private boolean shuffleCalled = false;
 	private boolean hintRequested = false;
 	private boolean endlessPlayMode = false;
-	private boolean backKeyPressed = false;
 
 	public InteractiveGameLogic(PlayArea g) {
 		super(g);
@@ -17,11 +16,11 @@ public class InteractiveGameLogic extends GameLogic implements Runnable {
 
 	@Override
 	public void run() {
-		if ( !game.boardIsAlreadySet() ) {
+		if ( !game.boardIsReadyForPlay() ) {
 			game.setupBoard();
 			game.fillBoard();
-			game.sprayShapesIntoPlace();
 			game.setBoardReadyForPlay();
+			game.sprayShapesIntoPlace();
 		}
 		Core.delay(60);
 		while ( game.boardHasMatches(100) ) {		// clear the board of any pre-existing matches.
@@ -31,7 +30,7 @@ public class InteractiveGameLogic extends GameLogic implements Runnable {
 		            			       // From here, this is is the main loop of the game logic.
 		do {
 			if ( hintRequested ) {
-				game.getHintList().first().blink(150, 3);
+				game.getHintList()[0].blink(150, 3);
 				hintRequested = false;
 			}
 			if ( candidatesAreSet ) {
@@ -49,15 +48,13 @@ public class InteractiveGameLogic extends GameLogic implements Runnable {
 				game.findHintsOnBoard();
 			}
 			Core.delay(100);
-		} while ( !game.level.IsFinished() && !backKeyPressed );		
-		clear();     								
-	}							        // The end of the main logic loop.
-// ----------------------------------------------------------------other Methods-------
-	private void clear() {			                    // runs when level is finished.
+		} while ( !game.level.IsFinished() && !backKeyWasPressed );
+		
 		Gdx.graphics.requestRendering();
 		Core.delay(500);
-		return;
-	}
+		return;    								
+	}							        // The end of the main logic loop.
+// ----------------------------------------------------------------other Methods-------
 	@Override
 	public void setSwapCandidates(int x1, int y1, int x2, int y2) {
 		c1x = x1;										// used by PlayAreaInput to hand in sets
@@ -89,13 +86,5 @@ public class InteractiveGameLogic extends GameLogic implements Runnable {
     @Override
 	public void setEndlessPlayModeOff() {
     	endlessPlayMode = false;
-	}
-	@Override
-	public void setBackKeyPressed() {					// used by BorderButtonsInput to report
-		System.out.println("setBackKeyPressed() called.");
-		backKeyPressed = true;							// key-press in thread-safe way.
-	}													//
-	public boolean getBackKeyPressed() {				//
-		return backKeyPressed;							//		
 	}
 }

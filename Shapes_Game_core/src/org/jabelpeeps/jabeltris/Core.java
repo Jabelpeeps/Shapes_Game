@@ -66,18 +66,15 @@ public class Core extends Game {
 	@Override
 	public void render () {
 		super.render();
-	}	
-	
+	}
 	@Override
 	public void dispose () {
-		//this.setScreen(null);
 		boardBase.dispose();
 		atlas.dispose();
 		manager.dispose();
 		font.dispose();
 		batch.dispose();
 		//Gdx.app.exit();
-		//System.exit(0);
 	}
 	
 //		System.out.println("delay() called by: " + getMethodName(1) 

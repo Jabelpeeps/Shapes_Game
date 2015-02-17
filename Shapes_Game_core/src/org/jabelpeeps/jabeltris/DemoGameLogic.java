@@ -1,7 +1,6 @@
 package org.jabelpeeps.jabeltris;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
 
 public class DemoGameLogic extends GameLogic implements Runnable {
 
@@ -11,7 +10,6 @@ public class DemoGameLogic extends GameLogic implements Runnable {
 	private final Vector2 LEFT = new Vector2(-1, 0);
 	private final Vector2 RIGHT = new Vector2(1, 0);
 	private Vector2[] directions = {UP, DOWN, LEFT, RIGHT};
-	private Array<Shape> localHintList = new Array<Shape>(false, 32, Shape.class);
 	
 	public DemoGameLogic(PlayArea g) {
 		super(g);
@@ -21,40 +19,31 @@ public class DemoGameLogic extends GameLogic implements Runnable {
 		demoIsFinished = true;
 	}
 	@Override
-	public void setBackKeyPressed() {
-		endDemo();
-	}
-
-	@Override
 	public void run() {
-		int highestNumberOfMatches;
-		Shape mostMatchedShape;
-		Vector2 bestMove = new Vector2(0, 0);
+		int highestNumberOfMatches = 0;
+		Shape mostMatchedShape = null;
+		Vector2 bestMove = null;
 		int bestX = 0, bestY = 0;
+		Shape[] localHintList;
 		
-		if ( !game.boardIsAlreadySet() ) {
+		if ( !game.boardIsReadyForPlay() ) {
 			game.setupBoard();
 			game.fillBoard();
-			game.dropShapesIntoPlace();
 			game.setBoardReadyForPlay();
+			game.dropShapesIntoPlace();
 		}
 		Core.delay(60);
 		do {
-			while ( game.boardHasMatches(200) ) {
+			while ( game.boardHasMatches(150) ) {
 				game.replaceMatchedShapes();
 			}
-			game.findHintsOnBoard();
-			while ( game.getHintListSize() <= 0 ) {
+			if ( game.findHintsOnBoard() <= 0 ) {
 				game.shuffleBoard();
-				game.findHintsOnBoard();
-			}			
+			}		
 			localHintList = game.getHintList();
-			localHintList.shuffle();
 			highestNumberOfMatches = 0;
-			mostMatchedShape = localHintList.first();
 			bestX = 0; 
 			bestY = 0;
-			
 			for ( Shape eachShape : localHintList ) {
 				int x = (int)eachShape.getX();
 				int y = (int)eachShape.getY();
@@ -70,14 +59,19 @@ public class DemoGameLogic extends GameLogic implements Runnable {
 							bestY = y;
 						}
 						game.shapeTileArraySwap(x, y, x+(int)whichWay.x, y+(int)whichWay.y);
-					} catch (ArrayIndexOutOfBoundsException e) {};
+					} catch (ArrayIndexOutOfBoundsException e) {}		
 					game.clearMatchList();
-				}	
+				}
 			}
-			mostMatchedShape.blink(100, 4);
+			game.blinkList(100, 5, new Shape[]{ mostMatchedShape, game.getShape(bestX+(int)bestMove.x, bestY+(int)bestMove.y) } );
+//			mostMatchedShape.blink(150, 4);
 			game.animateSwap(bestX, bestY, bestX+(int)bestMove.x, bestY+(int)bestMove.y);
 			
-		} while ( !demoIsFinished );	
+		} while ( !demoIsFinished );
+		
+		while ( game.boardHasMatches(100) ) {
+			game.replaceMatchedShapes();
+		}
 		return;
 	}
 }
