@@ -1,6 +1,5 @@
 package org.jabelpeeps.jabeltris;
 
-import com.badlogic.gdx.Gdx;
 
 public class InteractiveGameLogic extends GameLogic implements Runnable {
 
@@ -9,25 +8,36 @@ public class InteractiveGameLogic extends GameLogic implements Runnable {
 	private boolean shuffleCalled = false;
 	private boolean hintRequested = false;
 	private boolean endlessPlayMode = false;
+	private boolean handOverBoard = false;
 
 	public InteractiveGameLogic(PlayArea g) {
 		super(g);
 	}
-
+	public InteractiveGameLogic(PlayArea g, boolean handOver) {
+		super(g);
+		handOverBoard = handOver;
+	}
 	@Override
 	public void run() {
-		if ( !game.boardIsReadyForPlay() ) {
+		if ( !game.playAreaIsReady() ) {
 			game.setupBoard();
 			game.fillBoard();
-			game.setBoardReadyForPlay();
+			game.setPlayAreaReady();
+		}
+		
+		while ( !startSignalSet ) {
+			Core.delay(200);
+		}
+		if ( !handOverBoard ) {
 			game.swirlShapesIntoPlace();
 		}
 		Core.delay(60);
 		while ( game.boardHasMatches(100) ) {		// clear the board of any pre-existing matches.
 			game.replaceMatchedShapes();
 		}
-		game.findHintsOnBoard();
-		            			       // From here, this is is the main loop of the game logic.
+		if ( game.findHintsOnBoard() <= 0 ) {
+			game.shuffleBoard();
+		}           			       
 		do {
 			if ( hintRequested ) {
 				game.getHintList()[0].blink(150, 3);
@@ -50,10 +60,8 @@ public class InteractiveGameLogic extends GameLogic implements Runnable {
 			Core.delay(100);
 		} while ( !game.level.IsFinished() && !backKeyWasPressed );
 		
-		Gdx.graphics.requestRendering();
-		Core.delay(500);
 		return;    								
-	}							        // The end of the main logic loop.
+	}							        
 // ----------------------------------------------------------------other Methods-------
 	@Override
 	public void setSwapCandidates(int x1, int y1, int x2, int y2) {
@@ -80,11 +88,7 @@ public class InteractiveGameLogic extends GameLogic implements Runnable {
 		shuffleCalled = true;							//
 	}
 	@Override
-	public void setEndlessPlayModeOn() {					// sets boolean to allow automatic shuffling
-		endlessPlayMode = true;							// of the board
-	}
-    @Override
-	public void setEndlessPlayModeOff() {
-    	endlessPlayMode = false;
+	public void setEndlessPlayMode(boolean mode) {		// sets field to allow automatic shuffling
+		endlessPlayMode = mode;							// of the board
 	}
 }

@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.math.RandomXS128;
+import com.badlogic.gdx.math.Vector3;
 
 public abstract class LevelMaster extends Core implements Screen {
 
@@ -39,6 +40,7 @@ public abstract class LevelMaster extends Core implements Screen {
 	protected GameLogic logic;
 	
 	protected static RandomXS128 rand = Core.rand;
+	protected Vector3 touch = new Vector3();
 	protected int x = 10;
 	protected int y = 10;
 	public Color baseColor;
@@ -87,35 +89,24 @@ public abstract class LevelMaster extends Core implements Screen {
 		renderBoard(1f);
 	}
 	protected void renderBoard(float alpha) {
-		if (!game.boardIsReadyForPlay() ) return;
+		if (!game.playAreaIsReady() ) return;
+		
 		boolean batchStarted = false;
 		if ( !batch.isDrawing() ) {
 				batchStarted = true;
 				batch.begin();
 		}
+		
 		Sprite[] boardTiles = game.getAllBoardTiles();
-		Shape[] gameShapes = game.getAllShapes();
-		if ( alpha == 1f ) {
-				batch.disableBlending();
-				for ( Sprite each : boardTiles ) {
-					each.draw(batch);
-				}
-			    batch.enableBlending();
-			    for ( Shape each : gameShapes ) {
-				    each.draw(batch);
-			    }  	
-		} else {
-				for ( Sprite each : boardTiles ) {
-					each.setAlpha(alpha);
-					each.draw(batch);
-					each.setAlpha(1f);
-				}
-				for ( Shape each : gameShapes ) {
-		    		each.setAlpha(alpha);
-			    	each.draw(batch);
-			    	each.setAlpha(1f);
-			    }
+		for ( Sprite each : boardTiles ) {
+			each.draw(batch, alpha);
 		}
+		
+		Shape[] gameShapes = game.getAllShapes();
+		for ( Shape each : gameShapes ) {
+	    	each.draw(batch, alpha);
+	    }
+		
 	    if ( batchStarted ) batch.end();
 	}
 		

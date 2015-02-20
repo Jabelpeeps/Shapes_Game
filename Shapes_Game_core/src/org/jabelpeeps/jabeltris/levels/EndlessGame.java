@@ -14,7 +14,7 @@ public abstract class EndlessGame extends LevelMaster {
 		super(c);
 		initPlayArea();
 		logic = new InteractiveGameLogic(game);
-		logic.setEndlessPlayModeOn();
+		logic.setEndlessPlayMode(true);
 		setupInput(new BorderButtonsInput(game, logic), new PlayAreaInput(game, logic));
 		logic.start();
 	}

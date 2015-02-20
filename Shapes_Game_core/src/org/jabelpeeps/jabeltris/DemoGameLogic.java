@@ -26,10 +26,10 @@ public class DemoGameLogic extends GameLogic implements Runnable {
 		int bestX = 0, bestY = 0;
 		Shape[] localHintList;
 		
-		if ( !game.boardIsReadyForPlay() ) {
+		if ( !game.playAreaIsReady() ) {
 			game.setupBoard();
 			game.fillBoard();
-			game.setBoardReadyForPlay();
+			game.setPlayAreaReady();
 			game.spinShapesIntoPlace();
 		}
 		Core.delay(60);
@@ -50,7 +50,7 @@ public class DemoGameLogic extends GameLogic implements Runnable {
 				int y = (int)eachShape.getY();
 				for ( Vector2 whichWay : directions ) {
 					try {		
-						game.shapeTileArraySwap(x, y, x+(int)whichWay.x, y+(int)whichWay.y);
+						game.shapeTileArraySwap( x , y , x + (int)whichWay.x , y + (int)whichWay.y );
 						if ( game.boardHasMatches(0) 
 								&& ( game.getMatchListSize() > highestNumberOfMatches ) ) {
 							highestNumberOfMatches = game.getMatchListSize();
@@ -59,14 +59,15 @@ public class DemoGameLogic extends GameLogic implements Runnable {
 							bestX = x;
 							bestY = y;
 						}
-						game.shapeTileArraySwap(x, y, x+(int)whichWay.x, y+(int)whichWay.y);
+						game.shapeTileArraySwap( x , y , x + (int)whichWay.x , y + (int)whichWay.y );
 					} catch (ArrayIndexOutOfBoundsException e) {}		
 					game.clearMatchList();
 				}
 			}
 			time = (long) (( Core.rand.nextGaussian() + 1.5) * 150);
 			Core.delay(time);
-			game.blinkList(100, 5, new Shape[]{ mostMatchedShape, game.getShape(bestX+(int)bestMove.x, bestY+(int)bestMove.y) } );
+			game.blinkList(100, 5, new Shape[]{ mostMatchedShape 
+							, game.getShape( bestX + (int)bestMove.x , bestY + (int)bestMove.y ) } );
 			game.animateSwap(bestX, bestY, bestX+(int)bestMove.x, bestY+(int)bestMove.y);
 		} while ( !demoIsFinished );
 		

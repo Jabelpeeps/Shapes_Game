@@ -14,12 +14,10 @@ import org.jabelpeeps.jabeltris.shapes.SquareYellow;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.Vector3;
 
 public class TrainingLevel1 extends LevelMaster {
 
 	private int demoStage = 1;
-	private Vector3 touch = new Vector3();
 	private float alpha = 0.3f;
 	private boolean playOn = true;
 	private boolean playingLearningLevels = false;
@@ -48,6 +46,7 @@ public class TrainingLevel1 extends LevelMaster {
 // ---------------------------------------------Methods----------
 	@Override
 	public void render(float delta) {
+		
 		if ( logic.getBackKeyWasPressed() ) {
 			if ( !logic.isAlive() && alpha <= 0f ) {
 				core.setScreen(new MainMenu(core, 3));
@@ -57,23 +56,25 @@ public class TrainingLevel1 extends LevelMaster {
 				levelIsFinished = true;
 				demoStage = 0;
 			} 
-			if ( alpha >= 0f || logic.isAlive() ) {
+			if ( alpha >= 0f ) {
 				alpha -= 0.01f;
-				prepScreenAndCamera();
-				renderBoard(alpha);
 			}
+			prepScreenAndCamera();
+			renderBoard(alpha);
 			Gdx.graphics.requestRendering();
 			return;
 		}
+		
+		prepScreenAndCamera();
+		renderBoard(alpha);
+		
 		switch ( demoStage ) {
 		case 1:
-			prepScreenAndCamera();
-			renderBoard(alpha);
 			batch.begin();
 			messageCentered("Level 1 - Squares\n\n"
 					+ "Squares match when placed in square groups.\n\n\n"
 					+ "AutoPlay is showing you how this works.", 48);
-			messageCentered("[#FFD700]Touch here[] to remove the text above.", 0);
+			messageCentered("[#FFD700]Touch here[] to remove the text.", 0);
 			batch.end();
 			if ( Gdx.input.isTouched() ) {
 				touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
@@ -82,14 +83,11 @@ public class TrainingLevel1 extends LevelMaster {
 					demoStage = 2;
 				}
 			}
-			Gdx.graphics.requestRendering();
 			break;
 		case 2:
 			if ( alpha < 1f ) {
 				alpha += 0.003f;
 			}
-			prepScreenAndCamera();
-			renderBoard(alpha);
 			batch.begin();
 			messageCentered("Level 1 - Squares", 48);
 			messageCentered("[#FFD700]Touch the board[] when you are ready to take over.", 2);
@@ -102,14 +100,11 @@ public class TrainingLevel1 extends LevelMaster {
 					logic.endDemo();
 				}
 			}
-			Gdx.graphics.requestRendering();
 			break;
 		case 3:
 			if ( alpha < 1f ) {
 				alpha += 0.003f;
 			}
-			prepScreenAndCamera();
-			renderBoard(alpha);
 			batch.begin();
 			messageCentered("Level 1 - Squares", 48);
 			messageCentered("Ending AutoPlay...", 2);
@@ -121,10 +116,8 @@ public class TrainingLevel1 extends LevelMaster {
 			break;
 		case 4:
 			Core.delay(300);
-			prepScreenAndCamera();
-			renderBoard(alpha);
-			logic = new InteractiveGameLogic(game);
-			logic.setEndlessPlayModeOn();
+			logic = new InteractiveGameLogic(game, true);
+			logic.setEndlessPlayMode(true);
 			batch.begin();
 			messageCentered("Sets Matched:- 0", 46);
 			messageCentered("Target:- 20", 40);
@@ -138,11 +131,9 @@ public class TrainingLevel1 extends LevelMaster {
 			setupInput(new BorderButtonsInput(game, logic), new PlayAreaInput(game, logic));
 			logic.start();
 			demoStage++;
-			Gdx.graphics.requestRendering();
 			break;
 		case 6:
 		case 7:
-			prepScreenAndCamera();
 			int matches = game.getTotalMatches();
 			batch.begin();
 			font.draw(batch, "Sets Matched:- " + matches, 6, 46);
@@ -164,7 +155,6 @@ public class TrainingLevel1 extends LevelMaster {
 				}
 			} 		
 		    batch.end();
-		    renderBoard(alpha);
 		    
 			if ( demoStage == 7 && Gdx.input.isTouched() ) {
 				touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);

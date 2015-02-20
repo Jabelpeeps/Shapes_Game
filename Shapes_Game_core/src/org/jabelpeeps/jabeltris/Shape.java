@@ -20,6 +20,7 @@ public abstract class Shape extends Sprite {
 		};
 		private Vector2 savedXY = vector2Pool.obtain().set(0, 0);
 		private Vector2 newXY = vector2Pool.obtain().set(0, 0);
+		private Vector2 savedOrigin = vector2Pool.obtain().set(0,0);
 //  ----------------------------------------------Methods--------------- 
 		
 		// The 'm' method is called from the various shape objects, 
@@ -87,20 +88,25 @@ public abstract class Shape extends Sprite {
 
 		@Override
 		public float getX() {
-			return (super.getX() - x_offset) / 4 ;
+			return ( super.getX() - x_offset ) / 4 ;
 		}
 		@Override
 		public float getY() {
-			return (super.getY() - y_offset) / 4 ;
+			return ( super.getY() - y_offset ) / 4 ;
 		}
 		@Override
 		public void setPosition(float x, float y) {
-			super.setPosition( x*4 + x_offset , y*4 + y_offset );
+			super.setPosition( x * 4 + x_offset , y * 4 + y_offset );
+		}
+		@Override
+		public void setOrigin(float x, float y) {      // sets origin in relation to the playArea rather than the Shape.
+			super.setOrigin( ( x - getX() ) * 4 + 2 , ( y - getY() ) * 4 + 2 );
 		}
 		public void setOriginAndBounds(int x, int y) {
-			setOrigin(2, 2);
+			setBounds( x * 4 + x_offset , y * 4 + y_offset , 4 , 4 );
+			setOriginCenter();
 			setScale(0.9f);
-			setBounds( x*4 + x_offset , y*4 + y_offset , 4 , 4 );
+			setAlpha(0f);
 		}
 		public void saveXY() {
 			savedXY.set( getX() , getY() );
@@ -129,10 +135,23 @@ public abstract class Shape extends Sprite {
 		public float getNewY() {
 			return newXY.y;
 		}
+		public void saveOrigin() {
+			savedOrigin.set( (getOriginX() - 2 - x_offset) / 4 , (getOriginY() - 2 - y_offset) / 4 );
+		}
+		public void saveOrigin(float x, float y) {
+			savedOrigin.set(x, y);
+		}
+		public float getSavedOriginX() {
+			return savedOrigin.x;
+		}
+		public float getSavedOriginY() {
+			return savedOrigin.y;
+		}
 		@Override
 		protected void finalize() {
 			vector2Pool.free(savedXY);
 			vector2Pool.free(newXY);
+			vector2Pool.free(savedOrigin);
 		}
 	}
 
