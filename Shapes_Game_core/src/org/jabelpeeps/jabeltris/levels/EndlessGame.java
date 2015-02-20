@@ -10,8 +10,8 @@ import org.jabelpeeps.jabeltris.PlayAreaInput;
 public abstract class EndlessGame extends LevelMaster {
 	
 // ---------------------------------------------Constructor(s)--------	
-	public EndlessGame(Core g) {
-		super(g);
+	public EndlessGame(Core c) {
+		super(c);
 		initPlayArea();
 		logic = new InteractiveGameLogic(game);
 		logic.setEndlessPlayModeOn();

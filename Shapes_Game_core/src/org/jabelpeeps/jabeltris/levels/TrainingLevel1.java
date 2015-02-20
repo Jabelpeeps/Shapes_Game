@@ -18,21 +18,24 @@ import com.badlogic.gdx.math.Vector3;
 
 public class TrainingLevel1 extends LevelMaster {
 
-	private Shape newShape;
 	private int demoStage = 1;
 	private Vector3 touch = new Vector3();
 	private float alpha = 0.3f;
 	private boolean playOn = true;
+	private boolean playingLearningLevels = false;
 	private boolean levelIsFinished = false;
 	
 // ---------------------------------------------Constructors--------	
 	public TrainingLevel1(Core c) {
-		this(c, true);
+		this(c, true, false);
 	}
-	
-	public TrainingLevel1(Core c, boolean playNext) {
+	public TrainingLevel1(Core c, boolean playNext) {	
+		this(c, playNext, false);
+	}
+	public TrainingLevel1(Core c, boolean playNext, boolean learningLevels) {
 		super(c);
 		playOn = playNext;
+		playingLearningLevels = learningLevels;
 		baseColor = new Color(1f, 1f, 1f, 1f);
 		x = 6;
 		y = 6;
@@ -41,6 +44,7 @@ public class TrainingLevel1 extends LevelMaster {
 		setupInput(new BorderButtonsInput(game, logic));
 		logic.start();
 	}
+
 // ---------------------------------------------Methods----------
 	@Override
 	public void render(float delta) {
@@ -53,10 +57,8 @@ public class TrainingLevel1 extends LevelMaster {
 				levelIsFinished = true;
 				demoStage = 0;
 			} 
-			if ( alpha > 0f ) {
+			if ( alpha >= 0f || logic.isAlive() ) {
 				alpha -= 0.01f;
-			}
-			if ( logic.isAlive() ) {
 				prepScreenAndCamera();
 				renderBoard(alpha);
 			}
@@ -172,10 +174,11 @@ public class TrainingLevel1 extends LevelMaster {
 				} 
 			}
 			if ( !logic.isAlive() && alpha <= 0f ) {
-				Core.delay(500);
-				if ( demoStage == 7 && playOn ) {
-					core.setScreen(new TrainingLevel2(core));
-				} else {
+				if ( demoStage == 7 && playOn && playingLearningLevels ) {
+					core.setScreen(new TrainingLevel2(core, true, true));
+				} else if ( demoStage == 7 && playOn ) {
+					core.setScreen(new TrainingLevel2(core, true));
+				} else {	
 					core.setScreen(new MainMenu(core, 4));
 				}
 				dispose();
@@ -189,7 +192,7 @@ public class TrainingLevel1 extends LevelMaster {
 	
 	@Override
 	public Shape makeNewShape(int x, int y) {
-				
+		Shape newShape = null;			
 		int option = rand.nextInt(3) + 1;
 		switch (option) {
 			case 1:                       
@@ -202,8 +205,8 @@ public class TrainingLevel1 extends LevelMaster {
 				newShape = new SquareYellow();				
 				break;
 		}
-		Shape tmpShape = setOriginAndBounds(newShape, x , y);
-		return tmpShape;
+		newShape.setOriginAndBounds(x , y);
+		return newShape;
 	}
 	@Override
 	public boolean IsFinished() {

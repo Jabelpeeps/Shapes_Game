@@ -118,19 +118,12 @@ public abstract class LevelMaster extends Core implements Screen {
 		}
 	    if ( batchStarted ) batch.end();
 	}
-	
-	protected Shape setOriginAndBounds(Shape s, int x, int y) {
-		s.setOrigin(2, 2);
-		s.setScale(0.9f);
-		s.setBounds(x*4 + game.getXoffset(), y*4 + game.getYoffset(), 4, 4);
-		return s;
-	}
+		
 	protected abstract Shape makeNewShape(int i, int j);
 	
 	public boolean IsFinished() {
 		return false;
 	}
-	
 	@Override
 	public void show() {
 	}

@@ -93,16 +93,13 @@ public class Splash extends Core implements Screen {
 				break;
 			}	
 		} else if ( nowLoaded && Gdx.input.isTouched() ) {
-				core.setScreen(new MainMenu(core));
+				core.setScreen(new MainMenu(core, 0));
 				dispose();
 		} 	
 	    
 		// displays splash image while AssetManager is loading.
 		Gdx.gl.glClearColor(0, 0, 0.2f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-//		Gdx.gl.glAttachShader(program, shader);
-		
-	    
 		
 		// when loaded, display some prompts...
 		if ( nowLoaded && logoScale < 0f ) {    
@@ -135,7 +132,7 @@ public class Splash extends Core implements Screen {
 			batch.enableBlending();
 			batch.end();
 		 }
-	}	
+	}
 				// REMEMBER to request renders with:-
 				//    	Gdx.graphics.requestRendering();
 				// (also triggered by input events)

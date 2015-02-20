@@ -9,6 +9,8 @@ public abstract class Shape extends Sprite {
 // -------------------------------------------------Field(s)---------
 		protected String type;
 		public static PlayArea game;
+		protected static int x_offset;
+		protected static int y_offset;
 		
 		private final Pool<Vector2> vector2Pool = new Pool<Vector2>(){
 			    @Override
@@ -37,7 +39,6 @@ public abstract class Shape extends Sprite {
 					if ( game.getShape(each).type.equals(s.type) ) { 
 						matchesNeeded--; 
 					};
-//					each.set(0, 0);
 					vector2Pool.free(each);
 				}
 			} catch (ArrayIndexOutOfBoundsException e) {};
@@ -59,6 +60,14 @@ public abstract class Shape extends Sprite {
 					game.addHint(this);
 			}
 		}
+		boolean hintMatch(int x, int y) {
+			boolean hintFound = false;
+			if ( shapeMatch(x+1, y, x, y) > 0f ) hintFound = true;
+			if ( shapeMatch(x-1, y, x, y) > 0f ) hintFound = true;
+			if ( shapeMatch(x, y+1, x, y) > 0f ) hintFound = true;
+			if ( shapeMatch(x, y-1, x, y) > 0f ) hintFound = true;
+			return hintFound;
+		}
 		
 		public void blink(long time, int repeats) {
 			for ( int i = 1; i <= repeats; i++) {
@@ -70,14 +79,6 @@ public abstract class Shape extends Sprite {
 				Core.delay(time);
 				}
 		}
-		protected boolean hintMatch(int x, int y) {
-			boolean hintFound = false;
-			if ( shapeMatch(x+1, y, x, y) > 0f ) hintFound = true;
-			if ( shapeMatch(x-1, y, x, y) > 0f ) hintFound = true;
-			if ( shapeMatch(x, y+1, x, y) > 0f ) hintFound = true;
-			if ( shapeMatch(x, y-1, x, y) > 0f ) hintFound = true;
-			return hintFound;
-		}
 		protected abstract float shapeMatch(int x, int y, int xx, int yy);
 		
 		public abstract void select();
@@ -86,18 +87,23 @@ public abstract class Shape extends Sprite {
 
 		@Override
 		public float getX() {
-			return (super.getX() - game.getXoffset())/4;
+			return (super.getX() - x_offset) / 4 ;
 		}
 		@Override
 		public float getY() {
-			return (super.getY() - game.getYoffset())/4;
+			return (super.getY() - y_offset) / 4 ;
 		}
 		@Override
 		public void setPosition(float x, float y) {
-			super.setPosition(x*4 + game.getXoffset() , y*4 + game.getYoffset());
+			super.setPosition( x*4 + x_offset , y*4 + y_offset );
+		}
+		public void setOriginAndBounds(int x, int y) {
+			setOrigin(2, 2);
+			setScale(0.9f);
+			setBounds( x*4 + x_offset , y*4 + y_offset , 4 , 4 );
 		}
 		public void saveXY() {
-			savedXY.set( getX(), getY() );
+			savedXY.set( getX() , getY() );
 		}
 		public float getSavedX() {
 			return savedXY.x;
@@ -105,14 +111,17 @@ public abstract class Shape extends Sprite {
 		public float getSavedY() {
 			return savedXY.y;
 		}
-		public void setNewXY(float x, float y) {
-			newXY.set(x, y);
-		}
 		public void setNewX(float x) {
-			newXY.set(x, getY());
+			setNewXY( x , getY() );
 		}
 		public void setNewY(float y) {
-			newXY.set(getX(), y);
+			setNewXY( getX() , y );
+		}
+		public void setNewXY() {
+			setNewXY( getX() , getY() );
+		}
+		public void setNewXY(float x, float y) {
+			newXY.set( x , y );
 		}
 		public float getNewX() {
 			return newXY.x;

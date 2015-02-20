@@ -1,11 +1,13 @@
 package org.jabelpeeps.jabeltris;
 
+import org.jabelpeeps.jabeltris.levels.ChallengeLevel1;
 import org.jabelpeeps.jabeltris.levels.EndlessLevelClassic;
 import org.jabelpeeps.jabeltris.levels.EndlessLevelDark;
 import org.jabelpeeps.jabeltris.levels.TrainingLevel1;
 import org.jabelpeeps.jabeltris.levels.TrainingLevel2;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -44,7 +46,7 @@ public class MainMenu extends Core implements Screen {
 			@Override
 			public boolean keyTyped(char typed) {
 				keyPressed = "none";
-				if ( typed == '' ) {
+				if ( typed == '' || typed == Keys.BACK ) {
 					keyPressed = "BACK";
 					touch.set(0, 0, 0);
 				}
@@ -52,6 +54,9 @@ public class MainMenu extends Core implements Screen {
 			}
 			private boolean switchCase() {
 				switch ( menuScreen ) {
+				case 0:
+					optionsCase0();
+					break;
 				case 1:
 					optionsCase1();
 					break;
@@ -81,6 +86,9 @@ public class MainMenu extends Core implements Screen {
 		batch.setProjectionMatrix(camera.combined);
 		
 		switch ( menuScreen ) {
+		case 0:
+			displayCase0();
+			break;
 		case 1:
 			displayCase1();
 			break;
@@ -95,21 +103,41 @@ public class MainMenu extends Core implements Screen {
 			break;
 		}
 	}
+// -------------------------------------------MenuLevel 0------------
+	private void displayCase0() {
+		batch.begin();
+		messageCentered("<Insert Name of Game Here[]> "
+					+ "by Jabelpeeps Productions.", 48);
+		messageLeft("Select either:-", 24);
+		messageCentered("- [#FFD700]Quick Start[]", 18);
+		messageCentered("- [#FFD700]Main Menu[]", 12);
+		messageRight("Exit", -4);
+		batch.end();
+	}
+	private void optionsCase0() {
+		if ( touchY(18) ) core.setScreen(new ChallengeLevel1(core));
+		if ( touchY(12) ) menuScreen = 1;
+		if ( touchY(-4) ) Gdx.app.exit();
+	}
 // -------------------------------------------MenuLevel 1------------
 	private void displayCase1() {
 			batch.begin();
-			messageCentered("Welcome to <[#FFD700]Insert Name of Game Here[]>.", 48);
+			messageCentered("Main Menu", 48);
+			messageCentered("_____________", 47);
 			messageLeft("Select option:\n"
+							+ "- Full Game\n"
 							+ "- Learning Levels\n"
 							+ "- Endless Play\n"
 							+ "- Wall-paper Mode.", 32);
-			messageCentered("...further options TBC", 0);
+			messageRight("Exit", 0);
 			batch.end();
 	}
 	private void optionsCase1() {
-		if ( touchY(28) ) menuScreen = 3;
-		if ( touchY(24) ) menuScreen = 2;
-		if ( touchY(20) ) core.setScreen(new DemoMode(core));
+		if ( touchY(28) ) core.setScreen(new TrainingLevel1(core));
+		if ( touchY(24) ) menuScreen = 3;
+		if ( touchY(20) ) menuScreen = 2;
+		if ( touchY(16) ) core.setScreen(new DemoMode(core));
+		if ( touchY(0) ) Gdx.app.exit();
 	}
 // -------------------------------------------MenuLevel 2------------
 	private void displayCase2() {
@@ -135,16 +163,16 @@ public class MainMenu extends Core implements Screen {
 			batch.begin();
 			font.draw(batch, "Learning Levels", 6, 48);
 			font.draw(batch, "__________________", 6, 47);
-			messageCentered("Need to learn (or remember) how shapes match?\n"
-					+ "AutoPlay will demonstrate,  "
-					+ "before letting you practise.", 40);
+			messageCentered("Forgotten how the shapes match?\n"
+					+ "Here you can replay demonstration levels that "
+					+ "you have already reached in the full game.", 40);
 			font.draw(batch, "- Play Through All", 4, 4);
 			font.draw(batch, "- Choose a Shape.", 4, 0);
 			font.draw(batch, "Go Back", 22, -6);
 			batch.end();
 	}
 	private void optionsCase3() {
-		if ( touchY(4) ) core.setScreen(new TrainingLevel1(core));
+		if ( touchY(4) ) core.setScreen(new TrainingLevel1(core, true, true));
 		if ( touchY(0) ) menuScreen = 4;
 		if ( touchY(-6) || keyPressed == "BACK" ) menuScreen = 1;
 	}
@@ -153,20 +181,20 @@ public class MainMenu extends Core implements Screen {
 				batch.begin();
 				font.draw(batch, "Learning Levels", 6, 48);
 				font.draw(batch, "__________________", 6, 47);
-				Sprite square = new Sprite(LevelMaster.square);
-				Sprite invsquare = new Sprite(LevelMaster.invsqr);
-				square.setBounds(2, 37, 4, 4);
-				invsquare.setBounds(4, 35, 4, 4);
-				square.draw(batch);
-				invsquare.draw(batch);
-				font.draw(batch, "- Squares", 8, 40);
 				Sprite triangle = new Sprite(LevelMaster.triangle);
 				Sprite invtriangle = new Sprite(LevelMaster.invtri);
-				triangle.setBounds(2, 31, 4, 4);
-				invtriangle.setBounds(4, 29, 4, 4);
+				triangle.setBounds(2, 31, 3, 3);
+				invtriangle.setBounds(3, 30, 3, 3);
 				triangle.draw(batch);
 				invtriangle.draw(batch);
 				font.draw(batch, "- Triangles", 8, 34);
+				Sprite square = new Sprite(LevelMaster.square);
+				Sprite invsquare = new Sprite(LevelMaster.invsqr);
+				square.setBounds(2, 37, 3, 3);
+				invsquare.setBounds(3, 36, 3, 3);
+				square.draw(batch);
+				invsquare.draw(batch);
+				font.draw(batch, "- Squares", 8, 40);
 
 				font.draw(batch, "Go Back", 22, -6);
 				batch.end();

@@ -30,9 +30,10 @@ public class DemoGameLogic extends GameLogic implements Runnable {
 			game.setupBoard();
 			game.fillBoard();
 			game.setBoardReadyForPlay();
-			game.dropShapesIntoPlace();
+			game.spinShapesIntoPlace();
 		}
 		Core.delay(60);
+		long time;
 		do {
 			while ( game.boardHasMatches(150) ) {
 				game.replaceMatchedShapes();
@@ -63,10 +64,10 @@ public class DemoGameLogic extends GameLogic implements Runnable {
 					game.clearMatchList();
 				}
 			}
+			time = (long) (( Core.rand.nextGaussian() + 1.5) * 150);
+			Core.delay(time);
 			game.blinkList(100, 5, new Shape[]{ mostMatchedShape, game.getShape(bestX+(int)bestMove.x, bestY+(int)bestMove.y) } );
-//			mostMatchedShape.blink(150, 4);
 			game.animateSwap(bestX, bestY, bestX+(int)bestMove.x, bestY+(int)bestMove.y);
-			
 		} while ( !demoIsFinished );
 		
 		while ( game.boardHasMatches(100) ) {

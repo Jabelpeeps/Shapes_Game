@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -18,14 +19,14 @@ public class Core extends Game {
 // --------------------------------------------------Fields------------	
 	protected static SpriteBatch batch;
 	protected static OrthographicCamera camera;
-	static AssetManager manager;
+	protected static AssetManager manager;
 	protected static BitmapFont font;
-	static TextureAtlas atlas;
-	final String MY_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890\"!?'.,;:()[]{}<>|/@\\^$-%+=#_&~* ¡£¦§«¬°±·»¼½¾×÷";
-	static Texture boardBase;
+	protected static TextureAtlas atlas;
+	protected final String MY_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890\"!?'.,;:()[]{}<>|/@\\^$-%+=#_&~* ¡£¦§«¬°±·»¼½¾×÷";
+	protected static Texture boardBase;
 	protected static TextureRegion[][] boardBaseTiles;
 	protected static RandomXS128 rand = new RandomXS128();
-		
+	protected Preferences prefs;	
 	protected static Matrix4 initialMatrix;	
 	
 // --------------------------------------------------Methods-----------
@@ -34,6 +35,7 @@ public class Core extends Game {
 		batch = new SpriteBatch(500);
 		atlas = new TextureAtlas();
 		manager = new AssetManager();
+		prefs = Gdx.app.getPreferences("JabelPrefs");
 		
 		// Queue some jobs for AssetManager
 		manager.load("pack.atlas", TextureAtlas.class);
@@ -74,7 +76,6 @@ public class Core extends Game {
 		manager.dispose();
 		font.dispose();
 		batch.dispose();
-		//Gdx.app.exit();
 	}
 	
 //		System.out.println("delay() called by: " + getMethodName(1) 

@@ -20,7 +20,7 @@ public class InteractiveGameLogic extends GameLogic implements Runnable {
 			game.setupBoard();
 			game.fillBoard();
 			game.setBoardReadyForPlay();
-			game.sprayShapesIntoPlace();
+			game.swirlShapesIntoPlace();
 		}
 		Core.delay(60);
 		while ( game.boardHasMatches(100) ) {		// clear the board of any pre-existing matches.

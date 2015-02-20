@@ -12,8 +12,6 @@ import com.badlogic.gdx.graphics.Color;
 
 public class EndlessLevelClassic extends EndlessGame {
 
-	private static Shape newShape;
-	
 	public EndlessLevelClassic(Core g) {
 		super(g);
 		baseColor = Color.valueOf("B0C4DE");
@@ -21,7 +19,7 @@ public class EndlessLevelClassic extends EndlessGame {
 
 	@Override
 	public Shape makeNewShape(int x, int y) {
-		
+		Shape newShape = null;	
 		int option = rand.nextInt(5) + 1;
 		switch (option) {
 			case 1:                       
@@ -40,7 +38,7 @@ public class EndlessLevelClassic extends EndlessGame {
 				newShape = new SquareOriginal();				
 				break;
 		}
-		Shape tmpShape = setOriginAndBounds(newShape, x , y);
-		return tmpShape;
+		newShape.setOriginAndBounds(x , y);
+		return newShape;
 	}
 }

@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.Color;
 
 public class DemoMode extends LevelMaster {
 	
-	private Shape newShape;
 //	private float alpha = 0.2f;
 //	private String alphaDirection = "up";
 	
@@ -81,7 +80,7 @@ public class DemoMode extends LevelMaster {
 	
 	@Override
 	public Shape makeNewShape(int x, int y) {
-		
+		Shape newShape = null;	
 		int option = rand.nextInt(5)+1;
 		switch (option) {
 			case 1:                       
@@ -100,7 +99,7 @@ public class DemoMode extends LevelMaster {
 				newShape = new SquareInverted();				
 				break;
 		}
-		Shape tmpShape = setOriginAndBounds(newShape, x , y);
-		return tmpShape;
+		newShape.setOriginAndBounds(x , y);
+		return newShape;
 	}
 }
