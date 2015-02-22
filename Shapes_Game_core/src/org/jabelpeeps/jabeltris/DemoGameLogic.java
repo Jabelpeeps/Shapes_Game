@@ -34,13 +34,7 @@ public class DemoGameLogic extends GameLogic implements Runnable {
 		}
 		Core.delay(60);
 		long time;
-		do {
-			while ( game.boardHasMatches(150) ) {
-				game.replaceMatchedShapes();
-			}
-			if ( game.findHintsOnBoard() <= 0 ) {
-				game.shuffleBoard();
-			}		
+		do {		
 			localHintList = game.getHintList();
 			highestNumberOfMatches = 0;
 			bestX = 0; 
@@ -66,14 +60,20 @@ public class DemoGameLogic extends GameLogic implements Runnable {
 			}
 			time = (long) (( Core.rand.nextGaussian() + 1.5) * 150);
 			Core.delay(time);
-			game.blinkList(100, 5, new Shape[]{ mostMatchedShape 
-							, game.getShape( bestX + (int)bestMove.x , bestY + (int)bestMove.y ) } );
-			game.animateSwap(bestX, bestY, bestX+(int)bestMove.x, bestY+(int)bestMove.y);
+			
+			game.blinkList(100, 5, new Shape[]{ mostMatchedShape , game.getShape( bestX + (int)bestMove.x , bestY + (int)bestMove.y ) } );
+			game.animateSwap( bestX , bestY , bestX + (int)bestMove.x , bestY + (int)bestMove.y );
+		
+			while ( game.boardHasMatches(150) ) {
+				game.replaceMatchedShapes();
+			}
+			
+			if ( game.findHintsOnBoard() <= 0 ) {
+				game.shuffleBoard();
+			}		
+		
 		} while ( !demoIsFinished );
 		
-		while ( game.boardHasMatches(100) ) {
-			game.replaceMatchedShapes();
-		}
 		return;
 	}
 }

@@ -37,7 +37,9 @@ public abstract class LevelMaster extends Core implements Screen {
 	
 	protected final Core core;
 	protected PlayArea game;
+	protected PlayArea game2;
 	protected GameLogic logic;
+	protected GameLogic logic2;
 	
 	protected static RandomXS128 rand = Core.rand;
 	protected Vector3 touch = new Vector3();
@@ -86,31 +88,34 @@ public abstract class LevelMaster extends Core implements Screen {
 	}
 	
 	protected void renderBoard() {
-		renderBoard(1f);
+		renderBoard(1f, game);
 	}
 	protected void renderBoard(float alpha) {
-		if (!game.playAreaIsReady() ) return;
+		renderBoard(alpha, game);
+	}
+	protected void renderBoard(PlayArea p) {
+		renderBoard(1f, p);
+	}
+	protected void renderBoard(float alpha, PlayArea p) {
+		if (!p.playAreaIsReady() ) return;
 		
 		boolean batchStarted = false;
 		if ( !batch.isDrawing() ) {
 				batchStarted = true;
 				batch.begin();
 		}
-		
-		Sprite[] boardTiles = game.getAllBoardTiles();
+		Sprite[] boardTiles = p.getAllBoardTiles();
 		for ( Sprite each : boardTiles ) {
 			each.draw(batch, alpha);
 		}
-		
-		Shape[] gameShapes = game.getAllShapes();
+		Shape[] gameShapes = p.getAllShapes();
 		for ( Shape each : gameShapes ) {
 	    	each.draw(batch, alpha);
 	    }
-		
 	    if ( batchStarted ) batch.end();
 	}
 		
-	protected abstract Shape makeNewShape(int i, int j);
+	protected abstract Shape makeNewShape(int x, int y);
 	
 	public boolean IsFinished() {
 		return false;

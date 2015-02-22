@@ -31,13 +31,7 @@ public class InteractiveGameLogic extends GameLogic implements Runnable {
 		if ( !handOverBoard ) {
 			game.swirlShapesIntoPlace();
 		}
-		Core.delay(60);
-		while ( game.boardHasMatches(100) ) {		// clear the board of any pre-existing matches.
-			game.replaceMatchedShapes();
-		}
-		if ( game.findHintsOnBoard() <= 0 ) {
-			game.shuffleBoard();
-		}           			       
+		
 		do {
 			if ( hintRequested ) {
 				game.getHintList()[0].blink(150, 3);
@@ -51,11 +45,10 @@ public class InteractiveGameLogic extends GameLogic implements Runnable {
 				game.shuffleBoard();
 				shuffleCalled  = false;	
 			}
-			while ( game.getHintListSize() <= 0 && endlessPlayMode ) {
-				game.setMessage("Shuffling Board");
+			if ( game.getHintListSize() <= 0 && endlessPlayMode ) {
+				game.setMessage("No Moves Left, Shuffling");
 				Core.delay(100);
 				game.shuffleBoard();
-				game.findHintsOnBoard();
 			}
 			Core.delay(100);
 		} while ( !game.level.IsFinished() && !backKeyWasPressed );

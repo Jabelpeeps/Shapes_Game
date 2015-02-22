@@ -1,10 +1,10 @@
 package org.jabelpeeps.jabeltris;
 
-import org.jabelpeeps.jabeltris.levels.ChallengeLevel1;
 import org.jabelpeeps.jabeltris.levels.EndlessLevelClassic;
 import org.jabelpeeps.jabeltris.levels.EndlessLevelDark;
 import org.jabelpeeps.jabeltris.levels.TrainingLevel1;
 import org.jabelpeeps.jabeltris.levels.TrainingLevel2;
+import org.jabelpeeps.jabeltris.levels.TrainingLevel3;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -115,7 +115,7 @@ public class MainMenu extends Core implements Screen {
 		batch.end();
 	}
 	private void optionsCase0() {
-		if ( touchY(18) ) core.setScreen(new ChallengeLevel1(core));
+		if ( touchY(18) ) core.setScreen(new TrainingLevel3(core));
 		if ( touchY(12) ) menuScreen = 1;
 		if ( touchY(-4) ) Gdx.app.exit();
 	}

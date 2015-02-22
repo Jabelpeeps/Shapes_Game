@@ -24,6 +24,7 @@ public class TrainingLevel2 extends LevelMaster {
 	private boolean playOn = true;
 	private boolean playingLearningLevels = false;
 	private boolean levelIsFinished = false;
+	
 	public Sprite tinyTri = new Sprite(LevelMaster.triangle);
 	private Integer[][] triPtDown  = new Integer[][]{{-2,0}, {0,0}, {+2,0}, {0,-2}};
 	private Integer[][] triPtUp    = new Integer[][]{{-2,0}, {0,0}, {+2,0}, {0,+2}}; 
@@ -137,7 +138,7 @@ public class TrainingLevel2 extends LevelMaster {
 			Gdx.graphics.requestRendering();
 			break;
 		case 5:
-			Core.delay(1000);
+			Core.delay(500);
 			setupInput(new BorderButtonsInput(game, logic), new PlayAreaInput(game, logic));
 			logic.start();
 			demoStage++;
@@ -179,7 +180,7 @@ public class TrainingLevel2 extends LevelMaster {
 			}
 			if ( !logic.isAlive() && alpha <= 0f ) {
 				if ( demoStage == 7 && playOn && playingLearningLevels ) {
-//					core.setScreen(new TrainingLevel3(core, true, true));
+					core.setScreen(new TrainingLevel3(core, true, true));
 				} else if ( demoStage == 7 && playOn ) {
 					core.setScreen(new ChallengeLevel1(core, true));
 				} else {	

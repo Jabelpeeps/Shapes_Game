@@ -17,7 +17,7 @@ import com.badlogic.gdx.graphics.Color;
 
 public class ChallengeLevel1 extends LevelMaster{
 
-	private float alpha = 0.3f;
+	private float alpha = 0f;
 	private boolean playOn = true;
 	private boolean levelIsFinished = false;
 	private int levelStage = 1;
@@ -28,7 +28,6 @@ public class ChallengeLevel1 extends LevelMaster{
 	public ChallengeLevel1(Core c) {
 		this(c, true);
 	}
-
 	public ChallengeLevel1(Core c, boolean playNext) {
 		super(c);
 		playOn = playNext;
@@ -39,7 +38,6 @@ public class ChallengeLevel1 extends LevelMaster{
 		logic = new InteractiveGameLogic(game);
 		logic.waitForStartSignal();
 		logic.setEndlessPlayMode(true);
-		setupInput(new BorderButtonsInput(game, logic), new PlayAreaInput(game, logic));
 		logic.start();
 	}
 
@@ -63,32 +61,36 @@ public class ChallengeLevel1 extends LevelMaster{
 		}
 		
 		prepScreenAndCamera();
+		batch.begin();
 		renderBoard(alpha);
 		
 		switch ( levelStage ) {
 		case 1:
-			batch.begin();
-			messageCentered( "Level 3 - Mix Up\n\n"
+			messageCentered( "Level 3 - Mix Up\n\n\n"
 					+ "Ok. No demo this time. You know these shapes. "
 					+ "Your target is 30 matches, and I'll be keeping score too...", 48);
 			messageCentered("[#FFD700]Touch here[] to begin", 0);
 			batch.end();
+			if ( alpha < 0.3f ) {
+				alpha += 0.003f;
+			}
 			if ( Gdx.input.isTouched() ) {
 				touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 				Core.camera.unproject(touch);
 				if ( touch.y < -2) {
 					levelStage++;
+					setupInput(new BorderButtonsInput(game, logic), new PlayAreaInput(game, logic));
 					logic.sendStartSignal();
 				}
 			}
+			Gdx.graphics.requestRendering();
 			break;
 		case 2:
-			batch.begin();
 			messageCentered("Level 3 - Mix up", 48);
 			messageCentered("Have Fun!", 4);
 			batch.end();
 			if ( alpha < 1f ) {
-				alpha += 0.01f;
+				alpha += 0.05f;
 			} else {
 				levelStage++;
 			}
@@ -98,7 +100,6 @@ public class ChallengeLevel1 extends LevelMaster{
 			score = game.getScore();
 		case 7:
 			int matches = game.getTotalMatches();
-			batch.begin();
 			messageCentered("Score:- " + score, 48);
 			messageCentered("Sets Matched:- " + matches + " / 30", 42);
 			if ( matches < 6 ) {
@@ -128,7 +129,7 @@ public class ChallengeLevel1 extends LevelMaster{
 			}
 			if ( !logic.isAlive() && alpha <= 0f ) {
 				if ( levelStage == 7 && playOn ) {
-					core.setScreen(new TrainingLevel3(core, true));
+					core.setScreen(new TrainingLevel3(core));
 				} else {	
 					core.setScreen(new MainMenu(core));
 				}

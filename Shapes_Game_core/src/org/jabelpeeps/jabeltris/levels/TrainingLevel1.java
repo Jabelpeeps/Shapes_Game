@@ -42,7 +42,6 @@ public class TrainingLevel1 extends LevelMaster {
 		setupInput(new BorderButtonsInput(game, logic));
 		logic.start();
 	}
-
 // ---------------------------------------------Methods----------
 	@Override
 	public void render(float delta) {
@@ -127,7 +126,7 @@ public class TrainingLevel1 extends LevelMaster {
 			Gdx.graphics.requestRendering();
 			break;
 		case 5:
-			Core.delay(1000);
+			Core.delay(500);
 			setupInput(new BorderButtonsInput(game, logic), new PlayAreaInput(game, logic));
 			logic.start();
 			demoStage++;
