@@ -1,11 +1,9 @@
 package org.jabelpeeps.jabeltris.levels;
 
-import org.jabelpeeps.jabeltris.BorderButtonsInput;
 import org.jabelpeeps.jabeltris.Core;
 import org.jabelpeeps.jabeltris.InteractiveGameLogic;
-import org.jabelpeeps.jabeltris.LevelMaster;
 import org.jabelpeeps.jabeltris.MainMenu;
-import org.jabelpeeps.jabeltris.PlayAreaInput;
+import org.jabelpeeps.jabeltris.PlayArea;
 import org.jabelpeeps.jabeltris.Shape;
 import org.jabelpeeps.jabeltris.shapes.SquareBlue;
 import org.jabelpeeps.jabeltris.shapes.SquareRed;
@@ -15,16 +13,10 @@ import org.jabelpeeps.jabeltris.shapes.TriangleYellow;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 
-public class ChallengeLevel1 extends LevelMaster{
-
-	private float alpha = 0f;
-	private boolean playOn = true;
-	private boolean levelIsFinished = false;
-	private int levelStage = 1;
-	private int score = 0;
-	
+public class ChallengeLevel1 extends ChallengeLevelAbstract {
+		
 // ---------------------------------------------Constructors--------	
-	
+
 	public ChallengeLevel1(Core c) {
 		this(c, true);
 	}
@@ -32,118 +24,18 @@ public class ChallengeLevel1 extends LevelMaster{
 		super(c);
 		playOn = playNext;
 		baseColor = new Color(0.75f, 1f, 1f, 1f);
-		x = 7;
-		y = 7;
-		initPlayArea();
+		title = "Challenge Level 1\nMix Up!";
+		
+		game = new PlayArea(7, 7, this);
 		logic = new InteractiveGameLogic(game);
 		logic.waitForStartSignal();
 		logic.setEndlessPlayMode(true);
 		logic.start();
 	}
-
-	@Override
-	public void render(float delta) {
-		if ( logic.getBackKeyWasPressed() ) {
-			if ( !logic.isAlive() && alpha <= 0f ) {
-				core.setScreen(new MainMenu(core));
-				dispose();
-			} else {
-				levelIsFinished = true;
-				levelStage = 0;
-			} 
-			if ( alpha >= 0f ) {
-				alpha -= 0.01f;
-			}
-			prepScreenAndCamera();
-			renderBoard(alpha);
-			Gdx.graphics.requestRendering();
-			return;
-		}
-		
-		prepScreenAndCamera();
-		batch.begin();
-		renderBoard(alpha);
-		
-		switch ( levelStage ) {
-		case 1:
-			messageCentered( "Level 3 - Mix Up\n\n\n"
-					+ "Ok. No demo this time. You know these shapes. "
-					+ "Your target is 30 matches, and I'll be keeping score too...", 48);
-			messageCentered("[#FFD700]Touch here[] to begin", 0);
-			batch.end();
-			if ( alpha < 0.3f ) {
-				alpha += 0.003f;
-			}
-			if ( Gdx.input.isTouched() ) {
-				touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-				Core.camera.unproject(touch);
-				if ( touch.y < -2) {
-					levelStage++;
-					setupInput(new BorderButtonsInput(game, logic), new PlayAreaInput(game, logic));
-					logic.sendStartSignal();
-				}
-			}
-			Gdx.graphics.requestRendering();
-			break;
-		case 2:
-			messageCentered("Level 3 - Mix up", 48);
-			messageCentered("Have Fun!", 4);
-			batch.end();
-			if ( alpha < 1f ) {
-				alpha += 0.05f;
-			} else {
-				levelStage++;
-			}
-			Gdx.graphics.requestRendering();
-			break;
-		case 3:
-			score = game.getScore();
-		case 7:
-			int matches = game.getTotalMatches();
-			messageCentered("Score:- " + score, 48);
-			messageCentered("Sets Matched:- " + matches + " / 30", 42);
-			if ( matches < 6 ) {
-				messageCentered("", 2);
-			} else if ( matches < 11 ) {
-				messageCentered("[#FFD700]Pro Tip[]:- ", 4);
-			} else if ( matches < 16 ) {
-				messageCentered("", 4);
-			} else if ( matches < 20 ) {
-				messageCentered("", 2);
-			} else if ( matches > 29 ) {
-				levelStage = 7;
-				if ( playOn ) {
-					messageCentered("Well done! No further score will be counted. [#FFD700]Touch here[] to continue.", 4);
-				} else {
-					messageCentered("Well done! No further score will be counted. [#FFD700]Touch here[] to finish.", 4);
-				}
-			} 		
-		    batch.end();
-		    
-			if ( levelStage == 7 && Gdx.input.isTouched() ) {
-				touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-				Core.camera.unproject(touch);
-				if ( touch.y < 8 ) {
-					levelIsFinished = true;
-				} 
-			}
-			if ( !logic.isAlive() && alpha <= 0f ) {
-				if ( levelStage == 7 && playOn ) {
-					core.setScreen(new TrainingLevel3(core));
-				} else {	
-					core.setScreen(new MainMenu(core));
-				}
-				dispose();
-			}
-			if ( levelIsFinished ) {
-				alpha -= 0.01f;
-				Gdx.graphics.requestRendering();
-			}
-		}
-	}
-
+// ---------------------------------------------Methods--------------
 	@Override
 	public Shape makeNewShape(int x, int y) {
+		
 		Shape newShape = null;	
 		int option = rand.nextInt(4) + 1;
 		switch (option) {
@@ -160,11 +52,80 @@ public class ChallengeLevel1 extends LevelMaster{
 				newShape = new TriangleGreen();
 				break;
 		}
-		newShape.setOriginAndBounds(x , y);
 		return newShape;
 	}
+	
 	@Override
-	public boolean IsFinished() {
-		return levelIsFinished;
+	public void render(float delta) {
+		
+		if ( logic.getBackKeyWasPressed() ) {
+			doWhenBackKeyWasPressed();	
+			return;
+		}
+		
+		prepScreenAndCamera();
+		batch.begin();
+		renderBoard(alpha);
+		
+		switch ( levelStage ) {
+		case 1:
+			messageCentered( title + "\n\n"
+					+ "Ok.\n"
+					+ "No demo this time.\n"
+					+ "You know these shapes. "
+					+ "Your target is 30 matches, and I'll be keeping score too...", 48);
+			
+			case1commonTasks();
+			batch.end();
+			Gdx.graphics.requestRendering();
+			break;
+		case 2:
+			case2commonTasks();
+			batch.end();
+			Gdx.graphics.requestRendering();
+			break;
+		case 3:
+			score = game.getScore();
+		case 7:
+			int matches = game.getTotalMatches();
+			messageCentered("Score:- " + score, 48);
+			if ( levelStage == 3 ) {
+				messageCentered("Sets Matched:- " + matches + "/30", 42);
+				if ( matches < 6 ) {
+					messageCentered("", 2);
+				} else if ( matches < 11 ) {
+					messageCentered("[#FFD700]Pro Tip[]:- ", 4);
+				} else if ( matches < 16 ) {
+					messageCentered("", 4);
+				} else if ( matches < 20 ) {
+					messageCentered("", 2);
+				} else if ( matches > 29 ) {
+					levelStage = 7;
+					logic.setEndlessPlayMode(false);
+				}	
+			    batch.end();
+			    return;
+			}
+			if ( levelStage == 7 ) {
+				finalMessages();
+			    batch.end();
+		    	if ( !levelIsFinished ) {
+		    		levelNeedsFinishing();
+				} else {
+					alpha = (alpha > 0f) ? (alpha - 0.01f) : 0f ;
+			    	
+			    	if ( !logic.isAlive() && alpha <= 0f ) {
+			    		Core.delay(200);
+						if ( playOn ) {
+							core.setScreen(new TrainingLevel3(core));
+						} else {	
+							core.setScreen(new MainMenu(core));
+						}
+						dispose();
+					}
+					Gdx.graphics.requestRendering();
+				}
+			}
+		}
 	}
 }

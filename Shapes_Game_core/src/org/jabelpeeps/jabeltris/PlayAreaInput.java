@@ -52,9 +52,10 @@ public class PlayAreaInput extends InputAdapter {
 						game.getShape(dX, dY).select();
 						logic.setSwapCandidates(xSaved, ySaved, dX, dY);
 						resetSavedTile();
+						return true;
 				}
 			}
-			return true;
+			return false;
 		}
 		@Override
 		public boolean touchDragged(int x, int y, int pointer) {

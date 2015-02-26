@@ -50,9 +50,6 @@ public class PlayArea {
 		y_offset = y_off;
 		shapeTile = new Shape[x][y];
 		boardTile = new Sprite[x][y];
-		Shape.game = this;
-		Shape.x_offset = x_offset;
-		Shape.y_offset = y_offset;
 	}
 //-----------------------------------------------------Methods-------
 
@@ -72,7 +69,7 @@ public class PlayArea {
 	void fillBoard() {
 		for ( int i = 0; i < x_size; i++ ) {
 			for ( int j = 0; j < y_size; j++ ) {
-	    		shapeTile[i][j] = level.makeNewShape(i, j);
+	    		shapeTile[i][j] = level.makeNewShape(i, j, x_offset, y_offset, this);
 	    	} 
 			allShapes.addAll(shapeTile[i], 0, y_size);
 	    }
@@ -282,7 +279,7 @@ public class PlayArea {
 			Core.delay(time);
 		}
 	}
-//	void oldreplaceMatchedShapes() {
+//	void replaceMatchedShapes() {
 //		blinkList(100, 3, matchList);
 //		for ( int a = 1; a <= 9; a++ ) {      		// animates the shrinking of the Shape sprites.
 //			for ( Shape each : matchList ) {
@@ -314,7 +311,7 @@ public class PlayArea {
 //		newShapeList.clear();
 //		message = " ";
 //	}
-	
+//	
 	void replaceMatchedShapes() {
 		blinkList(100, 2, matchList);
 		
@@ -358,7 +355,7 @@ public class PlayArea {
 			int x = (int) each.getX();
 			int y = (int) each.getY();
 			allShapes.removeValue(each, false);
-			shapeTile[x][y] = level.makeNewShape(x, y);
+			shapeTile[x][y] = level.makeNewShape(x, y, x_offset, y_offset, this);
 			newShapeList.add(shapeTile[x][y]);
 		}
 		

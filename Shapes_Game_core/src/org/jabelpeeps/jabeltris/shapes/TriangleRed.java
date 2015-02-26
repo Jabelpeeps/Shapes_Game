@@ -1,20 +1,20 @@
 package org.jabelpeeps.jabeltris.shapes;
 
-import org.jabelpeeps.jabeltris.LevelMaster;
+import com.badlogic.gdx.graphics.Colors;
 
 public class TriangleRed extends TriangleAbstract {
 
 	public TriangleRed() {
-		this.setRegion(LevelMaster.greytri);
-		type = "TriangleRed";
+		super();
+		type = type + "Red";
 		deselect();
 	}
 	@Override
 	public void select() {
-		this.setColor(0.5f, 0, 0, 1f);
+	this.setColor(Colors.get("DARK_RED"));
 	}
 	@Override
 	public void deselect() {
-		this.setColor(1f, 0, 0, 1f);
+	this.setColor(Colors.get("RED"));
 	}
 }

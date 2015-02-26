@@ -38,7 +38,6 @@ public class EndlessLevelClassic extends EndlessGame {
 				newShape = new SquareOriginal();				
 				break;
 		}
-		newShape.setOriginAndBounds(x , y);
 		return newShape;
 	}
 }

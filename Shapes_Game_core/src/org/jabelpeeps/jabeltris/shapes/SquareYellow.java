@@ -1,20 +1,20 @@
 package org.jabelpeeps.jabeltris.shapes;
 
-import org.jabelpeeps.jabeltris.LevelMaster;
+import com.badlogic.gdx.graphics.Colors;
 
 public class SquareYellow extends SquareAbstract {
 	
 	public SquareYellow() {
-		this.setRegion(LevelMaster.greysqr);
-		type = "SquareYellow";
+		super();
+		type = type + "Yellow";
 		deselect();
 	}
 	@Override
 	public void select() {
-		this.setColor(0.5f, 0.5f, 0, 1f);
+		this.setColor(Colors.get("DARK_YELLOW"));
 	}
 	@Override
 	public void deselect() {
-		this.setColor(1f, 1f, 0, 1f);
+		this.setColor(Colors.get("YELLOW"));
 	}
 }

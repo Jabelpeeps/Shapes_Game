@@ -1,5 +1,6 @@
 package org.jabelpeeps.jabeltris;
 
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 
 public class BorderButtonsInput extends InputAdapter {
@@ -13,31 +14,26 @@ public class BorderButtonsInput extends InputAdapter {
 		public BorderButtonsInput(PlayArea p, GameLogic l) {
 			game = p;
 			logic = l;
-			
 		}
 // ---------------------------------------------Methods--------------	
 	    @Override
-		public boolean keyTyped(char typed) {
-//	    	System.out.println("---------------");
-//	    	System.out.println(typed);
-//	    	System.out.println("---------------");
-	    	
-			if ( typed == '' ) {
-				logic.setBackKeyPressed(true);				
+		public boolean keyUp(int typed) {
+	    	if ( typed == Keys.BACK || typed == Keys.BACKSPACE ) {
+				logic.setBackKeyPressed(true);
 			}
 			
 			// letter keys only used for debugging on desktop version.
-			if ( typed == 's' ) {
+			if ( typed == Keys.S ) {
 				logic.setShuffle();
 			}
-			if ( typed == 'h' ) {
+			if ( typed == Keys.H ) {
 				if ( !logic.hintHasBeenGiven() ) {
 					logic.requestHint();
 				} 
 			}
 			return true;
-		}
-	
+		}    
+	    
 //		@Override
 //		public boolean touchDown(int x, int y, int pointer, int button) {
 //			touch.set(x, y, 0);

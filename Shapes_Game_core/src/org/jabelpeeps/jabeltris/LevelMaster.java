@@ -34,17 +34,21 @@ public abstract class LevelMaster extends Core implements Screen {
 	public static AtlasRegion greytri;
 	public static AtlasRegion greycrone;
 	public static AtlasRegion greycrtwo;
+	public static AtlasRegion horizgreyline;
+	public static AtlasRegion fourbar;
+	public static AtlasRegion mirrorell;
+	public static AtlasRegion realell;
+	public static AtlasRegion realsquare;
+	public static AtlasRegion realt;
+	public static AtlasRegion zigleft;
+	public static AtlasRegion zigright;
 	
 	protected final Core core;
 	protected PlayArea game;
-	protected PlayArea game2;
 	protected GameLogic logic;
-	protected GameLogic logic2;
 	
 	protected static RandomXS128 rand = Core.rand;
 	protected Vector3 touch = new Vector3();
-	protected int x = 10;
-	protected int y = 10;
 	public Color baseColor;
 // ---------------------------------------------Constructor(s)--------	
 
@@ -55,19 +59,15 @@ public abstract class LevelMaster extends Core implements Screen {
 		Gdx.graphics.setContinuousRendering(false);
 	}
 // ---------------------------------------------Methods----------
-	protected void initPlayArea() {
-		// instantiates the GameBoard
-		game = new PlayArea(x, y, this);
-	}
 	protected void setupInput(InputProcessor sole) {
 		Gdx.input.setInputProcessor(sole);
 		Gdx.input.setCatchBackKey(true);
 	}
-	protected void setupInput(InputProcessor first, InputProcessor second) {
-		// setup the actions to respond to user input.
+	protected void setupInput(InputProcessor...list) {
 		InputMultiplexer multiplexer = new InputMultiplexer();
-		multiplexer.addProcessor(first);
-		multiplexer.addProcessor(second);
+		for ( InputProcessor each : list) {
+			multiplexer.addProcessor(each);
+		}
 		Gdx.input.setInputProcessor(multiplexer);
 		Gdx.input.setCatchBackKey(true);
 	}
@@ -115,6 +115,13 @@ public abstract class LevelMaster extends Core implements Screen {
 	    if ( batchStarted ) batch.end();
 	}
 		
+	Shape makeNewShape(int x, int y, int x_offset, int y_offset, PlayArea p) {
+		Shape tmpShape = makeNewShape(x, y);
+		tmpShape.setPlayArea(p);
+		tmpShape.setOffsets(x_offset, y_offset);
+		tmpShape.setOriginAndBounds(x , y);
+		return tmpShape;
+	}
 	protected abstract Shape makeNewShape(int x, int y);
 	
 	public boolean IsFinished() {

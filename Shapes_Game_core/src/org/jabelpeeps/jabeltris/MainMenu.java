@@ -1,5 +1,6 @@
 package org.jabelpeeps.jabeltris;
 
+import org.jabelpeeps.jabeltris.levels.ChallengeLevel2;
 import org.jabelpeeps.jabeltris.levels.EndlessLevelClassic;
 import org.jabelpeeps.jabeltris.levels.EndlessLevelDark;
 import org.jabelpeeps.jabeltris.levels.TrainingLevel1;
@@ -20,7 +21,6 @@ public class MainMenu extends Core implements Screen {
 // -------------------------------------------------Fields---------	
 	private final Core core;
 	Vector3 touch = new Vector3();
-	char key;
 	private int menuScreen = 1;
 	LevelMaster level;
 	private String keyPressed = "none";
@@ -44,9 +44,9 @@ public class MainMenu extends Core implements Screen {
 				return switchCase();
 			}
 			@Override
-			public boolean keyTyped(char typed) {
+			public boolean keyUp(int typed) {
 				keyPressed = "none";
-				if ( typed == '' || typed == Keys.BACK ) {
+				if ( typed == Keys.BACK || typed == Keys.BACKSPACE ) {
 					keyPressed = "BACK";
 					touch.set(0, 0, 0);
 				}
@@ -115,7 +115,7 @@ public class MainMenu extends Core implements Screen {
 		batch.end();
 	}
 	private void optionsCase0() {
-		if ( touchY(18) ) core.setScreen(new TrainingLevel3(core));
+		if ( touchY(18) ) core.setScreen(new ChallengeLevel2(core, false));
 		if ( touchY(12) ) menuScreen = 1;
 		if ( touchY(-4) ) Gdx.app.exit();
 	}
@@ -181,6 +181,15 @@ public class MainMenu extends Core implements Screen {
 				batch.begin();
 				font.draw(batch, "Learning Levels", 6, 48);
 				font.draw(batch, "__________________", 6, 47);
+				
+				Sprite line = new Sprite(LevelMaster.line);
+				Sprite invline = new Sprite(LevelMaster.invline);
+				line.setBounds(2, 25, 3, 3);
+				invline.setBounds(3, 24, 3, 3);
+				line.draw(batch);
+				invline.draw(batch);
+				font.draw(batch, "- Lines", 8, 28);				
+				
 				Sprite triangle = new Sprite(LevelMaster.triangle);
 				Sprite invtriangle = new Sprite(LevelMaster.invtri);
 				triangle.setBounds(2, 31, 3, 3);
@@ -188,6 +197,7 @@ public class MainMenu extends Core implements Screen {
 				triangle.draw(batch);
 				invtriangle.draw(batch);
 				font.draw(batch, "- Triangles", 8, 34);
+				
 				Sprite square = new Sprite(LevelMaster.square);
 				Sprite invsquare = new Sprite(LevelMaster.invsqr);
 				square.setBounds(2, 37, 3, 3);
@@ -201,7 +211,8 @@ public class MainMenu extends Core implements Screen {
 		}
 		private void optionsCase4() {
 			if ( touchY(40) ) core.setScreen(new TrainingLevel1(core, false));
-			if ( touchY(36) ) core.setScreen(new TrainingLevel2(core, false));
+			if ( touchY(34) ) core.setScreen(new TrainingLevel2(core, false));
+			if ( touchY(28) ) core.setScreen(new TrainingLevel3(core, false));
 			
 			if ( touchY(-6) || keyPressed == "BACK" ) menuScreen = 3;
 		}	

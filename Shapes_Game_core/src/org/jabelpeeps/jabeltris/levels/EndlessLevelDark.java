@@ -38,7 +38,6 @@ public class EndlessLevelDark extends EndlessGame {
 				newShape = new SquareInverted();				
 				break;
 		}
-		newShape.setOriginAndBounds(x , y);
 		return newShape;
 	}
 }

@@ -26,12 +26,15 @@ public class Core extends Game {
 	protected static Texture boardBase;
 	protected static TextureRegion[][] boardBaseTiles;
 	protected static RandomXS128 rand = new RandomXS128();
-	protected Preferences prefs;	
+	protected Preferences prefs;
 	protected static Matrix4 initialMatrix;	
 	
 // --------------------------------------------------Methods-----------
 	@Override
 	public void create () {
+		
+		MyColors.setupColors();
+		
 		batch = new SpriteBatch(500);
 		atlas = new TextureAtlas();
 		manager = new AssetManager();
@@ -46,7 +49,7 @@ public class Core extends Game {
 		// (standard play area will be 40x40 with a small border at the edges.)
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
-		camera = new OrthographicCamera(42, 42*(h/w));
+		camera = new OrthographicCamera( 42 , 42 * ( h / w ) );
 		
 		// position camera so that 0,0 is at bottom left of the playboard position.
 		// NB the coords defined in the .set() are for the centre of the view
@@ -56,7 +59,7 @@ public class Core extends Game {
         // calls splash screen
         this.setScreen(new Splash(this));
 	}
-		
+
 	protected static void delay(long time) {
 		try {  
 			TimeUnit.MILLISECONDS.sleep(time);

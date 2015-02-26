@@ -24,9 +24,10 @@ public class Splash extends Core implements Screen {
 	Splash(final Core c) {
 		core = c;
 
-        logo = new Sprite(new Texture("badlogic.jpg"));  
+        logo = new Sprite(new Texture("ScreenShot.jpg"));  
 		logo.setOrigin(20, 20);
 		logo.setBounds(0, 0, 40, 40);
+		logo.rotate(180);
 	}
 // ------------------------------------------------Methods---------	
 	
@@ -67,9 +68,21 @@ public class Splash extends Core implements Screen {
 				LevelMaster.greycrtwo = atlas.findRegion("greycrtwo");
 				break;
 			case 7:
-				boardBaseTiles = TextureRegion.split(boardBase, 50, 50);
+				LevelMaster.horizgreyline = atlas.findRegion("horizgreyline");
+				LevelMaster.fourbar = atlas.findRegion("fourbar");
+				LevelMaster.mirrorell = atlas.findRegion("mirrorell");
+				LevelMaster.realell = atlas.findRegion("realell");
 				break;
 			case 8:
+				LevelMaster.realsquare = atlas.findRegion("realsquare");
+				LevelMaster.realt = atlas.findRegion("realt");
+				LevelMaster.zigleft = atlas.findRegion("zigleft");
+				LevelMaster.zigright = atlas.findRegion("zigright");
+				break;
+			case 9:	
+				boardBaseTiles = TextureRegion.split(boardBase, 50, 50);
+				break;
+			case 10:
 				// Font Loader
 				FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("ComfortaaRegular.ttf"));
 				FreeTypeFontParameter parameter = new FreeTypeFontParameter();
@@ -113,6 +126,7 @@ public class Splash extends Core implements Screen {
 			
 		} else {
 			logo.setScale(logoScale);
+			logo.rotate(20);
 		    if ( logoScale >= 1f ) {
 		    		Core.delay(200);
 		    		logoScaling = "down";

@@ -8,9 +8,9 @@ import com.badlogic.gdx.utils.Pool;
 public abstract class Shape extends Sprite {	
 // -------------------------------------------------Field(s)---------
 		protected String type;
-		public static PlayArea game;
-		protected static int x_offset;
-		protected static int y_offset;
+		protected PlayArea game;
+		protected int x_offset;
+		protected int y_offset;
 		
 		private final Pool<Vector2> vector2Pool = new Pool<Vector2>(){
 			    @Override
@@ -107,6 +107,20 @@ public abstract class Shape extends Sprite {
 			setOriginCenter();
 			setScale(0.9f);
 			setAlpha(0f);
+		}
+		public void setOffsets(int x_off, int y_off) {
+			x_offset = x_off;
+			y_offset = y_off;
+		}
+		public void setOffsets() {
+			x_offset = game.getXoffset();
+			y_offset = game.getYoffset();
+		}
+		public void setPlayArea(PlayArea p) {
+			game = p;
+			if ( game == null ) {
+				System.out.println("null PlayArea set in Shape.setPlayArea()");
+			} 
 		}
 		public void saveXY() {
 			savedXY.set( getX() , getY() );

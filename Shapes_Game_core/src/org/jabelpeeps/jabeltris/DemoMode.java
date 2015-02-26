@@ -21,10 +21,7 @@ public class DemoMode extends LevelMaster {
 		// make demo board fill the screen.
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
-		x = 10;
-		y = (int) (10f*h/w);
-		
-		initPlayArea();
+		game = new PlayArea( 10 , (int) (10f*h/w) , this );
 		logic = new DemoGameLogic(game);
 		setupInput(new BorderButtonsInput(game, logic));
 		logic.start();
