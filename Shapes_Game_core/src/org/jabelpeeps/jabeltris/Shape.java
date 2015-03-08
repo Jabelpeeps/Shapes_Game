@@ -1,18 +1,27 @@
 package org.jabelpeeps.jabeltris;
 
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.Json.Serializable;
+import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.Pool;
 
-public abstract class Shape extends Sprite {	
+public abstract class Shape extends Sprite implements Runnable, Serializable {	
 // -------------------------------------------------Field(s)---------
 		protected String type;
 		protected PlayArea game;
 		protected int x_offset;
 		protected int y_offset;
+		protected Color selected;
+		protected Color deselected;
 		
-		private final Pool<Vector2> vector2Pool = new Pool<Vector2>(){
+		private Pool<Vector2> vector2Pool = new Pool<Vector2>(){
 			    @Override
 			    protected Vector2 newObject() {
 			        return new Vector2();
@@ -21,8 +30,51 @@ public abstract class Shape extends Sprite {
 		private Vector2 savedXY = vector2Pool.obtain().set(0, 0);
 		private Vector2 newXY = vector2Pool.obtain().set(0, 0);
 		private Vector2 savedOrigin = vector2Pool.obtain().set(0,0);
-//  ----------------------------------------------Methods--------------- 
 		
+		protected boolean[][] views = {{false, false},{false, true},{true, true},{true, false}};
+		protected int facing = 0;
+		protected boolean needsFlipping = false;
+		private ScheduledFuture<?> animation;
+//  ----------------------------------------------Methods--------------- 
+		protected void animate() {
+			facing = Core.rand.nextInt(11);
+			long delay = (long) (( Core.rand.nextGaussian() + 5) / 4 );
+			animation = Core.threadPool.scheduleWithFixedDelay(this, delay*1000, 1500, TimeUnit.MILLISECONDS);
+		}
+		@Override
+		public void run() {
+			setRotation(30 * facing);
+			
+			if ( needsFlipping ) {
+				setFlip( views[facing / 3][0] , views[facing / 3][1] );
+			} 
+			facing = ( facing == 11 ) ? 0 : facing + 1 ;
+			Gdx.graphics.requestRendering();
+		}
+		
+		@Override
+		public void write (Json json) {
+			json.writeValue("Shape", getClass().getName());
+			json.writeValue("x", super.getX());
+			json.writeValue("y", super.getY());
+		}
+		@Override
+		public void read(Json json, JsonValue jsonData) {
+			super.setX(jsonData.getFloat("x"));
+			super.setY(jsonData.getFloat("y"));
+			deselect();
+		}
+		
+		public void setAnimation(boolean animate) {
+			if ( animate ) {
+				animate();
+			} else {
+				if ( animation != null ) {
+					animation.cancel(false);
+				}
+			}
+		}
+	
 		// The 'm' method is called from the various shape objects, 
 		// to check for matches with their neighbours.
 		//
@@ -57,35 +109,77 @@ public abstract class Shape extends Sprite {
 			addHintsToList( (int)getX(), (int)getY() );
 		}
 		public void addHintsToList(int x, int y) {
-			if ( hintMatch(x, y) ) {
+			if ( isNotBlank(x, y) && hintMatch(x, y) ) {
 					game.addHint(this);
 			}
 		}
-		boolean hintMatch(int x, int y) {
+		private boolean hintMatch(int x, int y) {
 			boolean hintFound = false;
-			if ( shapeMatch(x+1, y, x, y) > 0f ) hintFound = true;
-			if ( shapeMatch(x-1, y, x, y) > 0f ) hintFound = true;
-			if ( shapeMatch(x, y+1, x, y) > 0f ) hintFound = true;
-			if ( shapeMatch(x, y-1, x, y) > 0f ) hintFound = true;
+			if ( isNotBlank(x+1, y) && shapeMatch(x+1, y, x, y) > 0f ) hintFound = true;
+			if ( isNotBlank(x-1, y) && shapeMatch(x-1, y, x, y) > 0f ) hintFound = true;
+			if ( isNotBlank(x, y+1) && shapeMatch(x, y+1, x, y) > 0f ) hintFound = true;
+			if ( isNotBlank(x, y-1) && shapeMatch(x, y-1, x, y) > 0f ) hintFound = true;
 			return hintFound;
 		}
-		
-		public void blink(long time, int repeats) {
-			for ( int i = 1; i <= repeats; i++) {
-				select();
-				Gdx.graphics.requestRendering();
-				Core.delay(time);
-				deselect();
-				Gdx.graphics.requestRendering();
-				Core.delay(time);
-				}
+		private boolean isNotBlank(int x, int y) {
+			try {
+				if ( game.getShape(x, y).type != "blank" ) return true;
+			} catch (ArrayIndexOutOfBoundsException e) {}
+			return false;
 		}
 		protected abstract float shapeMatch(int x, int y, int xx, int yy);
 		
-		public abstract void select();
+		public void select() {
+			setColor(selected);
+		}
 		
-		public abstract void deselect();
+		public void deselect() {
+			setColor(deselected);
+		}
 
+		public Shape setOffsets(int x_off, int y_off) {
+			x_offset = x_off;
+			y_offset = y_off;
+			return this;
+		}
+		public Shape setOffsets() {
+			x_offset = game.getXoffset();
+			y_offset = game.getYoffset();
+			return this;
+		}
+		public Shape setPlayArea(PlayArea p) {
+			game = p;
+			if ( game == null ) {
+				System.out.println("null PlayArea set in Shape.setPlayArea()");
+			} 
+			return this;
+		}
+		@Override
+		public void setOrigin(float x, float y) {      // sets origin in relation to the playArea rather than the Shape.
+			super.setOrigin( ( x - getX() ) * 4 + 2 , ( y - getY() ) * 4 + 2 );
+		}
+		public Shape setOriginAndBounds() {
+			return setOriginAndBounds(getX(), getY());
+		}
+		public Shape setOriginAndBounds(float f, float g) {
+			setBounds( f * 4 + x_offset , g * 4 + y_offset , 4 , 4 );
+			setOriginCenter();
+			setScale(0.9f);
+			setAlpha(0f);
+			return this;
+		}
+		public void saveOrigin() {
+			savedOrigin.set( (getOriginX() - 2 - x_offset) / 4 , (getOriginY() - 2 - y_offset) / 4 );
+		}
+		public void saveOrigin(float x, float y) {
+			savedOrigin.set(x, y);
+		}
+		public float getSavedOriginX() {
+			return savedOrigin.x;
+		}
+		public float getSavedOriginY() {
+			return savedOrigin.y;
+		}
 		@Override
 		public float getX() {
 			return ( super.getX() - x_offset ) / 4 ;
@@ -97,30 +191,6 @@ public abstract class Shape extends Sprite {
 		@Override
 		public void setPosition(float x, float y) {
 			super.setPosition( x * 4 + x_offset , y * 4 + y_offset );
-		}
-		@Override
-		public void setOrigin(float x, float y) {      // sets origin in relation to the playArea rather than the Shape.
-			super.setOrigin( ( x - getX() ) * 4 + 2 , ( y - getY() ) * 4 + 2 );
-		}
-		public void setOriginAndBounds(int x, int y) {
-			setBounds( x * 4 + x_offset , y * 4 + y_offset , 4 , 4 );
-			setOriginCenter();
-			setScale(0.9f);
-			setAlpha(0f);
-		}
-		public void setOffsets(int x_off, int y_off) {
-			x_offset = x_off;
-			y_offset = y_off;
-		}
-		public void setOffsets() {
-			x_offset = game.getXoffset();
-			y_offset = game.getYoffset();
-		}
-		public void setPlayArea(PlayArea p) {
-			game = p;
-			if ( game == null ) {
-				System.out.println("null PlayArea set in Shape.setPlayArea()");
-			} 
 		}
 		public void saveXY() {
 			savedXY.set( getX() , getY() );
@@ -149,17 +219,15 @@ public abstract class Shape extends Sprite {
 		public float getNewY() {
 			return newXY.y;
 		}
-		public void saveOrigin() {
-			savedOrigin.set( (getOriginX() - 2 - x_offset) / 4 , (getOriginY() - 2 - y_offset) / 4 );
-		}
-		public void saveOrigin(float x, float y) {
-			savedOrigin.set(x, y);
-		}
-		public float getSavedOriginX() {
-			return savedOrigin.x;
-		}
-		public float getSavedOriginY() {
-			return savedOrigin.y;
+		public void blink(long time, int repeats) {
+			for ( int i = 1; i <= repeats; i++) {
+				select();
+				Gdx.graphics.requestRendering();
+				Core.delay(time);
+				deselect();
+				Gdx.graphics.requestRendering();
+				Core.delay(time);
+				}
 		}
 		@Override
 		protected void finalize() {

@@ -5,6 +5,8 @@ public abstract class GameLogic extends Thread {
 	protected PlayArea game;
 	protected boolean backKeyWasPressed = false;
 	protected boolean startSignalSet = true;
+	protected boolean endlessPlayMode = false;
+	protected boolean handOverBoard = false;
 	
 	public GameLogic(PlayArea g) {		
 		game = g;
@@ -15,6 +17,9 @@ public abstract class GameLogic extends Thread {
 	}
 	public boolean isReadyForNewCandidates() {
 		return false;
+	}
+	public boolean getEndlessPlayMode() {
+		return endlessPlayMode;
 	}
 	public void setEndlessPlayMode(boolean mode) {
 	}

@@ -2,11 +2,16 @@ package org.jabelpeeps.jabeltris.shapes;
 
 import org.jabelpeeps.jabeltris.LevelMaster;
 
-public class TriangleYellowRealT extends TriangleYellow {
+import com.badlogic.gdx.graphics.Colors;
+
+public class TriangleYellowRealT extends TriangleAbstract {
 
 	public TriangleYellowRealT() {
-		this.setRegion(LevelMaster.realt);
+		setRegion(LevelMaster.realt);
 		type = "TriangleYellowRealT";
+		selected = Colors.get("DARK_YELLOW");
+		deselected = Colors.get("YELLOW");
 		deselect();
+		animate();
 	}
 }

@@ -31,17 +31,13 @@ public class PlayAreaInput extends InputAdapter {
 				int dX = (int) (touch.x - x_offset)/4;
 				int dY = (int) (touch.y - y_offset)/4;
 				
-				if ( outOfBounds(dX, dY) ) {                      // end event if touch was out of bounds 
-						if ( xSaved != -10 && ySaved != -10 ) {
-								game.getShape(xSaved, ySaved).deselect();
-						}
+				if ( outOfBounds(dX, dY) || tileIsBlank(dX, dY) ) {  // end event if touch was out of bounds 
 						resetSavedTile();
 					
 				} else if ( xSaved == -10 && ySaved == -10 ) {      // runs when no tile selected.
 						setSavedTile(dX, dY);
 						 
 				} else if ( xSaved == dX && ySaved == dY ) {      	// resets if this is second touch on same tile.
-						game.getShape(xSaved, ySaved).deselect();
 						resetSavedTile();
 						 
 				} else if ( !touching(xSaved, ySaved, dX, dY) ) { 	// runs if touch is not adjacent to selected tile.
@@ -49,7 +45,6 @@ public class PlayAreaInput extends InputAdapter {
 						setSavedTile(dX, dY);
 						
 				} else {                                            // runs if none of the above conditions are true.
-						game.getShape(dX, dY).select();
 						logic.setSwapCandidates(xSaved, ySaved, dX, dY);
 						resetSavedTile();
 						return true;
@@ -67,6 +62,7 @@ public class PlayAreaInput extends InputAdapter {
 				if ( 	   !(tX == xSaved && tY == ySaved) 
 						&& !(xSaved == -10 && ySaved == -10)
 						&& !outOfBounds(tX, tY) 
+						&& !tileIsBlank(tX, tY)
 						&& touching(xSaved, ySaved, tX, tY) ) {
 					logic.setSwapCandidates(xSaved, ySaved, tX, tY);
 					resetSavedTile();
@@ -90,6 +86,9 @@ public class PlayAreaInput extends InputAdapter {
 			return false;
 		}
 		private void resetSavedTile() {
+			if ( xSaved != -10 && ySaved != -10 ) {
+				game.getShape(xSaved, ySaved).deselect();
+			}
 			xSaved = -10;
 			ySaved = -10;
 		}
@@ -97,5 +96,8 @@ public class PlayAreaInput extends InputAdapter {
 			game.getShape(x, y).select();
 			xSaved = x;
 			ySaved = y;				
+		}
+		private boolean tileIsBlank(int x, int y) {
+			return game.getShape(x, y).type == "blank";
 		}
 }

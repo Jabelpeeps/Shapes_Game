@@ -2,11 +2,16 @@ package org.jabelpeeps.jabeltris.shapes;
 
 import org.jabelpeeps.jabeltris.LevelMaster;
 
-public class TriangleGreenRealT extends TriangleGreen {
+import com.badlogic.gdx.graphics.Colors;
+
+public class TriangleGreenRealT extends TriangleAbstract {
 
 	public TriangleGreenRealT() {
-		this.setRegion(LevelMaster.realt);
+		setRegion(LevelMaster.realt);
 		type = "TriangleGreenRealT";
+		selected = Colors.get("DARK_GREEN");
+		deselected = Colors.get("GREEN");
 		deselect();
+		animate();
 	}
 }

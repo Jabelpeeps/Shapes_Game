@@ -2,11 +2,16 @@ package org.jabelpeeps.jabeltris.shapes;
 
 import org.jabelpeeps.jabeltris.LevelMaster;
 
-public class TriangleBlueRealT extends TriangleBlue {
+import com.badlogic.gdx.graphics.Colors;
+
+public class TriangleBlueRealT extends TriangleAbstract {
 
 	public TriangleBlueRealT() {
-		this.setRegion(LevelMaster.realt);
+		setRegion(LevelMaster.realt);
 		type = "TriangleBlueRealT";
+		selected = Colors.get("DARK_BLUE");
+		deselected = Colors.get("BLUE");
 		deselect();
+		animate();
 	}
 }

@@ -14,14 +14,16 @@ public class DemoMode extends LevelMaster {
 //	private float alpha = 0.2f;
 //	private String alphaDirection = "up";
 	
-	public DemoMode(Core g) {
-		super(g);
+	public DemoMode(Core c) {
+		super();
+		core = c;
 		baseColor = new Color(0.75f, 1f, 0.75f, 1f);
 		
 		// make demo board fill the screen.
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
-		game = new PlayArea( 10 , (int) (10f*h/w) , this );
+		game = new PlayArea( 10 , (int) (10f*h/w) );
+		game.initialise(this);
 		logic = new DemoGameLogic(game);
 		setupInput(new BorderButtonsInput(game, logic));
 		logic.start();

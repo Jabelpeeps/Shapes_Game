@@ -1,11 +1,14 @@
 package org.jabelpeeps.jabeltris;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -14,6 +17,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.RandomXS128;
+import com.badlogic.gdx.utils.Json;
 
 public class Core extends Game {
 // --------------------------------------------------Fields------------	
@@ -25,9 +29,10 @@ public class Core extends Game {
 	protected final String MY_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890\"!?'.,;:()[]{}<>|/@\\^$-%+=#_&~* ¡£¦§«¬°±·»¼½¾×÷";
 	protected static Texture boardBase;
 	protected static TextureRegion[][] boardBaseTiles;
-	protected static RandomXS128 rand = new RandomXS128();
-	protected Preferences prefs;
+	public static RandomXS128 rand = new RandomXS128();
+	protected static Preferences prefs;
 	protected static Matrix4 initialMatrix;	
+	public static ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(10);
 	
 // --------------------------------------------------Methods-----------
 	@Override
@@ -59,6 +64,15 @@ public class Core extends Game {
         // calls splash screen
         this.setScreen(new Splash(this));
 	}
+	protected void messageCentered(String message, int y) {
+		font.drawWrapped(batch, message, 1, y, 38, BitmapFont.HAlignment.CENTER);
+	}
+	protected void messageLeft(String message, float y) {
+		font.drawWrapped(batch, message, 2, y, 36, BitmapFont.HAlignment.LEFT);
+	}
+	protected void messageRight(String message, float y) {
+		font.drawWrapped(batch, message, 2, y, 36, BitmapFont.HAlignment.RIGHT);
+	}
 
 	protected static void delay(long time) {
 		try {  
@@ -67,13 +81,27 @@ public class Core extends Game {
 			e.printStackTrace();
 		}
 	}
-
+	@Override
+	public void pause() {
+		
+		if ( getScreen() instanceof LevelMaster ) {			
+			Json json = new Json();
+			String savegame = json.prettyPrint(getScreen());
+			if ( Gdx.files.isLocalStorageAvailable() ) {
+				FileHandle handle = Gdx.files.local("savedLevel.sav");
+				handle.writeString(savegame, false);
+			}
+//			System.out.println(savegame);
+		}
+	}
+	
 	@Override
 	public void render () {
 		super.render();
 	}
 	@Override
 	public void dispose () {
+		threadPool.shutdownNow();
 		boardBase.dispose();
 		atlas.dispose();
 		manager.dispose();

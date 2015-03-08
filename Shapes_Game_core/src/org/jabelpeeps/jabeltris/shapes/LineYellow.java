@@ -7,14 +7,8 @@ public class LineYellow extends LineAbstract {
 	public LineYellow() {
 		super();
 		type = type + "Yellow";
+		selected = Colors.get("DARK_YELLOW");
+		deselected = Colors.get("YELLOW");
 		deselect();
-	}
-	@Override
-	public void select() {
-	this.setColor(Colors.get("DARK_YELLOW"));
-	}
-	@Override
-	public void deselect() {
-	this.setColor(Colors.get("YELLOW"));
 	}
 }

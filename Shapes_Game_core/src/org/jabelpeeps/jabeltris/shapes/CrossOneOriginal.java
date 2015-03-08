@@ -2,19 +2,16 @@ package org.jabelpeeps.jabeltris.shapes;
 
 import org.jabelpeeps.jabeltris.LevelMaster;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Colors;
+
 public class CrossOneOriginal extends CrossOneAbstract {
 	
 	public CrossOneOriginal() {
 		this.setRegion(LevelMaster.crossone);
 		type = "crossone";
-	}
-	
-	@Override
-	public void select() {
-		this.setColor(0f, 1f, 0f, 1f);
-	}
-	@Override
-	public void deselect() {
-		this.setColor(1f, 1f, 1f, 1f);
+		selected = new Color(0f, 1f, 0f, 1f);
+		deselected = Colors.get("WHITE");
+		deselect();
 	}
 }

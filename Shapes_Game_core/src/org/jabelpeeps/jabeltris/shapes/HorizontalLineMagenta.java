@@ -7,14 +7,8 @@ public class HorizontalLineMagenta extends HorizontalLineAbstract {
 	public HorizontalLineMagenta() {
 		super();
 		type = type + "Magenta";
+		selected = Colors.get("DARK_MAGENTA");
+		deselected = Colors.get("MAGENTA");
 		deselect();
-	}
-	@Override
-	public void select() {
-	this.setColor(Colors.get("DARK_MAGENTA"));
-	}
-	@Override
-	public void deselect() {
-	this.setColor(Colors.get("MAGENTA"));
 	}
 }

@@ -4,11 +4,13 @@ import org.jabelpeeps.jabeltris.LevelMaster;
 import org.jabelpeeps.jabeltris.Shape;
 
 
-public abstract class LineAbstract extends Shape {
+public abstract class LineAbstract extends Shape  {
 	
 	public LineAbstract() {
 		setRegion(LevelMaster.greyline);
 		type = "Line";
+		needsFlipping = true;
+		animate();
 	}
 	
 	@Override

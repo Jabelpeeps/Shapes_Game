@@ -7,8 +7,6 @@ public class InteractiveGameLogic extends GameLogic implements Runnable {
 	private boolean candidatesAreSet = false;
 	private boolean shuffleCalled = false;
 	private boolean hintRequested = false;
-	private boolean endlessPlayMode = false;
-	private boolean handOverBoard = false;
 
 	public InteractiveGameLogic(PlayArea g) {
 		super(g);
@@ -51,6 +49,7 @@ public class InteractiveGameLogic extends GameLogic implements Runnable {
 				game.shuffleBoard();
 			}
 			Core.delay(100);
+			
 		} while ( !game.level.IsFinished() && !backKeyWasPressed );
 		
 		return;    								

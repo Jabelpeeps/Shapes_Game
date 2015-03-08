@@ -4,40 +4,45 @@ import org.jabelpeeps.jabeltris.Core;
 import org.jabelpeeps.jabeltris.Shape;
 import org.jabelpeeps.jabeltris.shapes.CrossOneInverted;
 import org.jabelpeeps.jabeltris.shapes.CrossTwoInverted;
-import org.jabelpeeps.jabeltris.shapes.LineInverted;
+import org.jabelpeeps.jabeltris.shapes.HorizontalLineInverted;
 import org.jabelpeeps.jabeltris.shapes.SquareInverted;
 import org.jabelpeeps.jabeltris.shapes.TriangleInverted;
+import org.jabelpeeps.jabeltris.shapes.VerticalLineInverted;
 
 import com.badlogic.gdx.graphics.Color;
 
 public class EndlessLevelDark extends EndlessGame {
+	
+	public EndlessLevelDark() {
+		super();
+		baseColor = new Color(0.75f, 1f, 0.75f, 1f);
+	}
 
-	public EndlessLevelDark(Core g) {
-		super(g);
+	public EndlessLevelDark(Core c) {
+		super(c);
 		baseColor = new Color(0.75f, 1f, 0.75f, 1f);
 	}
 	
 	@Override
 	public Shape makeNewShape(int x, int y) {
-		Shape newShape = null;	
-		int option = rand.nextInt(5) + 1;
-		switch (option) {
-			case 1:                       
-				newShape = new LineInverted();
-				break;
-			case 2:                       
-				newShape = new CrossOneInverted();
-				break;
-			case 3:                       
-				newShape = new CrossTwoInverted();				
-				break;
-			case 4:                       
-				newShape = new TriangleInverted();				
-				break;
-			case 5:                       
-				newShape = new SquareInverted();				
-				break;
+		
+		switch ( rand.nextInt(9) + 1 ) {
+			case 1: 
+				return new HorizontalLineInverted();
+			case 2:
+			case 8:
+				return new CrossOneInverted();
+			case 3:
+			case 9:
+				return new CrossTwoInverted();				
+			case 4: 
+			case 5:
+				return new TriangleInverted();				
+			case 6: 
+				return new SquareInverted();
+			case 7:
+				return new VerticalLineInverted();
 		}
-		return newShape;
+		return null;
 	}
 }

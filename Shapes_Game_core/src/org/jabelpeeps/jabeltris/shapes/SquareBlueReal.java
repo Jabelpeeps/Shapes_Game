@@ -2,11 +2,15 @@ package org.jabelpeeps.jabeltris.shapes;
 
 import org.jabelpeeps.jabeltris.LevelMaster;
 
-public class SquareBlueReal extends SquareBlue {
+import com.badlogic.gdx.graphics.Colors;
+
+public class SquareBlueReal extends SquareAbstract {
 
 	public SquareBlueReal() {
-		this.setRegion(LevelMaster.realsquare);
+		setRegion(LevelMaster.realsquare);
 		type = "SquareBlueReal";
+		selected = Colors.get("DARK_BLUE");
+		deselected = Colors.get("BLUE");
 		deselect();
 	}
 }

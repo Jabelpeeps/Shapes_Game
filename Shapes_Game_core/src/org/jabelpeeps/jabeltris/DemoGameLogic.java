@@ -49,25 +49,31 @@ public class DemoGameLogic extends GameLogic implements Runnable {
 	public void takeBestMove() {
 		localHintList = game.getHintList();
 		highestNumberOfMatches = 0;
+		
 		for ( Shape eachShape : localHintList ) {
 			int x = (int)eachShape.getX();
 			int y = (int)eachShape.getY();
+			
 			for ( Vector2 whichWay : directions ) {
 				try {		
 					game.shapeTileArraySwap( x , y , x + (int)whichWay.x , y + (int)whichWay.y );
-					if ( game.boardHasMatches(0) 
-							&& ( game.getMatchListSize() > highestNumberOfMatches ) ) {
+					
+					if ( game.boardHasMatches(0) && ( game.getMatchListSize() > highestNumberOfMatches ) ) {
 						highestNumberOfMatches = game.getMatchListSize();
 						mostMatchedShape = eachShape;
 						bestMove = whichWay;
 						bestX = x;
 						bestY = y;
 					}
+					
 					game.shapeTileArraySwap( x , y , x + (int)whichWay.x , y + (int)whichWay.y );
-				} catch (ArrayIndexOutOfBoundsException e) {}		
+					
+				} catch (ArrayIndexOutOfBoundsException e) {} // only exceptions generated here are when 
+										  // the logic loop	investigates potential moves that are out-of-bounds .
 				game.clearMatchList();
 			}
 		}
+		
 		long time = (long) (( Core.rand.nextGaussian() + 1.5) * 150);
 		Core.delay(time);
 		

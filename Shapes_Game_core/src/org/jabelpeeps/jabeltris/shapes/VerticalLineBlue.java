@@ -7,14 +7,8 @@ public class VerticalLineBlue extends VerticalLineAbstract {
 	public VerticalLineBlue() {
 		super();
 		type = type + "Blue";
+		selected = Colors.get("DARK_BLUE");
+		deselected = Colors.get("BLUE");
 		deselect();
-	}
-	@Override
-	public void select() {
-	this.setColor(Colors.get("DARK_BLUE"));
-	}
-	@Override
-	public void deselect() {
-	this.setColor(Colors.get("BLUE"));
 	}
 }

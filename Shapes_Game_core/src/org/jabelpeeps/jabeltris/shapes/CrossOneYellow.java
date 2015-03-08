@@ -8,14 +8,8 @@ public class CrossOneYellow extends CrossOneAbstract {
 	public CrossOneYellow() {
 		super();
 		type = type + "Yellow";
+		selected = Colors.get("DARK_YELLOW");
+		deselected = Colors.get("YELLOW");
 		deselect();
-	}
-	@Override
-	public void select() {
-	this.setColor(Colors.get("DARK_YELLOW"));
-	}
-	@Override
-	public void deselect() {
-	this.setColor(Colors.get("YELLOW"));
 	}
 }

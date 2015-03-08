@@ -7,14 +7,8 @@ public class FourBarOrange extends FourBarAbstract {
 	public FourBarOrange() {
 		super();
 		type = type + "Orange";
+		selected = Colors.get("DARK_ORANGE");
+		deselected = Colors.get("ORANGE");
 		deselect();
-	}
-	@Override
-	public void select() {
-	this.setColor(Colors.get("DARK_ORANGE"));
-	}
-	@Override
-	public void deselect() {
-	this.setColor(Colors.get("ORANGE"));
 	}
 }

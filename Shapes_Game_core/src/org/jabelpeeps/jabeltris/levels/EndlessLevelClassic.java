@@ -11,6 +11,11 @@ import org.jabelpeeps.jabeltris.shapes.TriangleOriginal;
 import com.badlogic.gdx.graphics.Color;
 
 public class EndlessLevelClassic extends EndlessGame {
+	
+	public EndlessLevelClassic() {
+		super();
+		baseColor = Color.valueOf("B0C4DE");
+	}
 
 	public EndlessLevelClassic(Core g) {
 		super(g);
@@ -19,25 +24,19 @@ public class EndlessLevelClassic extends EndlessGame {
 
 	@Override
 	public Shape makeNewShape(int x, int y) {
-		Shape newShape = null;	
-		int option = rand.nextInt(5) + 1;
-		switch (option) {
-			case 1:                       
-				newShape = new LineOriginal();
-				break;
-			case 2:                       
-				newShape = new CrossOneOriginal();
-				break;
-			case 3:                       
-				newShape = new CrossTwoOriginal();				
-				break;
-			case 4:                       
-				newShape = new TriangleOriginal();				
-				break;
-			case 5:                       
-				newShape = new SquareOriginal();				
-				break;
+		
+		switch ( rand.nextInt(5) + 1 ) {
+			case 1:
+				return new LineOriginal();
+			case 2: 
+				return new CrossOneOriginal();
+			case 3:
+				return new CrossTwoOriginal();	
+			case 4:
+				return new TriangleOriginal();
+			case 5:
+				return new SquareOriginal();
 		}
-		return newShape;
+		return null;
 	}
 }

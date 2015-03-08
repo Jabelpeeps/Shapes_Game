@@ -2,19 +2,16 @@ package org.jabelpeeps.jabeltris.shapes;
 
 import org.jabelpeeps.jabeltris.LevelMaster;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Colors;
+
 public class TriangleOriginal extends TriangleAbstract {
 	
 	public TriangleOriginal() {
-		this.setRegion(LevelMaster.triangle);
+		setRegion(LevelMaster.triangle);
 		type = "triangle";
+		selected = new Color(1f, 0f, 1f, 1f);
+		deselected = Colors.get("WHITE");
 		deselect();
-	}
-	@Override
-	public void select() {
-		this.setColor(1f, 0f, 1f, 1f);
-	}
-	@Override
-	public void deselect() {
-		this.setColor(1f, 1f, 1f, 1f);
 	}
 }

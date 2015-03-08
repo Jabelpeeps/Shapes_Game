@@ -11,9 +11,14 @@ import org.jabelpeeps.jabeltris.PlayAreaInput;
 public abstract class EndlessGame extends LevelMaster {
 	
 // ---------------------------------------------Constructor(s)--------	
+	public EndlessGame() {
+		super();
+	}
 	public EndlessGame(Core c) {
-		super(c);
-		game = new PlayArea(this);
+		this();
+		core = c;
+		game = new PlayArea();
+		game.initialise(this);
 		logic = new InteractiveGameLogic(game);
 		logic.setEndlessPlayMode(true);
 		setupInput(new BorderButtonsInput(game, logic), new PlayAreaInput(game, logic));

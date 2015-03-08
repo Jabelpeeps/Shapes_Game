@@ -71,18 +71,22 @@ public class Splash extends Core implements Screen {
 				LevelMaster.horizgreyline = atlas.findRegion("horizgreyline");
 				LevelMaster.fourbar = atlas.findRegion("fourbar");
 				LevelMaster.mirrorell = atlas.findRegion("mirrorell");
-				LevelMaster.realell = atlas.findRegion("realell");
 				break;
 			case 8:
+				LevelMaster.realell = atlas.findRegion("realell");
 				LevelMaster.realsquare = atlas.findRegion("realsquare");
 				LevelMaster.realt = atlas.findRegion("realt");
-				LevelMaster.zigleft = atlas.findRegion("zigleft");
-				LevelMaster.zigright = atlas.findRegion("zigright");
 				break;
 			case 9:	
-				boardBaseTiles = TextureRegion.split(boardBase, 50, 50);
+				LevelMaster.zigleft = atlas.findRegion("zigleft");
+				LevelMaster.zigright = atlas.findRegion("zigright");
+				LevelMaster.horizline = atlas.findRegion("horizline");
+				LevelMaster.horizinvline = atlas.findRegion("horizinvline");
 				break;
 			case 10:
+				boardBaseTiles = TextureRegion.split(boardBase, 50, 50);
+				break;
+			case 11:
 				// Font Loader
 				FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("ComfortaaRegular.ttf"));
 				FreeTypeFontParameter parameter = new FreeTypeFontParameter();
