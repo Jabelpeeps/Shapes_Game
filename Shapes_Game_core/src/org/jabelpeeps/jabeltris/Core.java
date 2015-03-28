@@ -8,16 +8,14 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.RandomXS128;
-import com.badlogic.gdx.utils.Json;
 
 public class Core extends Game {
 // --------------------------------------------------Fields------------	
@@ -26,13 +24,15 @@ public class Core extends Game {
 	protected static AssetManager manager;
 	protected static BitmapFont font;
 	protected static TextureAtlas atlas;
-	protected final String MY_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890\"!?'.,;:()[]{}<>|/@\\^$-%+=#_&~* ¡£¦§«¬°±·»¼½¾×÷";
+	protected final String MY_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+								+ "1234567890\"!?'.,;:()[]{}<>|/@\\^$-%+=#_&~* ¡£¦§«¬°±·»¼½¾×÷";
 	protected static Texture boardBase;
 	protected static TextureRegion[][] boardBaseTiles;
-	public static RandomXS128 rand = new RandomXS128();
 	protected static Preferences prefs;
-	protected static Matrix4 initialMatrix;	
+	public static RandomXS128 rand = new RandomXS128();
 	public static ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(10);
+	protected static boolean previewMode;
+	public static float bottomEdge, topEdge;
 	
 // --------------------------------------------------Methods-----------
 	@Override
@@ -43,38 +43,75 @@ public class Core extends Game {
 		batch = new SpriteBatch(500);
 		atlas = new TextureAtlas();
 		manager = new AssetManager();
-		prefs = Gdx.app.getPreferences("JabelPrefs");
+		prefs = Gdx.app.getPreferences("JabelTris.JabelPrefs.prefs");
+		previewMode = prefs.getBoolean("previewMode");
 		
 		// Queue some jobs for AssetManager
 		manager.load("pack.atlas", TextureAtlas.class);
 		manager.load("board10x10.jpg", Texture.class);
-		Texture.setAssetManager(Core.manager);
+		Texture.setAssetManager(manager);
 		
 		// set world view as 42 units wide, and enough high to keep units square.
 		// (standard play area will be 40x40 with a small border at the edges.)
-		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
-		camera = new OrthographicCamera( 42 , 42 * ( h / w ) );
+		float w = Gdx.graphics.getWidth();
+		
+		float adjHeight = 42f * ( h / w );
+		camera = new OrthographicCamera( 42 , adjHeight );
+		bottomEdge = (adjHeight - 42) / -2;
+		topEdge = (42 + (adjHeight - 42) / 2);		
 		
 		// position camera so that 0,0 is at bottom left of the playboard position.
 		// NB the coords defined in the .set() are for the centre of the view
-        camera.position.set(20, 20, 0);  
-        initialMatrix = camera.combined;
+        camera.position.set(20, 20, 0); 
         
         // calls splash screen
         this.setScreen(new Splash(this));
 	}
-	protected void messageCentered(String message, int y) {
-		font.drawWrapped(batch, message, 1, y, 38, BitmapFont.HAlignment.CENTER);
+	public static void textCentre(String message, float y) {
+		font.drawWrapped(batch, message, 2, y, 36, BitmapFont.HAlignment.CENTER);
 	}
-	protected void messageLeft(String message, float y) {
+	public static void textLeft(String message, float y) {
 		font.drawWrapped(batch, message, 2, y, 36, BitmapFont.HAlignment.LEFT);
 	}
-	protected void messageRight(String message, float y) {
+	public static void textRight(String message, float y) {
 		font.drawWrapped(batch, message, 2, y, 36, BitmapFont.HAlignment.RIGHT);
 	}
+	public static void textInBounds(String message, float yMin, float yMax) {
+		TextBounds text;
+		float scale = 0.21f;
+	
+		do {
+			scale -= 0.01f;
+			font.setScale(scale);
+			text = font.getWrappedBounds(message, 40);
+		} while ( text.height > yMax - yMin );
+		
+		font.drawWrapped(batch, message, 0, yMax, 40, BitmapFont.HAlignment.CENTER);
+		
+		font.setScale(0.2f);
+	}
+	public static void textHeading(String message, float y) {
+		font.setScale(0.25f);
+		float textwidth = font.getBounds(message).width;
+		
+		String underline = "";
+		TextBounds line;
+		do  {
+			underline = underline + "_";
+			line = font.getBounds(underline);
+		} while ( line.width < textwidth );
 
-	protected static void delay(long time) {
+		textCentre(message, y);
+		textCentre(underline, y - 1 );
+		textCentre(message, y);
+		font.setScale(0.2f);
+	}
+	public static boolean levelCompleted(String level) {
+		return previewMode || prefs.getString(level).equals("Completed");
+	}
+	
+	public static void delay(long time) {
 		try {  
 			TimeUnit.MILLISECONDS.sleep(time);
 		} catch (InterruptedException e) { 
@@ -82,22 +119,12 @@ public class Core extends Game {
 		}
 	}
 	@Override
-	public void pause() {
-		
-		if ( getScreen() instanceof LevelMaster ) {			
-			Json json = new Json();
-			String savegame = json.prettyPrint(getScreen());
-			if ( Gdx.files.isLocalStorageAvailable() ) {
-				FileHandle handle = Gdx.files.local("savedLevel.sav");
-				handle.writeString(savegame, false);
-			}
-//			System.out.println(savegame);
-		}
-	}
-	
-	@Override
 	public void render () {
 		super.render();
+	}
+	protected void exit() {
+		Gdx.app.exit();
+		dispose();
 	}
 	@Override
 	public void dispose () {
@@ -107,23 +134,6 @@ public class Core extends Game {
 		manager.dispose();
 		font.dispose();
 		batch.dispose();
+		screen.dispose();
 	}
-	
-//		System.out.println("delay() called by: " + getMethodName(1) 
-//										  + ", " + getMethodName(2) 
-//										  + ", " + getMethodName(3) 
-//										  + ", " + getMethodName(4));
-	
-//		/**
-//		 * Get the method name for a depth in call stack. <br />
-//		 * Utility function
-//		 * @param depth depth in the call stack (0 means current method, 1 means call method, ...)
-//		 * @return method name
-//		 */
-//		public static String getMethodName(int depth) {
-//			StackTraceElement[] ste;
-//			ste = Thread.currentThread().getStackTrace();
-//
-//			return ste[ste.length - 1 - depth].getMethodName(); 
-//		}
 }

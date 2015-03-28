@@ -1,15 +1,9 @@
 package org.jabelpeeps.jabeltris.shapes;
 
-import org.jabelpeeps.jabeltris.LevelMaster;
 import org.jabelpeeps.jabeltris.Shape;
 
 public abstract class CrossOneAbstract extends Shape {
 	// crossone is the '+' shape.
-	
-	public CrossOneAbstract() {
-		setRegion(LevelMaster.greycrone);
-		type = "CrossOne";
-	}
 	
 	@Override
 	protected float shapeMatch(int x, int y, int xx, int yy) {

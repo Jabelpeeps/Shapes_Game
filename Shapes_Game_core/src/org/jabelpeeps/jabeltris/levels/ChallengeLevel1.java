@@ -4,10 +4,8 @@ import org.jabelpeeps.jabeltris.Core;
 import org.jabelpeeps.jabeltris.InteractiveGameLogic;
 import org.jabelpeeps.jabeltris.PlayArea;
 import org.jabelpeeps.jabeltris.Shape;
-import org.jabelpeeps.jabeltris.shapes.SquareBlue;
-import org.jabelpeeps.jabeltris.shapes.SquareRed;
-import org.jabelpeeps.jabeltris.shapes.TriangleGreen;
-import org.jabelpeeps.jabeltris.shapes.TriangleYellow;
+import org.jabelpeeps.jabeltris.shapes.Square;
+import org.jabelpeeps.jabeltris.shapes.Triangle;
 
 import com.badlogic.gdx.graphics.Color;
 
@@ -25,9 +23,9 @@ public class ChallengeLevel1 extends ChallengeLevelAbstract {
 				+ "Your target is 30 matches, and"
 				+ " I'll be keeping score too...";
 	}
-	public ChallengeLevel1(Core c) {
+	public ChallengeLevel1(boolean playNext) {
 		this();
-		core = c;
+		playOn = playNext;
 		game = new PlayArea(7, 7);
 		game.initialise(this);
 		logic = new InteractiveGameLogic(game);
@@ -35,44 +33,40 @@ public class ChallengeLevel1 extends ChallengeLevelAbstract {
 		logic.setEndlessPlayMode(true);
 		logic.start();
 	}
-	public ChallengeLevel1(Core c, boolean playNext) {
-		this(c);
-		playOn = playNext;
-	}
 // ---------------------------------------------Methods--------------
 	@Override
-	public Shape makeNewShape(int x, int y) {
+	public Shape getNewShape() {
 		
 		switch ( rand.nextInt(4) + 1 ) {
 			case 1:
-				return new SquareRed();
+				return new Square("Red");
 			case 2:
-				return new SquareBlue();
+				return new Square("Blue");
 			case 3: 
-				return new TriangleYellow();
+				return new Triangle("Yellow");
 			case 4:
-				return new TriangleGreen();
+				return new Triangle("Green");
 		}
 		return null;
 	}
 	@Override
 	protected void stage3Tasks(int matches) {
-		messageCentered("Sets Matched:- " + matches + "/30", 42);
-		if ( matches < 6 ) {
-			messageCentered("", 2);
-		} else if ( matches < 11 ) {
-			messageCentered("[GOLD]Pro Tip[]:- ", 4);
-		} else if ( matches < 16 ) {
-			messageCentered("", 4);
-		} else if ( matches < 20 ) {
-			messageCentered("", 2);
-		} else if ( matches > 29 ) {
+		Core.textCentre("Sets Matched:- " + matches + "/30", Core.topEdge - 10);
+		if ( matches < 6 ) 
+			Core.textCentre("", 2);
+		else if ( matches < 11 ) 
+			Core.textCentre("[GOLD]Pro Tip[]:- ", 4);
+		else if ( matches < 16 )
+			Core.textCentre("", 4);
+		else if ( matches < 20 )
+			Core.textCentre("", 2);
+		else if ( matches > 29 ) {
 			levelStage = 7;
 			logic.setEndlessPlayMode(false);
 		}	
 	}
 	@Override
 	protected void nextLevel() {
-		core.setScreen(new TrainingLevel3(core));
+		core.setScreen(new TrainingLevel3(true));
 	}
 }

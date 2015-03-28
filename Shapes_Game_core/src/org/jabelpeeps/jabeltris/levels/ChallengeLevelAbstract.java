@@ -18,10 +18,9 @@ public abstract class ChallengeLevelAbstract extends LevelMaster {
 	public void render(float delta) {
 		
 		if ( logic.getBackKeyWasPressed() ) {
-			doWhenBackKeyWasPressed();	
+			fadeOutAndReturnToMenu();	
 			return;
 		}
-		
 		prepScreenAndCamera();
 		batch.begin();
 		renderBoard(alpha);
@@ -41,7 +40,8 @@ public abstract class ChallengeLevelAbstract extends LevelMaster {
 			score = game.getScore();
 		case 7:
 			matches = game.getTotalMatches();
-			messageCentered("Score:- " + score, 48);
+			Core.textCentre("Score:- " + score, Core.topEdge - 5);
+			
 			if ( levelStage == 3 ) {
 				stage3Tasks(matches);
 			    batch.end();
@@ -50,18 +50,19 @@ public abstract class ChallengeLevelAbstract extends LevelMaster {
 			if ( levelStage == 7 ) {
 				finalMessages();
 			    batch.end();
-		    	if ( !levelIsFinished ) {
-		    		levelNeedsFinishing();
-				} else {
+			    recordCompleted();
+			    
+		    	if ( !levelIsFinished ) levelNeedsFinishing();
+		    	
+		    	else {
 					alpha = (alpha > 0f) ? (alpha - 0.01f) : 0f ;
 			    	
 			    	if ( !logic.isAlive() && alpha <= 0f ) {
 			    		Core.delay(200);
-						if ( playOn ) {
+						if ( playOn ) 
 							nextLevel();
-						} else {	
-							core.setScreen(new MainMenu(core));
-						}
+						else 	
+							menuScreen();
 						dispose();
 					}
 					Gdx.graphics.requestRendering();
@@ -69,31 +70,17 @@ public abstract class ChallengeLevelAbstract extends LevelMaster {
 			}
 		}
 	}
-	protected void doWhenBackKeyWasPressed() {
-		
-		if ( !logic.isAlive() && alpha <= 0f ) {
-			core.setScreen(new MainMenu(core));
-			dispose();
-		} else {
-			levelIsFinished = true;
-			levelStage = 0;
-		}
-		
-		alpha = (alpha > 0f) ? (alpha - 0.01f) : 0f ;
-		prepScreenAndCamera();
-		renderBoard(alpha);
-		Gdx.graphics.requestRendering();
-	}
+	
 	protected void stage1Tasks() {
 		alpha = (alpha < 0.4f) ? (alpha + 0.005f) : 0.4f ;
 		
-		messageCentered( firstMessage , 48);
-		messageCentered("[GOLD]Touch here[] to begin", 0);
+		Core.textCentre( firstMessage , 48);
+		Core.textCentre("[GOLD]Touch here[] to begin", -2);
 		
 		if ( Gdx.input.justTouched() ) {
-			touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-			Core.camera.unproject(touch);
-			if ( touch.y < 0) {
+			cameraUnproject();
+			
+			if ( touch.y < 0 ) {
 				levelStage++;
 				setupInput(new BorderButtonsInput(game, logic), new PlayAreaInput(game, logic));
 				logic.sendStartSignal();
@@ -103,37 +90,24 @@ public abstract class ChallengeLevelAbstract extends LevelMaster {
 	protected void stage2Tasks() {
 		alpha = (alpha < 1f) ? (alpha + 0.05f) : 1f ;
 		
-		messageCentered(title, 48);
-		messageCentered("Have Fun!", 4);
-		if ( alpha == 1f ) {
-			levelStage++;
-		}
+		Core.textCentre(title, 48);
+		Core.textCentre("Have Fun!", 4);
+		
+		if ( alpha == 1f ) levelStage++;
 	}
+	
 	protected abstract void stage3Tasks(int matches);
 	
 	protected void finalMessages() {
 
-		messageCentered("[RED]Scoring has ended.[]", 45);
-		messageCentered("Level Over!\n"
-				+ "[GOLD]Touch here[] to " + (playOn ? "continue." : "finish."), 2);
+		Core.textCentre("[RED]Final Score.[]", 44);
+		Core.textCentre("Level Over!\n"
+					+ "[GOLD]Touch here[] to " 
+					+ ( playOn? "continue."
+							  : "finish." ), 2);
 	}
-	protected void levelNeedsFinishing() {
-		
-		if ( game.getHintListSize() == 0 ) {
-    		levelIsFinished = true;
-    	}
-		if ( Gdx.input.justTouched() ) {
-			touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-			Core.camera.unproject(touch);
-			if ( touch.y < 0 ) {
-				levelIsFinished = true;
-			} 
-	    }
-	}
-	protected abstract void nextLevel();
-	
 	@Override
-	public boolean IsFinished() {
-		return levelIsFinished;
+	protected void menuScreen() {
+		core.setScreen(new MainMenu(core, levelIsFinished? 1 : 6 ));
 	}
 }

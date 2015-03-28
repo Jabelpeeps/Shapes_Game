@@ -1,15 +1,9 @@
 package org.jabelpeeps.jabeltris.shapes;
 
-import org.jabelpeeps.jabeltris.LevelMaster;
 import org.jabelpeeps.jabeltris.Shape;
 
 public abstract class SquareAbstract extends Shape {
 	
-	public SquareAbstract() {
-		setRegion(LevelMaster.greysqr);
-		type = "Square";
-	}
-
 	@Override
 	public float shapeMatch(int x, int y, int xx, int yy) {	
 		float matchesmade = 0f;

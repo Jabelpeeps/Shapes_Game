@@ -1,15 +1,9 @@
 package org.jabelpeeps.jabeltris.shapes;
 
-import org.jabelpeeps.jabeltris.LevelMaster;
 import org.jabelpeeps.jabeltris.Shape;
 
 public abstract class CrossTwoAbstract extends Shape {
 	// crosstwo is the 'X' shape
-	
-	public CrossTwoAbstract() {
-		setRegion(LevelMaster.greycrtwo);
-		type = "CrossTwo";
-	}
 	
 	@Override
 	public float shapeMatch(int x, int y, int xx, int yy) {

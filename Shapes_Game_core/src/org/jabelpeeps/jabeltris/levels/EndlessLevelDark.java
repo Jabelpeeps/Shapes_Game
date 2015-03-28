@@ -1,6 +1,5 @@
 package org.jabelpeeps.jabeltris.levels;
 
-import org.jabelpeeps.jabeltris.Core;
 import org.jabelpeeps.jabeltris.Shape;
 import org.jabelpeeps.jabeltris.shapes.CrossOneInverted;
 import org.jabelpeeps.jabeltris.shapes.CrossTwoInverted;
@@ -14,17 +13,15 @@ import com.badlogic.gdx.graphics.Color;
 public class EndlessLevelDark extends EndlessGame {
 	
 	public EndlessLevelDark() {
-		super();
-		baseColor = new Color(0.75f, 1f, 0.75f, 1f);
+		this(false);
 	}
-
-	public EndlessLevelDark(Core c) {
-		super(c);
+	public EndlessLevelDark(boolean initialise ) {
+		super(initialise);
 		baseColor = new Color(0.75f, 1f, 0.75f, 1f);
 	}
 	
 	@Override
-	public Shape makeNewShape(int x, int y) {
+	public Shape getNewShape() {
 		
 		switch ( rand.nextInt(9) + 1 ) {
 			case 1: 

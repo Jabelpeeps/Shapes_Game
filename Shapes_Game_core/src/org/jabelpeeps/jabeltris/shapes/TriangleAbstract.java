@@ -1,15 +1,9 @@
 package org.jabelpeeps.jabeltris.shapes;
 
-import org.jabelpeeps.jabeltris.LevelMaster;
 import org.jabelpeeps.jabeltris.Shape;
 
 public abstract class TriangleAbstract extends Shape {
 	// really a short 'T' shape, but triangle sounded better.
-	
-	public TriangleAbstract() {
-		setRegion(LevelMaster.greytri);
-		type = "Triangle";
-	}
 	
 	@Override
 	public float shapeMatch(int x, int y, int xx, int yy) {		

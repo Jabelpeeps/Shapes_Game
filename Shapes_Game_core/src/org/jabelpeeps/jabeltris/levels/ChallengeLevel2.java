@@ -4,11 +4,10 @@ import org.jabelpeeps.jabeltris.Core;
 import org.jabelpeeps.jabeltris.InteractiveGameLogic;
 import org.jabelpeeps.jabeltris.PlayArea;
 import org.jabelpeeps.jabeltris.Shape;
-import org.jabelpeeps.jabeltris.shapes.CrossOneBlue;
-import org.jabelpeeps.jabeltris.shapes.CrossOneGreen;
-import org.jabelpeeps.jabeltris.shapes.CrossOneMagenta;
-import org.jabelpeeps.jabeltris.shapes.CrossOneRed;
-import org.jabelpeeps.jabeltris.shapes.CrossOneYellow;
+import org.jabelpeeps.jabeltris.shapes.HorizontalLine;
+import org.jabelpeeps.jabeltris.shapes.Square;
+import org.jabelpeeps.jabeltris.shapes.Triangle;
+import org.jabelpeeps.jabeltris.shapes.VerticalLine;
 
 import com.badlogic.gdx.graphics.Color;
 
@@ -20,67 +19,63 @@ public class ChallengeLevel2 extends ChallengeLevelAbstract {
 	public ChallengeLevel2() {
 		super();
 		baseColor = new Color(0.75f, 1f, 1f, 1f);
-		title = "Challenge Level 2\n";
+		title = "Challenge Level 2\nRe-Mix";
 		firstMessage = title + "\n\n"
 				+ "\n"
 				+ "\n"
 				+ ""
 				+ "";
 	}
-	public ChallengeLevel2(Core c) {
+	public ChallengeLevel2(boolean playNext) {
 		this();
-		core = c;
+		playOn = playNext;
 		game = new PlayArea(9, 10);
 		game.initialise(this);
 		logic = new InteractiveGameLogic(game);
 		logic.waitForStartSignal();
 		logic.setEndlessPlayMode(true);
 		logic.start();
-		while ( !game.playAreaIsReady() ) {
+		while ( !game.playAreaIsReady() ) 
 			Core.delay(10);
-		}
 		game.setBlanks(blanks);
-	}
-	public ChallengeLevel2(Core c, boolean playNext) {
-		this(c);
-		playOn = playNext;
 	}
 // ---------------------------------------------Methods--------------
 	@Override
-	public Shape makeNewShape(int x, int y) {
+	public Shape getNewShape() {
 		
 		switch ( rand.nextInt(5) + 1 ) {
 			case 1:                       
-				return new CrossOneBlue();
+				return new Square("Orange");
 			case 2:                       
-				return new CrossOneYellow();
+				return new Triangle("Blue");
 			case 3:                       
-				return new CrossOneGreen();	
+				return new Square("Green");	
 			case 4:
-				return new CrossOneMagenta();
+				return new HorizontalLine("Magenta");
 			case 5:
-				return new CrossOneRed();
+				return new VerticalLine("Yellow");
 		}
 		return null;
 	}
 	@Override
 	protected void stage3Tasks(int matches) {
-		messageCentered("Sets Matched:- " + matches + "/30", 45);
-		if ( matches < 6 ) {
-			messageCentered("", 2);
-		} else if ( matches < 11 ) {
-			messageCentered("[#FFD700]Pro Tip[]:- ", -2);
-		} else if ( matches < 16 ) {
-			messageCentered("", 4);
-		} else if ( matches < 20 ) {
-			messageCentered("", 2);
-		} else if ( matches > 29 ) {
+		Core.textCentre("Sets Matched:- " + matches + "/30", Core.topEdge - 10);
+		
+		if ( matches < 6 ) 
+			Core.textCentre("", 2);
+		else if ( matches < 11 )
+			Core.textCentre("[GOLD]Pro Tip[]:- ", -2);
+		else if ( matches < 16 ) 
+			Core.textCentre("", 4);
+		else if ( matches < 20 ) 
+			Core.textCentre("", 2);
+		else if ( matches > 29 ) {
 			levelStage = 7;
 			logic.setEndlessPlayMode(false);
 		}	
 	}
 	@Override
 	protected void nextLevel() {
-		core.setScreen(new TrainingLevel3(core));
+		core.setScreen(new ChallengeLevel3(true));
 	}
 }

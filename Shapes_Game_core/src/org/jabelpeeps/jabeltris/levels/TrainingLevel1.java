@@ -3,11 +3,10 @@ package org.jabelpeeps.jabeltris.levels;
 import org.jabelpeeps.jabeltris.BorderButtonsInput;
 import org.jabelpeeps.jabeltris.Core;
 import org.jabelpeeps.jabeltris.DemoGameLogic;
+import org.jabelpeeps.jabeltris.MainMenu;
 import org.jabelpeeps.jabeltris.PlayArea;
 import org.jabelpeeps.jabeltris.Shape;
-import org.jabelpeeps.jabeltris.shapes.SquareBlue;
-import org.jabelpeeps.jabeltris.shapes.SquareRed;
-import org.jabelpeeps.jabeltris.shapes.SquareYellow;
+import org.jabelpeeps.jabeltris.shapes.Square;
 
 import com.badlogic.gdx.graphics.Color;
 
@@ -20,61 +19,59 @@ public class TrainingLevel1 extends TrainingLevelAbstract {
 		title = "Demo Level 1\nSquares";
 		firstMessage = title + "\n\n"
 				+ "Squares match when placed in square groups.\n\n"
-				+ "AutoPlay is showing you how this works.";
+				+ "AutoPlay will show you how this works.";
 	}
-	public TrainingLevel1(Core c) {
+	public TrainingLevel1(boolean playNext) {	
 		this();
-		core = c;
+		playOn = playNext;
 		game = new PlayArea(6, 6);
 		game.initialise(this);
 		logic = new DemoGameLogic(game);
+		logic.waitForStartSignal();
 		setupInput(new BorderButtonsInput(game, logic));
 		logic.start();
 	}
-	public TrainingLevel1(Core c, boolean playNext) {	
-		this(c);
-		playOn = playNext;
-	}
-	public TrainingLevel1(Core c, boolean playNext, boolean learningLevels) {
-		this(c, playNext);
+	public TrainingLevel1(boolean playNext, boolean learningLevels) {
+		this(playNext);
 		playingLearningLevels = learningLevels;
 	}
 // ---------------------------------------------Methods----------
 	@Override
-	public Shape makeNewShape(int x, int y) {
+	public Shape getNewShape() {
 		
 		switch ( rand.nextInt(3) + 1 ) {
 			case 1:
-				return new SquareBlue();
+				return new Square("Blue");
 			case 2:
-				return new SquareRed();
+				return new Square("Red");
 			case 3:
-				return new SquareYellow();
+				return new Square("Yellow");
 		}
 		return null;
 	}	
 	@Override
 	protected void stage6Tasks(int score) {
-		messageCentered("Target:- 20", 40);
-		if ( score < 6 ) {
-			messageCentered("Touch and drag shapes where you want them to go.", 2);
-		} else if ( score < 11 ) {
-			messageCentered("[GOLD]Pro Tip[]:- Look for moves that make more than one match.", 4);
-		} else if ( score < 16 ) {
-			messageCentered("Multiple matches will score [ORANGE]extra points[] in the scoring levels.", 4);
-		} else if ( score < 20 ) {
-			messageCentered("Almost there...", 2);
-		} else if ( score > 19 ) {
+		Core.textCentre("Target:- 20", Core.topEdge - 10);
+		if ( score < 6 ) 
+			Core.textCentre("Touch and drag shapes where you want them to go.", 2);
+		else if ( score < 11 )
+			Core.textCentre("[GOLD]Pro Tip[]:- Look for moves that make more than one match.", 4);
+		else if ( score < 16 )
+			Core.textCentre("Multiple matches will score [ORANGE]extra points[] in the scoring levels.", 4);
+		else if ( score < 20 )
+			Core.textCentre("Almost there...", 2);
+		else if ( score > 19 ) {
 			levelStage = 7;
 			logic.setEndlessPlayMode(false);
 		}
 	}
 	@Override
 	protected void nextLearningLevel() {
-		core.setScreen(new TrainingLevel2(core, true, true));
+		core.setScreen( Core.levelCompleted("TrainingLevel2")? new TrainingLevel2(true, true) 
+															 : new MainMenu(core, 3) );
 	}
 	@Override
 	protected void nextLevel(){
-		core.setScreen(new TrainingLevel2(core, true));		
+		core.setScreen(new TrainingLevel2(true));		
 	}	
 }

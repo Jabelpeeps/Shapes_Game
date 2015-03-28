@@ -8,7 +8,8 @@ import com.badlogic.gdx.graphics.Colors;
 public class LineInverted extends LineAbstract {
 	
 	public LineInverted() {
-		this.setRegion(LevelMaster.invline);
+		super();
+		setRegion(LevelMaster.invline);
 		type = "LineInverted";
 		selected = new Color(1f, 0f, 0f, 1f);
 		deselected = Colors.get("WHITE");

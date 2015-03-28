@@ -10,7 +10,6 @@ public abstract class FourBarAbstract extends Shape {
 			type = "FourBar";
 			animate();
 	}
-
 	@Override
 	protected float shapeMatch(int x, int y, int xx, int yy) {
 		

@@ -11,36 +11,41 @@ import org.jabelpeeps.jabeltris.PlayAreaInput;
 public abstract class EndlessGame extends LevelMaster {
 	
 // ---------------------------------------------Constructor(s)--------	
-	public EndlessGame() {
+	public EndlessGame(boolean initialise) {
 		super();
-	}
-	public EndlessGame(Core c) {
-		this();
-		core = c;
-		game = new PlayArea();
-		game.initialise(this);
-		logic = new InteractiveGameLogic(game);
-		logic.setEndlessPlayMode(true);
-		setupInput(new BorderButtonsInput(game, logic), new PlayAreaInput(game, logic));
-		logic.start();
+		if ( initialise ) {
+			game = new PlayArea();
+			game.initialise(this);
+			logic = new InteractiveGameLogic(game);
+			logic.setEndlessPlayMode(true);
+			setupInput(new BorderButtonsInput(game, logic), new PlayAreaInput(game, logic));
+			logic.start();
+		}
 	}
 // ---------------------------------------------Methods----------
 	@Override
 	public void render(float delta) {
-		if ( !logic.isAlive() ) {
-			core.setScreen(new MainMenu(core));	
-			dispose();
+		
+		if ( logic.getBackKeyWasPressed() ) {
+			fadeOutAndReturnToMenu();	
 			return;
 		}
+		
 		prepScreenAndCamera();
-		int hints = game.getHintListSize();
+		
 		batch.begin();
-		if ( hints > 0 ) {
-			font.draw(batch, "Possible moves:- " + hints, 4, 48);
-		} else {
-			font.draw(batch, game.getMessage(), 4, 48);
-		}                 
-	    batch.end();
+		int hints = game.getHintListSize();
+		
+		Core.textCentre( (hints > 0)? "Possible moves:- "+hints
+							   		: game.getMessage()       , 48);
 		renderBoard();
+		batch.end();
+	}
+	@Override
+	protected void menuScreen() {
+		core.setScreen(new MainMenu(core, 6, 2));
+	}
+	@Override
+	protected void nextLevel() {
 	}
 }

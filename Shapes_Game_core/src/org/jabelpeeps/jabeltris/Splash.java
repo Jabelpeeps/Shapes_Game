@@ -41,6 +41,7 @@ public class Splash extends Core implements Screen {
 				// unpack the resources from the asset manager
 				atlas = manager.get("pack.atlas");
 				boardBase = manager.get("board10x10.jpg");
+				LevelMaster.core = core;
 				break;
 			case 2:	
 				LevelMaster.line = atlas.findRegion("line");
@@ -100,46 +101,31 @@ public class Splash extends Core implements Screen {
 				parameter.borderWidth = 0.5f;
 				parameter.borderColor = Color.BLACK;
 				font = generator.generateFont(parameter); 
+				
 				generator.dispose();                                   // dispose to avoid memory leaks!
 				font.setScale(0.2f);
 				font.setUseIntegerPositions(false);
 				font.setMarkupEnabled(true);
-								
-				// we are done loading, let's move on..
 				nowLoaded = true;
 				break;
-			}	
-		} else if ( nowLoaded && Gdx.input.isTouched() ) {
-				core.setScreen(new MainMenu(core, 0));
-				dispose();
+			}
 		} 	
 	    
-		// displays splash image while AssetManager is loading.
 		Gdx.gl.glClearColor(0, 0, 0.2f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
-		// when loaded, display some prompts...
-		if ( nowLoaded && logoScale < 0f ) {    
-			batch.begin();
-			font.draw(batch, "Loading Complete!", 4, 24);
-			font.draw(batch, "Touch Screen to Play!", 1, 16);
-			batch.end();
-			
-			// turn off continuous rendering (to save battery) 
-			Gdx.graphics.setContinuousRendering(false);
+		if ( nowLoaded && logoScale < 0f ) { 
+
+			core.setScreen(new MainMenu(core, 0));
 			
 		} else {
 			logo.setScale(logoScale);
 			logo.rotate(20);
-		    if ( logoScale >= 1f ) {
-		    		Core.delay(200);
-		    		logoScaling = "down";
-		    }
-			if ( logoScaling == "up" ) {
-					logoScale += 0.1f;
-			} else {
-					logoScale -= 0.1f;
-			}
+			
+		    if ( logoScale >= 1f ) 	logoScaling = "down";
+		    
+		    logoScale = ( logoScaling == "up" ) ? logoScale + 0.1f : logoScale - 0.1f;
+		    
 			Core.delay(60);
 			camera.update();
 			batch.setProjectionMatrix(camera.combined);
@@ -151,13 +137,9 @@ public class Splash extends Core implements Screen {
 			batch.end();
 		 }
 	}
-				// REMEMBER to request renders with:-
-				//    	Gdx.graphics.requestRendering();
-				// (also triggered by input events)
-	
-// -------------------------------------------------Empty Methods--------
 	@Override
 	public void hide() {
+		dispose();
 	}
 	@Override
 	public void show() {
