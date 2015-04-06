@@ -18,7 +18,6 @@ public class ChallengeLevel2 extends ChallengeLevelAbstract {
 // ---------------------------------------------Constructors--------
 	public ChallengeLevel2() {
 		super();
-		baseColor = new Color(0.75f, 1f, 1f, 1f);
 		title = "Challenge Level 2\nRe-Mix";
 		firstMessage = title + "\n\n"
 				+ "\n"
@@ -30,7 +29,9 @@ public class ChallengeLevel2 extends ChallengeLevelAbstract {
 		this();
 		playOn = playNext;
 		game = new PlayArea(9, 10);
+		game.baseColor = new Color(0.75f, 1f, 1f, 1f);
 		game.initialise(this);
+		Shape.addHintVisitor( new StandardMoveHints() );
 		logic = new InteractiveGameLogic(game);
 		logic.waitForStartSignal();
 		logic.setEndlessPlayMode(true);
@@ -76,6 +77,6 @@ public class ChallengeLevel2 extends ChallengeLevelAbstract {
 	}
 	@Override
 	protected void nextLevel() {
-		core.setScreen(new ChallengeLevel3(true));
+		core.setScreen(new ChallengeLevel15(true));
 	}
 }

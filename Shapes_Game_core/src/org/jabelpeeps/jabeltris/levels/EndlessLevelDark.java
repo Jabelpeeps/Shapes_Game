@@ -16,8 +16,8 @@ public class EndlessLevelDark extends EndlessGame {
 		this(false);
 	}
 	public EndlessLevelDark(boolean initialise ) {
-		super(initialise);
-		baseColor = new Color(0.75f, 1f, 0.75f, 1f);
+		super();
+		if ( initialise ) initialise(new Color(0.75f, 1f, 0.75f, 1f));
 	}
 	
 	@Override

@@ -15,7 +15,6 @@ public class TrainingLevel1 extends TrainingLevelAbstract {
 // ---------------------------------------------Constructors--------	
 	public TrainingLevel1() {
 		super();
-		baseColor = new Color(1f, 1f, 1f, 1f);
 		title = "Demo Level 1\nSquares";
 		firstMessage = title + "\n\n"
 				+ "Squares match when placed in square groups.\n\n"
@@ -25,7 +24,9 @@ public class TrainingLevel1 extends TrainingLevelAbstract {
 		this();
 		playOn = playNext;
 		game = new PlayArea(6, 6);
+		game.baseColor = new Color(1f, 1f, 1f, 1f);
 		game.initialise(this);
+		Shape.addHintVisitor( new StandardMoveHints() );
 		logic = new DemoGameLogic(game);
 		logic.waitForStartSignal();
 		setupInput(new BorderButtonsInput(game, logic));

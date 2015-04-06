@@ -12,14 +12,13 @@ import org.jabelpeeps.jabeltris.shapes.ZigRight;
 
 import com.badlogic.gdx.graphics.Color;
 
-public class ChallengeLevel3 extends ChallengeLevelAbstract {
+public class ChallengeLevel15 extends ChallengeLevelAbstract {
 
 	private int[][] blanks = {{3, 3},{3, 6},{6, 3},{6, 6}};
 	
 // ---------------------------------------------Constructors--------	
-	public ChallengeLevel3() {
+	public ChallengeLevel15() {
 		super();
-		baseColor = new Color(0.75f, 1f, 1f, 1f);
 		title = "Challenge Level 3\n";
 		firstMessage = title + "\n\n"
 				+ "\n"
@@ -27,11 +26,13 @@ public class ChallengeLevel3 extends ChallengeLevelAbstract {
 				+ ""
 				+ "";
 	}
-	public ChallengeLevel3(boolean playNext) {
+	public ChallengeLevel15(boolean playNext) {
 		this();
 		playOn = playNext;
 		game = new PlayArea(10, 10);
+		game.baseColor = new Color(0.75f, 1f, 1f, 1f);
 		game.initialise(this);
+		Shape.addHintVisitor( new StandardMoveHints() );
 		logic = new InteractiveGameLogic(game);
 		logic.waitForStartSignal();
 		logic.setEndlessPlayMode(true);

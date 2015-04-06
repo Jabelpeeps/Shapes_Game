@@ -4,7 +4,8 @@ import org.jabelpeeps.jabeltris.BorderButtonsInput;
 import org.jabelpeeps.jabeltris.Core;
 import org.jabelpeeps.jabeltris.LevelMaster;
 import org.jabelpeeps.jabeltris.MainMenu;
-import org.jabelpeeps.jabeltris.PlayAreaInput;
+import org.jabelpeeps.jabeltris.SelectShape;
+import org.jabelpeeps.jabeltris.TwoSwapInput;
 
 import com.badlogic.gdx.Gdx;
 
@@ -82,7 +83,9 @@ public abstract class ChallengeLevelAbstract extends LevelMaster {
 			
 			if ( touch.y < 0 ) {
 				levelStage++;
-				setupInput(new BorderButtonsInput(game, logic), new PlayAreaInput(game, logic));
+				setupInput(	new BorderButtonsInput(game, logic),
+						   	new SelectShape(game, logic),
+						   	new TwoSwapInput(game, logic) );
 				logic.sendStartSignal();
 			}
 		}

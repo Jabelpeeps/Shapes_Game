@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.Colors;
 public class CrossOneOriginal extends CrossOneAbstract {
 	
 	public CrossOneOriginal() {
-		this.setRegion(LevelMaster.crossone);
+		setRegion(LevelMaster.crossone);
 		type = "crossone";
 		selected = new Color(0f, 1f, 0f, 1f);
 		deselected = Colors.get("WHITE");

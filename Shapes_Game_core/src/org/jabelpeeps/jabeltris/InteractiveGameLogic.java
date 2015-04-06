@@ -35,7 +35,6 @@ public class InteractiveGameLogic extends GameLogic implements Runnable {
 					visitorAccepted = false;
 				}
 				if ( game.getHintListSize() <= 0 && endlessPlayMode ) {
-					game.setMessage("No Moves Left, Shuffling");
 					Core.delay(100);
 					game.shuffleBoard();
 				}

@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.Colors;
 public class CrossOneInverted extends CrossOneAbstract {
 	
 	public CrossOneInverted() {
-		this.setRegion(LevelMaster.invcrone);
+		setRegion(LevelMaster.invcrone);
 		type = "CrossOneInverted";
 		selected = new Color(0f, 1f, 0.5f, 1f);
 		deselected = Colors.get("WHITE");

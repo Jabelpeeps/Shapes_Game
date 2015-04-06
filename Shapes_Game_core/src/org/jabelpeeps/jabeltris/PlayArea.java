@@ -3,6 +3,7 @@ package org.jabelpeeps.jabeltris;
 import org.jabelpeeps.jabeltris.shapes.Blank;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
@@ -10,6 +11,7 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.Json.Serializable;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 
@@ -18,6 +20,7 @@ public class PlayArea implements Serializable {
 // ---------------------------------------------Fields------------
 	private LevelMaster level;
 	private SpritePlus[][] boardTile;
+	public Color baseColor;
 	protected Shape[][] shapeTile;
 	private int x_size = 10, y_size = 10, x_offset = 0, y_offset = 0;
 	
@@ -33,7 +36,7 @@ public class PlayArea implements Serializable {
 	private Array<Shape> topRight = new Array<Shape>(false, 32, Shape.class);
 	private Array<Shape> oddShapes = new Array<Shape>(false, 16, Shape.class);
 	private Array<Array<Shape>> listoflists = new Array<Array<Shape>>(4);
-		
+	
 	private float matchesSinceLastMove = 0f;
 	private float totalMatches = 0f;
 	private int totalShapesCleared = 0;
@@ -41,7 +44,6 @@ public class PlayArea implements Serializable {
 	private int score = 0;
 	private Shape selected;
 	private boolean readyForPlay = false;
-	private String message = "Game Initialising";
 // ---------------------------------------------Constructor(s)--------
 	public PlayArea() {
 	}
@@ -75,6 +77,7 @@ public class PlayArea implements Serializable {
 		json.writeValue("totalShapesCleared", totalShapesCleared);
 		json.writeValue("totalMatches", totalMatches);
 		json.writeValue("score", score);
+		json.writeValue("baseColor", baseColor.toString());
 		
 		json.writeArrayStart("Shapes");
 		for ( Shape each : allShapes ) json.writeValue(each);
@@ -90,14 +93,15 @@ public class PlayArea implements Serializable {
 		totalShapesCleared = jsonData.getInt("totalShapesCleared");
 		totalMatches = jsonData.getFloat("totalMatches");
 		score = jsonData.getInt("score");
+		baseColor = Color.valueOf(jsonData.getString("baseColor"));
 		
 		JsonValue list = jsonData.get("Shapes");
 		try {
 			for ( JsonValue each = list.child; each != null; each = each.next ) {
-				Class<?> shapeclass = ClassReflection.forName( "org.jabelpeeps.jabeltris.shapes." + each.getString("Shape") );
+				Class<?> shapeclass = ClassReflection.forName( Core.PACKAGE + "shapes." + each.getString("Shape") );
 				Shape tmpShape = (Shape) ClassReflection.newInstance( shapeclass );
-				tmpShape.setPlayArea(this).setOffsets().setOriginAndBounds();
 				tmpShape.read( json, each );
+				tmpShape.setPlayArea(this).setOffsets(x_offset, y_offset).setOriginAndBounds();
 				allShapes.add(tmpShape);
 			}
 		} catch (ReflectionException e) {  e.printStackTrace();	}
@@ -112,9 +116,11 @@ public class PlayArea implements Serializable {
 		SpritePlus tmpSprite;
 		for( int i = 0; i < x_size; i++ ) {
 	    	for( int j = 0; j < y_size; j++ ) {
-			    tmpSprite = new SpritePlus().setTexture( Core.boardBaseTiles[ i ][ ( y_size - j -1 ) % 10 ] );
+			    tmpSprite = new SpritePlus().setPlayArea(this).setOffsets(x_offset, y_offset);
+			    tmpSprite.setRegion( Core.boardBaseTiles[ i ][ ( y_size - j -1 ) % 10 ] );
 			    tmpSprite.setBounds( i * 4 + x_offset , j * 4 + y_offset , 4 , 4 );
-			    tmpSprite.setColor(level.baseColor);
+			    tmpSprite.setColor(baseColor);
+			    tmpSprite.setOriginCenter();
 			    boardTile[i][j] = tmpSprite;
 			}
 	    	allBaseTiles.addAll( boardTile[i] , 0 , y_size );
@@ -137,10 +143,14 @@ public class PlayArea implements Serializable {
 	
 	int findHintsOnBoard() {   			// adds potential moves to hintList.
 		hintList.clear();
+		long starttime = 0;
+		if ( Core.LOGGING ) starttime = TimeUtils.nanoTime();
 		
 		for ( Shape each : allShapes ) 
 			each.addHintsToList();
 		
+		if ( Core.LOGGING ) System.out.println("findHintsOnBoard execution time = " + 
+				TimeUtils.nanosToMillis( TimeUtils.timeSinceNanos(starttime) ) + " milliSecs");
 		hintList.shuffle();
 		Gdx.graphics.requestRendering();
 		return hintList.size;
@@ -174,25 +184,25 @@ public class PlayArea implements Serializable {
 			each.setNewXY().setScale(1f);
 	
 		if ( placingAllShapes ) {
-				time = 30;
-				divideListByQuadrant(list);
+			time = 30;
+			divideListByQuadrant(list);
 		} else {
-				time = 50;
-				oddShapes.addAll(list);
+			time = 50;
+			oddShapes.addAll(list);
 		}
 		allocateOddShapes();
 		
 		for ( Shape each : bottomLeft ) 
-			each.saveOrigin(x_size, y_size).setPosition(x_size + 2, y_size + 2);
+			each.saveNewOrigin(x_size, y_size).setPosition(x_size + 2, y_size + 2);
 		
 		for ( Shape each : bottomRight ) 
-			each.saveOrigin(0, y_size).setPosition(-2, y_size + 2);
+			each.saveNewOrigin(0, y_size).setPosition(-2, y_size + 2);
 		
 		for ( Shape each : topLeft ) 
-			each.saveOrigin(x_size, 0).setPosition(x_size + 2, -2);
+			each.saveNewOrigin(x_size, 0).setPosition(x_size + 2, -2);
 		
 		for ( Shape each : topRight ) 
-			each.saveOrigin(0, 0).setPosition(-2, -2);
+			each.saveNewOrigin(0, 0).setPosition(-2, -2);
 	
 		ArrayMap<Shape, Integer> shapesInMotion = new ArrayMap<Shape, Integer>(false, 48);
 		Array<Shape> shapesInPlace = new Array<Shape>(8);
@@ -254,7 +264,7 @@ public class PlayArea implements Serializable {
 			for ( Entry<Shape, Integer> each : shapesInMotion ) {
 				moveShape( each.key.getX() , y_size , each.key , a - each.value + 1 );
 				
-				if ( each.key.getNewXY().y == each.key.getY() ) 
+				if ( each.key.getNewXY().y.f() == each.key.getY() ) 
 					tmpShape = each.key;	
 			}
 			if ( tmpShape != null )	
@@ -329,31 +339,22 @@ public class PlayArea implements Serializable {
 		
 		newShapeList.clear();
 	}
-	void setGroupOrigin(Shape[] list) {
-		setGroupOrigin(new Array<Shape>(list));
+	private void setGroupOrigin(Array<? extends SpritePlus> list) {
+		Coords total = Coords.get();			
+		getGroupCentre(list, total);			
+		for ( SpritePlus each : list ) 
+			each.setOrigin(total);
+		total.free();
 	}
-	void setGroupOrigin(Array<Shape> list) {
-		float totX = 0, totY = 0;			// sets the origin for each type to the average position
-		for ( Shape each : list ) {			// of the group.
-			totX += each.getX();
-			totY += each.getY();
+	Coords getGroupCentre(Array<? extends SpritePlus> list, Coords total) {
+		total.set(0f,0f);
+		for ( SpritePlus each : list ) {
+			total.add(each);					
 		}
-		float avX = totX / list.size;
-		float avY = totY / list.size;
-		for ( Shape each : list ) 
-			each.setOrigin( avX , avY );
+		total.div(list.size);
+		return total;
 	}
-	void doSwapIfSwapable(int x1, int y1, int x2, int y2) {
-
-		animateSwap(x1, y1, x2, y2);              				// Swap the shapes... 
-				
-		if ( matchesFoundAndScored() ) 							// and score matches...
-			findHintsOnBoard();
-		else {
-			Core.delay(80);
-			animateSwap(x1, y1, x2, y2);						// or swap back no match found
-		}
-	}
+	
 	boolean matchesFoundAndScored() {
 		
 		shapesClearedSinceLastMove = 0;
@@ -429,19 +430,19 @@ public class PlayArea implements Serializable {
 		shapeTile[oldX][oldY].setPosition( oldX + (newX - oldX) * anim8/8f , oldY + (newY - oldY) * anim8/8f );
 	}
 	private void moveShape(Shape s, Coords newco, float anim8) {
-		moveShape(s, newco.x, newco.y, anim8);
+		moveShape(s, newco.x.f(), newco.y.f(), anim8);
 	}
 	private void moveShape(Shape s, float newX, float newY, float anim8) {
 		Coords saved = s.getSavedXY();
-		s.setPosition( saved.x + (newX - saved.x) * anim8/8 , saved.y + (newY - saved.y) * anim8/8 );
+		s.setPosition( saved.x.f() + (newX - saved.x.f()) * anim8/8 , saved.y.f() + (newY - saved.y.f()) * anim8/8 );
 	}
 	private void moveShape(float oldX, float oldY, Shape s, float anim8) {
 		Coords newco = s.getNewXY();
-		s.setPosition( oldX + (newco.x - oldX) * anim8/8 , oldY + (newco.y - oldY) * anim8/8 );
+		s.setPosition( oldX + (newco.x.f() - oldX) * anim8/8 , oldY + (newco.y.f() - oldY) * anim8/8 );
 	}
 	protected void moveShape(Shape s, float anim8) {
 		Coords newco = s.getNewXY();
-		moveShape(s, newco.x, newco.y, anim8);
+		moveShape(s, newco.x.f(), newco.y.f(), anim8);
 	}
 	
 	void divideListByQuadrant(Array<Shape> list) {
@@ -532,7 +533,7 @@ public class PlayArea implements Serializable {
 			if ( !firstloop ) {
 				for ( Shape each : allShapes ) {
 					Coords saved = each.getSavedXY();
-					shapeTile[ saved.ix ][ saved.iy ] = each;
+					shapeTile[ saved.x.i() ][ saved.y.i() ] = each;
 				}
 			}
 			firstloop = false;
@@ -563,11 +564,15 @@ public class PlayArea implements Serializable {
 	}
 
 	int findHintsOnShapeTile() {   			// adds potential moves to hintList.
+		long starttime = 0;
+		if ( Core.LOGGING ) starttime = TimeUtils.nanoTime();
 		hintList.clear();
 		for ( int i = 0; i < x_size; i++ ) 
 			for (int j = 0; j < y_size; j++ ) 
 				shapeTile[i][j].addHintsToList(i, j);
 		
+		if ( Core.LOGGING ) System.out.println("findHintsOnShapeTile execution time = " + 
+								TimeUtils.nanosToMillis( TimeUtils.timeSinceNanos(starttime) ) + " milliSecs");
 		hintList.shuffle();
 		return hintList.size;
 	}
@@ -580,25 +585,20 @@ public class PlayArea implements Serializable {
 			shapeTile[x][y] = Blank.get(this, false);
 		}
 	}
-	boolean outOfBounds(Coords test) {
-		return outOfBounds( test.ix , test.iy );
-	}
-	boolean outOfBounds(int x, int y) {
+	private boolean outOfBounds(int x, int y) {
 		return ( x < 0 || y < 0 || x >= x_size || y >= y_size );
 	}
-	private final Vector3 touch = new Vector3();
-	private void cameraUnproject(float x, float y) {
+	/** Converts input Coordinates into PlayArea tiles, having already compensated for any 
+	 * offsets in use by the current level.
+	 * @param x - the x value of the input event.
+	 * @param y - the y value of the input event.
+	 * @param out - an instance of Coords that will be set with the output values. */
+	void cameraUnproject(float x, float y, Coords out) {
 		touch.set(x, y, 0);
 		Core.camera.unproject(touch);
+		out.set( (int)(touch.x - x_offset) / 4 , (int)(touch.y - y_offset) / 4 );
 	}
-	Vector3 cameraUnprojectV3(float x, float y) {
-		cameraUnproject(x, y);
-		return touch.set( (touch.x - x_offset) / 4 , (touch.y - y_offset) / 4 , 0 );
-	}
-	void cameraUnproject(float x, float y, Coords out) {
-		cameraUnproject(x, y);
-		out.set( (touch.x - x_offset) / 4 , (touch.y - y_offset) / 4 );
-	}
+	private final Vector3 touch = new Vector3();
 // ---------------------------------------------------------------------Getters and Setters
 	
 	public Shape getShape(int x, int y) {
@@ -606,13 +606,13 @@ public class PlayArea implements Serializable {
 								 : shapeTile[x][y];
 	}
 	public Shape getShape(Coords each) {      			
-		return getShape( each.ix , each.iy );
+		return getShape( each.x.i() , each.y.i() );
 	}
 	public SpritePlus getBoardTile(int x, int y) {
 		return boardTile[x][y];
 	}
 	public SpritePlus getBoardTile(Coords each) {
-		return getBoardTile( each.ix , each.iy );
+		return getBoardTile( each.x.i() , each.y.i() );
 	}
 	public void selectShape(Coords each) {
 		selected = getShape(each).select();
@@ -626,12 +626,6 @@ public class PlayArea implements Serializable {
 	}
 	public Shape getSelectedShape() {
 		return selected;
-	}
-	public int getXsize() {								// used in CrossOne 
-		return x_size;									// match checking (in CrossOneAbstract)
-	}													//
-	public int getYsize() {								// 
-		return y_size;									//
 	}
 	public int getXoffset() {
 		return x_offset;
@@ -662,12 +656,6 @@ public class PlayArea implements Serializable {
 	}
 	public void addHint(Shape s) {						// used by addHintToList() in Shape
 		hintList.add(s);
-	}
-	public String getMessage() {						// used to get status message string.
-		return message;
-	}
-	public void setMessage(String s) {                	// made for DemoGameLogic, but seem to be
-		message = s;									// currently unused.
 	}
 	public boolean playAreaIsReady() {
 		return readyForPlay;

@@ -14,7 +14,6 @@ public class ChallengeLevel1 extends ChallengeLevelAbstract {
 // ---------------------------------------------Constructors--------	
 	public ChallengeLevel1() {
 		super();
-		baseColor = new Color(0.75f, 1f, 1f, 1f);
 		title = "Challenge Level 1\nFirst Mix!";
 		firstMessage = title + "\n\n"
 				+ "Ok.\n"
@@ -27,7 +26,9 @@ public class ChallengeLevel1 extends ChallengeLevelAbstract {
 		this();
 		playOn = playNext;
 		game = new PlayArea(7, 7);
+		game.baseColor = new Color(0.75f, 1f, 1f, 1f);
 		game.initialise(this);
+		Shape.addHintVisitor( new StandardMoveHints() );
 		logic = new InteractiveGameLogic(game);
 		logic.waitForStartSignal();
 		logic.setEndlessPlayMode(true);

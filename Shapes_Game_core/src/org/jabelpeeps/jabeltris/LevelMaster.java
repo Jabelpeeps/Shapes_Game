@@ -7,7 +7,6 @@ import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -75,7 +74,6 @@ public abstract class LevelMaster implements Screen, Serializable {
 	protected String firstMessage;
 	
 	protected Vector3 touch = new Vector3();
-	public Color baseColor;
 // ---------------------------------------------Constructor--------	
 	protected LevelMaster() {
 		Gdx.graphics.setContinuousRendering(false);
@@ -83,8 +81,61 @@ public abstract class LevelMaster implements Screen, Serializable {
 		this.camera = Core.camera;
 		this.prefs = Core.prefs;
 		this.rand  = Core.rand;
+		Shape.clearHintVisitorList();
 	}
-// ---------------------------------------------Methods----------
+//-----------------------------------------------Some visitors------
+	public class StandardMoveHints implements HintMethodVisitor {
+		@Override
+		public boolean greet(int x, int y, Shape s) {
+			if ( !s.isBlank(x+1, y) && s.shapeMatch(x+1, y) > 0f ) return true;
+			if ( !s.isBlank(x, y+1) && s.shapeMatch(x, y+1) > 0f ) return true;
+			if ( !s.isBlank(x-1, y) && s.shapeMatch(x-1, y) > 0f ) return true;
+			if ( !s.isBlank(x, y-1) && s.shapeMatch(x, y-1) > 0f ) return true;
+			return false;
+		}
+	}
+		
+	public class RotatingSquareHints implements HintMethodVisitor {
+		@Override
+		public boolean greet(int x, int y, Shape s) {
+			
+			boolean returntrue = false;
+			Coords 	seg0 = Coords.get(), 
+					seg1 = Coords.get(), 
+					seg2 = Coords.get(), 
+					seg3 = Coords.get();
+			
+			for ( int[] dir : Core.LEFT_UP_RIGHT_DOWN ) {
+													// loop 1) sm = 1  sl = 1  now = true
+				int sm = dir[0] - dir[1] ;			// loop 2) sm = -1 sl = 1  now = false
+				int sl = dir[1] + dir[0] ;			// loop 3) sm = -1 sl = -1 now = true
+				boolean now = sm * sl > 0;			// loop 4) sm = 1  sl = -1 now = false
+				
+				if ( s.isBlank(x+sm, y) || s.isBlank(x+sm, y+sl) || s.isBlank(x, y+sl) ) continue;
+				
+				seg0.set( x 				, y 				);
+				seg1.set( x + (now? sm:0)	, y + (now? 0:sl) 	);
+				seg2.set( x + sm 			, y + sl 			);
+				seg3.set( x + (now? 0:sm)	, y + (now? sl:0) 	);
+				
+				boolean pairInS1 = false, pairInS2 = false, pairInS3 = false;
+		
+				if ( s.game.getShape(seg1).matches(s) ) pairInS1 = true; 
+				if ( s.game.getShape(seg2).matches(s) ) pairInS2 = true;
+				if ( s.game.getShape(seg3).matches(s) ) pairInS3 = true;	
+		
+				if ( pairInS1 && pairInS2 && pairInS3 ) continue;
+				
+				if ( s.hint4(pairInS1, pairInS2, pairInS3, seg0, seg1, seg2, seg3) ) {
+					returntrue = true;
+					break;
+				}
+			}
+			Coords.freeAll(seg0, seg1, seg2, seg3);
+			return returntrue;
+		}
+	}
+// ---------------------------------------------Methods----------	
 	protected void setupInput(InputProcessor...list) {
 		setupInput(new Array<InputProcessor>(list));
 	}
@@ -140,7 +191,7 @@ public abstract class LevelMaster implements Screen, Serializable {
 	}
 	
 	Shape makeNewShape(int x, int y, int x_offset, int y_offset, PlayArea p) {
-		return (Shape) getNewShape().setPlayArea(p).setOffsets(x_offset, y_offset).setOriginAndBounds(x , y);
+		return (Shape) getNewShape().setPlayArea(p).setOffsets(x_offset, y_offset).setOriginAndBounds(x, y);
 	}
 	protected abstract Shape getNewShape();
 	
@@ -181,6 +232,7 @@ public abstract class LevelMaster implements Screen, Serializable {
 	
 	@Override
 	public void hide() {
+		if ( Core.LOGGING ) System.out.println("mCalls = " + Shape.mCalls);
 		if ( !levelIsFinished && levelStage != 0 ) {
 			levelStage = 0;
 			pause();
@@ -261,7 +313,7 @@ public abstract class LevelMaster implements Screen, Serializable {
 					break blanksearch;
 				}
 			}
-			Class<?> logicclass = ClassReflection.forName("org.jabelpeeps.jabeltris." + jsonData.getString("logic"));
+			Class<?> logicclass = ClassReflection.forName(Core.PACKAGE + jsonData.getString("logic"));
 			Constructor logicconstructor = ClassReflection.getConstructor(logicclass, PlayArea.class);
 			logic = (GameLogic) logicconstructor.newInstance(game);
 						
@@ -270,14 +322,14 @@ public abstract class LevelMaster implements Screen, Serializable {
 				Array<InputProcessor> listofinputs = new Array<InputProcessor>(4);
 				
 				for (String each : inputs) {
-					Class<?> inputclass = ClassReflection.forName("org.jabelpeeps.jabeltris." + each);
+					Class<?> inputclass = ClassReflection.forName(Core.PACKAGE + each);
 					Constructor inputconstructor = ClassReflection.getConstructor(inputclass, PlayArea.class, GameLogic.class);
 					listofinputs.add((InputProcessor) inputconstructor.newInstance(game, logic));
 				}
 				setupInput( listofinputs );
 			}
 			else {
-				Class<?> inputclass = ClassReflection.forName("org.jabelpeeps.jabeltris." + jsonData.getString("input")); 
+				Class<?> inputclass = ClassReflection.forName(Core.PACKAGE + jsonData.getString("input")); 
 				Constructor inputconstructor = ClassReflection.getConstructor(inputclass, PlayArea.class, GameLogic.class);
 				setupInput((InputProcessor) inputconstructor.newInstance(game, logic));
 			}	
@@ -289,5 +341,6 @@ public abstract class LevelMaster implements Screen, Serializable {
 		logic.setEndlessPlayMode(jsonData.getBoolean("endlessPlayMode"));
 		logic.handOverBoard = true;
 		logic.start();
-	}
-}	
+    }
+}
+	

@@ -16,15 +16,19 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.RandomXS128;
-
+ 
 public class Core extends Game {
 // --------------------------------------------------Fields------------	
+	protected final static String PACKAGE = "org.jabelpeeps.jabeltris.";
+	public final static boolean LOGGING = true;
+	public final static int[][] LEFT_UP_RIGHT_DOWN = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+	
 	protected static SpriteBatch batch;
 	protected static OrthographicCamera camera;
 	protected static AssetManager manager;
 	protected static BitmapFont font;
 	protected static TextureAtlas atlas;
-	protected final String MY_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+	protected final static String MY_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 								+ "1234567890\"!?'.,;:()[]{}<>|/@\\^$-%+=#_&~* ¡£¦§«¬°±·»¼½¾×÷";
 	protected static Texture boardBase;
 	protected static TextureRegion[][] boardBaseTiles;

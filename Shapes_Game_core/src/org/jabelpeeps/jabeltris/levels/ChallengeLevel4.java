@@ -2,11 +2,13 @@ package org.jabelpeeps.jabeltris.levels;
 
 import org.jabelpeeps.jabeltris.BorderButtonsInput;
 import org.jabelpeeps.jabeltris.Core;
+import org.jabelpeeps.jabeltris.FourSwapInput;
 import org.jabelpeeps.jabeltris.InteractiveGameLogic;
 import org.jabelpeeps.jabeltris.PlayArea;
-import org.jabelpeeps.jabeltris.PlayAreaInput;
+import org.jabelpeeps.jabeltris.SelectShape;
 import org.jabelpeeps.jabeltris.Shape;
-import org.jabelpeeps.jabeltris.SpecialMoveInput;
+import org.jabelpeeps.jabeltris.shapes.CrossOne;
+import org.jabelpeeps.jabeltris.shapes.CrossTwo;
 import org.jabelpeeps.jabeltris.shapes.Square;
 import org.jabelpeeps.jabeltris.shapes.Triangle;
 
@@ -16,15 +18,16 @@ public class ChallengeLevel4 extends ChallengeLevelAbstract {
 	
 	public ChallengeLevel4() {
 		super();
-		baseColor = new Color(0.75f, 1f, 1f, 1f);
 		title = "Challenge Level 4";
 		firstMessage = title + "\n\n";
 	}
 	public ChallengeLevel4(boolean playNext) {
 		this();
 		playOn = playNext;
-		game = new PlayArea(9, 8);
+		game = new PlayArea(9, 9);
+		game.baseColor = new Color(0.75f, 1f, 1f, 0.75f);
 		game.initialise(this);
+		Shape.addHintVisitor( new RotatingSquareHints() );
 		logic = new InteractiveGameLogic(game);
 		logic.waitForStartSignal();
 		logic.setEndlessPlayMode(true);
@@ -38,11 +41,11 @@ public class ChallengeLevel4 extends ChallengeLevelAbstract {
 			case 1:
 				return new Square("Red");
 			case 2:
-				return new Square("Blue");
+				return new CrossTwo("Blue");
 			case 3: 
 				return new Triangle("Yellow");
 			case 4:
-				return new Triangle("Green");
+				return new CrossOne("Green");
 		}
 		return null;
 	}
@@ -50,8 +53,8 @@ public class ChallengeLevel4 extends ChallengeLevelAbstract {
 	protected void stage1Tasks() {
 		levelStage++;
 		setupInput(new BorderButtonsInput(game, logic), 
-				   new SpecialMoveInput(game, logic),
-				   new PlayAreaInput(game, logic) );
+				   new FourSwapInput(game, logic),
+				   new SelectShape(game, logic) );
 		logic.sendStartSignal();
 	}
 	@Override

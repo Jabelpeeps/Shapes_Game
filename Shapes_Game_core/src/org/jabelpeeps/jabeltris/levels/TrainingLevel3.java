@@ -16,7 +16,6 @@ public class TrainingLevel3 extends TrainingLevelAbstract {
 // ---------------------------------------------Constructors--------
 	public TrainingLevel3() {
 		super();
-		baseColor = new Color(1f, 1f, 1f, 1f);
 		title = "Demo Level 3\nLines";
 		firstMessage = title + "\n\n"
 					+ "These Lines match in groups of 3...\n\n"
@@ -26,7 +25,9 @@ public class TrainingLevel3 extends TrainingLevelAbstract {
 		this();
 		playOn = playNext;
 		game = new PlayArea(8, 8);
+		game.baseColor = new Color(1f, 1f, 1f, 1f);
 		game.initialise(this);
+		Shape.addHintVisitor( new StandardMoveHints() );
 		logic = new DemoGameLogic(game);
 		logic.waitForStartSignal();
 		setupInput(new BorderButtonsInput(game, logic));

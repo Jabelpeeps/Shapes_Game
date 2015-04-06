@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Colors;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.Json.Serializable;
 import com.badlogic.gdx.utils.JsonValue;
@@ -13,19 +14,57 @@ import com.badlogic.gdx.utils.JsonValue;
 public abstract class Shape extends SpritePlus implements Runnable, Serializable {	
 // -------------------------------------------------Field(s)---------
 		protected String type;
-		protected String colorString = "";
+		protected String colorString = "_";
 		protected Color selected;
 		protected Color deselected;
 		
+		protected static Array<HintMethodVisitor> hintVisitorList = new Array<HintMethodVisitor>();
 		protected boolean[][] views = {{false, false},{false, true},{true, true},{true, false}};
 		protected int facing = 0;
 		protected boolean needsFlipping = false;
+		protected boolean animatable = false;
 		private ScheduledFuture<?> animation;
-//  ----------------------------------------------Methods--------------- 
-		protected void animate() {
+		
+		public static int mCalls = 0;
+//  ----------------------------------------------Static Methods--------------- 
+		public static void addHintVisitor(HintMethodVisitor visitor) {
+			boolean methodAlreadyAdded = false;
+			for ( HintMethodVisitor each : hintVisitorList ) {
+				if ( each.getClass().equals(visitor.getClass()) )
+					methodAlreadyAdded = true;
+			}
+			if ( !methodAlreadyAdded )
+				hintVisitorList.add(visitor);
+		}
+		public static void removeHintVisitor(String visitorName) {
+			for ( HintMethodVisitor each : hintVisitorList ) 
+				if ( each.getClass().getSimpleName().equals(visitorName) )
+					hintVisitorList.removeValue(each, true);
+		}
+		public static void clearHintVisitorList() {
+			hintVisitorList.clear();
+		}
+//  ----------------------------------------------Instance Methods--------------- 
+
+		/** The 'm' method is called from the various shape objects, to check for matches with their neighbours. */		
+		protected boolean m(Coords... xy) {
+			int matchesNeeded = xy.length;
+			mCalls++;
+			for ( Coords each : xy ) {
+				Shape tmpShape = game.getShape(each);
+				if ( tmpShape.matches(this) && tmpShape != this ) 
+					matchesNeeded-- ;
+//				each.free(); 
+			}
+			Coords.freeAll(xy);
+			return ( matchesNeeded == 0 );
+		}
+		
+		protected Shape animate() {
 			facing = Core.rand.nextInt(11);
 			long delay = (long) (( Core.rand.nextGaussian() + 5) / 4 );
 			animation = Core.threadPool.scheduleWithFixedDelay(this, delay*1000, 1500, TimeUnit.MILLISECONDS);
+			return this;
 		}
 		@Override
 		public void run() {
@@ -49,74 +88,65 @@ public abstract class Shape extends SpritePlus implements Runnable, Serializable
 		public void read(Json json, JsonValue jsonData) {
 			setX(jsonData.getFloat("x"));
 			setY(jsonData.getFloat("y"));
-			setupReadColors(jsonData.getString("colour"));
-			deselect();
+			setupColors(jsonData.getString("colour"));
 		}
-		protected void setupReadColors(String color) {
-			// stub method needs overriding in shapes with variable colours.
-		}
-		
 		public void setupColors(String color) {
-			colorString = color;
-			type = (type + color).intern();
-			selected = Colors.get("DARK_" + color.toUpperCase());
-			deselected = Colors.get(color.toUpperCase());
+			if ( !color.equals("_") ) {
+				colorString = color;
+				type = (type + color).intern();
+				selected = Colors.get("DARK_" + color.toUpperCase());
+				deselected = Colors.get(color.toUpperCase());
+				deselect();
+			}
 		}
 		public void setAnimation(boolean animate) {
-			if ( animate ) 
+			if ( animate && animatable ) 
 				animate();
 			else if ( animation != null ) 
 				animation.cancel(false);
-		}
-		
-		/** 
-		 * The 'm' method is called from the various shape objects, 
-		 * to check for matches with their neighbours.
-		 *
-		 */		
-		protected boolean m(Shape s, Coords... xy) {
-			int matchesNeeded = xy.length;
-
-			for ( Coords each : xy ) {
-				if ( game.getShape(each).type.equals(s.type) ) 
-					matchesNeeded-- ; 
-				each.free();
-			}
-			return ( matchesNeeded == 0 );
-		}
-		
+		}	
 		protected Coords v(int x, int y) {
-			return Coords.get(x, y);
+			return Coords.ints(x, y);
 		}
-		
+		protected boolean matches(Shape other) {
+			return type == other.type;
+		}
 		public float checkMatch(int x, int y) {
 			return isBlank() ? 0f 
-							 : shapeMatch(x, y, x, y);
+							 : shapeMatch(x, y);
 		}
+		protected abstract float shapeMatch(int x, int y);
+		protected abstract boolean hint4(boolean pairInS1, boolean pairInS2, boolean pairInS3, Coords...list);
+		
+		/** <p>Adds possible moves to the hintList based on the Shape's <b> currently displayed </b>
+		 * position.</p><p> DO NOT call unless all Shapes are displayed at their correct places; use 
+		 * {@link #addHintsToList(int, int)} instead.</p>*/
 		public void addHintsToList() {
 			addHintsToList( getXi(), getYi() );
 		}
+		/** <p>Provides a safe way to add possible moves to the hintList when the ShapeTile Array is
+		 * out of sync with the displayed positions of the Shapes.</p><p>  To achieve this, it needs to be 
+		 * supplied with its current position in the Array.</p> */
 		public void addHintsToList(int x, int y) {
-			if ( !isBlank(x, y) && hintMatch(x, y) ) 
+			if ( !isBlank() && hintMatch(x, y) ) 
 					game.addHint(this);
 		}
+		/** <p>This method needs to be supplied with the current position on the ShapeTile Array, as the
+		 * values supplied by getX() & getY() cannot be relied upon in all circumstances. */
 		private boolean hintMatch(int x, int y) {
+			for ( HintMethodVisitor each : hintVisitorList ) 
+				if( each.greet(x, y, this) ) return true;
 			
-			if ( !isBlank(x+1, y) && shapeMatch(x+1, y, x, y) > 0f ) return true;
-			if ( !isBlank(x-1, y) && shapeMatch(x-1, y, x, y) > 0f ) return true;
-			if ( !isBlank(x, y+1) && shapeMatch(x, y+1, x, y) > 0f ) return true;
-			if ( !isBlank(x, y-1) && shapeMatch(x, y-1, x, y) > 0f ) return true;
 			return false;
 		}
-		// This method is private as it is used to test if other Shapes are blanks.
-		private boolean isBlank(int x, int y) {
+		/** Return true if the Shape at the supplied coordinates returns true its {@link #isBlank()} call. */
+		boolean isBlank(int x, int y) {
 				return game.getShape(x, y).isBlank();
 		}
-		// This public method provides the response to the previous call.  (It is Overridden in the Blank child class.)
-		public boolean isBlank() {
+		/** Returns false, unless overridden. (It is overridden in the Blank child class.) */
+		protected boolean isBlank() {
 			return false;
 		}
-		protected abstract float shapeMatch(int x, int y, int xx, int yy);
 		
 		public Shape select() {
 			setColor(selected);

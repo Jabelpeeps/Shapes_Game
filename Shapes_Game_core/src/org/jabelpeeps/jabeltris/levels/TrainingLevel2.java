@@ -23,7 +23,6 @@ public class TrainingLevel2 extends TrainingLevelAbstract {
 //----------------------------------------------Constructors--------
 	public TrainingLevel2() {
 		super();
-		baseColor = new Color(1f, 1f, 1f, 1f);
 		title = "Demo Level 2\nTriangles";
 		firstMessage = title + "\n\n"
 				+ "Triangles match when placed in T-shaped groups.";
@@ -32,7 +31,9 @@ public class TrainingLevel2 extends TrainingLevelAbstract {
 		this();
 		playOn = playNext;
 		game = new PlayArea(6, 6);
+		game.baseColor = new Color(1f, 1f, 1f, 1f);
 		game.initialise(this);
+		Shape.addHintVisitor( new StandardMoveHints() );
 		logic = new DemoGameLogic(game);
 		logic.waitForStartSignal();
 		setupInput(new BorderButtonsInput(game, logic));
