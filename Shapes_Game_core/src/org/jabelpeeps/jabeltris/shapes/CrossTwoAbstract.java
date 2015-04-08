@@ -29,8 +29,8 @@ public abstract class CrossTwoAbstract extends Shape {
 	protected boolean hint4(boolean pairInS1, boolean pairInS2, boolean pairInS3, Coords...list) {
 		
 		Coords centreOfGroup = Coords.getCentre(list).add(0.5f);
-		int x = centreOfGroup.x.i();
-		int y = centreOfGroup.y.i();
+		int x = centreOfGroup.xi();
+		int y = centreOfGroup.yi();
 		centreOfGroup.free();
 
 		if ( m( v(x+1, y+1), v(x+1, y-1), v(x-1, y+1) ) ) return true;
@@ -38,8 +38,8 @@ public abstract class CrossTwoAbstract extends Shape {
 		if ( m( v(x-2, y), v(x-2, y-2), v(x, y-2) ) ) return true;
 		if ( m( v(x+1, y), v(x+1, y-2), v(x-1, y-2) ) ) return true; 
 		
-		for ( int i = 0; i <= 3; i++ )
-			if ( shapeMatch( list[i].x.i() , list[i].y.i() ) > 0f ) 
+		for ( int i = 1; i <= 3; i++ )
+			if ( shapeMatch( list[i].xi , list[i].yi ) > 0f ) 
 				return true;
 					
 		return false;

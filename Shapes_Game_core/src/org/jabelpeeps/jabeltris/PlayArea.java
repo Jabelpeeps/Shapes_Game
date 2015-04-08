@@ -100,8 +100,8 @@ public class PlayArea implements Serializable {
 			for ( JsonValue each = list.child; each != null; each = each.next ) {
 				Class<?> shapeclass = ClassReflection.forName( Core.PACKAGE + "shapes." + each.getString("Shape") );
 				Shape tmpShape = (Shape) ClassReflection.newInstance( shapeclass );
-				tmpShape.read( json, each );
 				tmpShape.setPlayArea(this).setOffsets(x_offset, y_offset).setOriginAndBounds();
+				tmpShape.read( json, each );
 				allShapes.add(tmpShape);
 			}
 		} catch (ReflectionException e) {  e.printStackTrace();	}
@@ -264,7 +264,7 @@ public class PlayArea implements Serializable {
 			for ( Entry<Shape, Integer> each : shapesInMotion ) {
 				moveShape( each.key.getX() , y_size , each.key , a - each.value + 1 );
 				
-				if ( each.key.getNewXY().y.f() == each.key.getY() ) 
+				if ( each.key.getNewXY().yf() == each.key.getY() ) 
 					tmpShape = each.key;	
 			}
 			if ( tmpShape != null )	
@@ -306,7 +306,7 @@ public class PlayArea implements Serializable {
 			Shape tmpShape = matchList.peek();
 			
 			for ( Shape each : matchList ) 
-				if ( each.type.equals(tmpShape.type) ) 
+				if ( each.matches(tmpShape) ) 
 					tmpList.add(each); 
 			
 			matchList.removeAll(tmpList, false);
@@ -340,19 +340,16 @@ public class PlayArea implements Serializable {
 		newShapeList.clear();
 	}
 	private void setGroupOrigin(Array<? extends SpritePlus> list) {
-		Coords total = Coords.get();			
-		getGroupCentre(list, total);			
-		for ( SpritePlus each : list ) 
-			each.setOrigin(total);
-		total.free();
-	}
-	Coords getGroupCentre(Array<? extends SpritePlus> list, Coords total) {
-		total.set(0f,0f);
+		Coords total = Coords.get(0f, 0f);
+		
 		for ( SpritePlus each : list ) {
 			total.add(each);					
 		}
-		total.div(list.size);
-		return total;
+		total.div(list.size);	
+		
+		for ( SpritePlus each : list ) 
+			each.setOrigin(total.xf, total.yf);
+		total.free();
 	}
 	
 	boolean matchesFoundAndScored() {
@@ -430,19 +427,19 @@ public class PlayArea implements Serializable {
 		shapeTile[oldX][oldY].setPosition( oldX + (newX - oldX) * anim8/8f , oldY + (newY - oldY) * anim8/8f );
 	}
 	private void moveShape(Shape s, Coords newco, float anim8) {
-		moveShape(s, newco.x.f(), newco.y.f(), anim8);
+		moveShape(s, newco.xf, newco.yf, anim8);
 	}
 	private void moveShape(Shape s, float newX, float newY, float anim8) {
 		Coords saved = s.getSavedXY();
-		s.setPosition( saved.x.f() + (newX - saved.x.f()) * anim8/8 , saved.y.f() + (newY - saved.y.f()) * anim8/8 );
+		s.setPosition( saved.xf + (newX - saved.xf) * anim8/8 , saved.yf + (newY - saved.yf) * anim8/8 );
 	}
 	private void moveShape(float oldX, float oldY, Shape s, float anim8) {
 		Coords newco = s.getNewXY();
-		s.setPosition( oldX + (newco.x.f() - oldX) * anim8/8 , oldY + (newco.y.f() - oldY) * anim8/8 );
+		s.setPosition( oldX + (newco.xf - oldX) * anim8/8 , oldY + (newco.yf - oldY) * anim8/8 );
 	}
 	protected void moveShape(Shape s, float anim8) {
 		Coords newco = s.getNewXY();
-		moveShape(s, newco.x.f(), newco.y.f(), anim8);
+		moveShape(s, newco.xf, newco.yf, anim8);
 	}
 	
 	void divideListByQuadrant(Array<Shape> list) {
@@ -533,7 +530,7 @@ public class PlayArea implements Serializable {
 			if ( !firstloop ) {
 				for ( Shape each : allShapes ) {
 					Coords saved = each.getSavedXY();
-					shapeTile[ saved.x.i() ][ saved.y.i() ] = each;
+					shapeTile[ saved.xi() ][ saved.yi() ] = each;
 				}
 			}
 			firstloop = false;
@@ -596,7 +593,7 @@ public class PlayArea implements Serializable {
 	void cameraUnproject(float x, float y, Coords out) {
 		touch.set(x, y, 0);
 		Core.camera.unproject(touch);
-		out.set( (int)(touch.x - x_offset) / 4 , (int)(touch.y - y_offset) / 4 );
+		out.set( (touch.x - x_offset) / 4 , (touch.y - y_offset) / 4 );
 	}
 	private final Vector3 touch = new Vector3();
 // ---------------------------------------------------------------------Getters and Setters
@@ -606,13 +603,15 @@ public class PlayArea implements Serializable {
 								 : shapeTile[x][y];
 	}
 	public Shape getShape(Coords each) {      			
-		return getShape( each.x.i() , each.y.i() );
+		return (each.values() == "FLOAT") ? getShape( each.xi() , each.yi() )
+										  : getShape( each.xi , each.yi );
 	}
 	public SpritePlus getBoardTile(int x, int y) {
 		return boardTile[x][y];
 	}
 	public SpritePlus getBoardTile(Coords each) {
-		return getBoardTile( each.x.i() , each.y.i() );
+		return (each.values() == "FLOAT") ? getBoardTile( each.xi() , each.yi() )
+										  : getBoardTile( each.xi , each.yi );
 	}
 	public void selectShape(Coords each) {
 		selected = getShape(each).select();

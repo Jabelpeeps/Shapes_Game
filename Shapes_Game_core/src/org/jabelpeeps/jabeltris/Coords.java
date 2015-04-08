@@ -10,130 +10,116 @@ import com.badlogic.gdx.utils.ReflectionPool;
  * convenience methods for interacting with them, and comparing them to others. </p>
  * <p>It is designed to be a lightweight - and also easily re-usable - object, and 
  * therefore contains its own internal statically referenced object pool.  Use 
- * {@link Coords#get()} to obtain a new instance from the pool, and the {@link #free()} 
+ * {@link Coords#floats()} to obtain a new instance from the pool, and the {@link #free()} 
  * method on instances that you are finished with. (The Coords class has a private 
  * constructor, and so cannot be instantiated via the <b>new</b> command.)    */
 public class Coords implements Poolable {
 	
 	private Coords() {
 	}
-	private static Pool<Coords> pool = new ReflectionPool<Coords>(Coords.class, 16); 
-	private static Array<Values<Integer>> freeIntValues = new Array<Values<Integer>>(false, 16);
-	private static Array<Values<Float>> freeFloatValues = new Array<Values<Float>>(false, 16);
+	private static final Pool<Coords> pool = new ReflectionPool<Coords>(Coords.class, 16, 1024);
 	private static final float ROUNDING_ERROR = 0.001f;
+	private Values v;
 	
-	public Values<?> x;
-	public Values<?> y;
+	private enum Values {
+		FLOAT {
+			@Override
+			protected int i(int i, float f) { return (int) f; }
+			@Override
+			protected float f(int i, float f) { return f; }
+			@Override
+			protected boolean contains(Values other) {
+				if ( INT.equals(other) ) 
+					throw new RuntimeException("Cannot compare 'INT' with FLOAT");
+				return true;
+			}},
+		INT {
+			@Override
+			protected int i(int i, float f) { return i; }
+			@Override
+			protected float f(int i, float f) { return i; }
+			@Override
+			protected boolean contains(Values other) {
+				if ( FLOAT.equals(other) ) 
+					throw new RuntimeException("Cannot compare 'FLOAT' with INT");
+				return true;	
+			}},
+		BOTH{
+			@Override
+			protected int i(int i, float f) { return i; }
+			@Override
+			protected float f(int i, float f) { return f; }
+			@Override
+			protected boolean contains(Values other) { return true;	}
+		};
+		protected abstract int i(int i, float f);
+		protected abstract float f(int i, float f);
+		protected abstract boolean contains(Values other);
+	};
+
+	public int xi = -10;
+	public int yi = -10;
+	protected float xf = -10f;
+	protected float yf = -10f;
 	
-	public static class Values<T extends Number> {
-		private T t;
-		protected Values() {}
-		protected Values<T> set(T v) {
-			t = v;
-			return this;
-		}
-		public int i() {
-			return t.intValue();
-		}
-		public float f() {
-			return t.floatValue();
-		}
-	}
-	public static int i(Values<?> n) {
-		return n.t.intValue();
-	}
-	public static float f(Values<?> n) {
-		return n.t.floatValue(); 
-	}
-	private static boolean isEqual(Values<?> n1, Values<?> n2) { 
-		return Math.abs( f(n1) - f(n2) ) <= ROUNDING_ERROR; 
-	}
-	private static boolean isEqual(float n1, Values<?> n2) { 
-		return Math.abs( n1 - f(n2) ) <= ROUNDING_ERROR; 
-	}
-	private static <T extends Number> Values<T> copy(Values<T> v) {
-		return obtain(v.t);
-	}
-	private static <T extends Number> Values<T> copy(T v) {
-		return obtain(v);
-	}
-	@SuppressWarnings("unchecked")
-	private static <T extends Number> Values<T> obtain(T v) {
-		Values<T> temp = null;
-		while ( temp == null ) {
-			if ( v instanceof Float )
-				temp = (Values<T>) obtainFloat(); 
-			else if ( v instanceof Integer )
-				temp = (Values<T>) obtainInt();
-		}
-		return temp.set(v);
-	}
-	private static Values<Float> obtainFloat(){
-		return ( freeFloatValues.size == 0 ) ? new Values<Float>()
-											 : freeFloatValues.pop();
-	}
-	private static Values<Integer> obtainInt(){
-		return ( freeIntValues.size == 0 ) ? new Values<Integer>()
-										   : freeIntValues.pop();
-	}
+	public int xi() { return v.i(xi, xf); }
+	public int yi() { return v.i(yi, yf); }
+	public float xf() { return v.f(xi, xf); }
+	public float yf() { return v.f(yi, yf); }
+	public String values() { return v.name(); }
 	
-	private static <T extends Number> Coords supply(T v1, T v2) {
-		Coords temp = supply();
-		temp.x = obtain(v1);
-		temp.y = obtain(v2);
-		return temp;
-	}
-	private static Coords supply() {
+	private static Coords supply(Values type) {
 		Coords temp;
 		do { 
 			temp = pool.obtain();
 		} while ( temp == null );
+		temp.v = type;
 		return temp;
 	}
 	/** <p> Returns an instance of Coords from static internal pool.</p>
 	 * <p><b>NB</b> Coords are initially set to (-10f, -10f), use {@link Coords#get(float, float)} 
 	 * or {@link Coords#get(int, int)} get an instance pre-set to specific values.</p>
-	 * <p> You can also use {@link Coords#get(Coords)} to get a new instance that is
-	 * a copy of the supplied instance, or {@link Coords#get(Shape)} to get an instance 
+	 * <p> You can also use {@link Coords#copy(Coords)} to get a new instance that is
+	 * a copy of the supplied instance, or {@link Coords#copy(Shape)} to get an instance 
 	 * pre-set with the x & y coordinates of the supplied Shape object. </p>
 	 * @return Use free() method on returned object when you are finished with it. */
-	public static Coords get() {
-		return get(-10f, -10f);
+	public static Coords floats() {
+		return supply(Values.FLOAT);
 	}
 	public static Coords ints(){
-		return ints(-10, -10);
+		return supply(Values.INT);
 	}
 	/** Returns an instance of Coords from static internal pool.  
 	 * @param x - x value that the returned Coords will contain.
 	 * @param y - y value that the returned Coords will contain.
 	 * @return Use free() method on returned object when you are finished with it. */
 	public static Coords get(float x, float y) {
-		return supply(x, y);
+		return supply(Values.FLOAT).set(x, y);
 	}
 	/** Returns an instance of Coords from static internal pool.  
 	 * @param x - x value that the returned Coords will contain.
 	 * @param y - y value that the returned Coords will contain.
 	 * @return Use free() method on returned object when you are finished with it. */
-	public static Coords ints(int x, int y) {
-		return supply(x, y);
+	public static Coords get(int x, int y) {
+		return supply(Values.INT).set(x, y);
 	}
 	/** Returns an instance of Coords from static internal pool.  
 	 * @param other - another instance of Coords whose values will be copied.
 	 * @return Use free() method on returned object when you are finished with it. */
-	public static Coords get(Coords other) {
-		return supply().set(other);
+	public static Coords copy(Coords other) {
+		return supply(other.v).set(other);
 	}
 	/** Returns an instance of Coords from static internal pool.  
 	 * @param shape - a Shape object whose x & y values will be copied.
 	 * @return Use free() method on returned object when you are finished with it. */
-	public static Coords get(Shape shape) {
-		return supply().set( shape.getX() , shape.getY() );
+	public static Coords copy(SpritePlus shape) {
+		return supply(Values.FLOAT).set( shape.getX() , shape.getY() );
 	}
 	/** Returns a new Coords instance set to values representing the centre of the group
 	 * Coords provided as argument(s) 
 	 * @return Use free() method on returned object when you are finished with it.*/
 	public static Coords getCentre(Coords...list) {
-			return supply().setToCentre(list);
+			return supply(Values.FLOAT).setToCentre(list);
 	}
 	public Coords setToCentre(Coords...list) {
 		    set(0f,0f);
@@ -142,16 +128,45 @@ public class Coords implements Poolable {
 						
 			return div(list.length);
 	}
-	/** <p>Returns true if this Coords instance is set to the same values as the supplied
-	 * Coords instance.</p> */
+	/** <p>Returns true if this Coords instance is set to the same Value type and has the 
+	 * same values as the supplied Coords instance.</p> */
 	public boolean isEqualTo(Coords other) {
-		return ( isEqual(x, other.x) && isEqual(y, other.y) );
+		if ( v.contains(other.v) ) {
+			switch ( v ) {
+			case BOTH:
+			case INT:
+				return xi == other.xi && yi == other.yi;
+			case FLOAT:
+				return Math.abs(xf - other.xf) < ROUNDING_ERROR
+					&& Math.abs(yf - other.yf) < ROUNDING_ERROR ;
+			}
+		}
+		return false;
 	}
 	/** <p>Returns true if this Coords instance represents the values of a tile that is
-	 * orthogonally adjacent to the tile represented by the supplied Coords instance.</p> */
+	 * orthogonally adjacent to the tile represented by the supplied Coords instance.</p> 
+	 * <p>NB the check runs only on the stored int values, as it is intended to be quick,
+	 * crude and fast.</p><p>  If you must run it on Coords with float Values, use 
+	 * {@link #updateAllValues()} first.*/
 	public boolean isAdjacentTo(Coords other) {
-		return ( isEqual(y, other.y) && ( isEqual(f(x) + 1, other.x) || isEqual(f(x) - 1, other.x) ) )
-			|| ( isEqual(x, other.x) && ( isEqual(f(y) + 1, other.y) || isEqual(f(y) - 1, other.y) ) ) ;
+		return ( yi == other.yi && ( xi + 1 == other.xi || xi - 1 == other.xi ) ) 
+			|| ( xi == other.xi && ( yi + 1 == other.yi || yi - 1 == other.yi ) ) ;
+	}
+	public Coords updateAllValues() {
+		switch ( v ) {
+		case FLOAT:
+			xi = (int) xf;
+			yi = (int) yf;
+			break;
+		case INT:
+			xf = xi;
+			yf = yi;
+			break;
+		case BOTH:
+			break;
+		}
+		v = Values.BOTH;
+		return this;
 	}
 	/** Sets the values of this Coords instance.  
 	 * @param shape - a Shape or SpritePlus object whose x & y values will be copied. */
@@ -161,51 +176,61 @@ public class Coords implements Poolable {
 	/** Sets the values of this Coords instance.  
 	 * @param other - another instance of Coords whose values will be copied. */
 	public Coords set(Coords other) {
-		x = copy(other.x);
-		y = copy(other.y);	
+		switch (other.v) {
+		case FLOAT:
+			return set(other.xf, other.yf);
+		case INT:
+			return set(other.xi, other.yi);
+		case BOTH:
+			return set(other.xf, other.yf).updateAllValues();
+		}
 		return this;
 	}
 	/** Sets the values of this Coords instance.   
 	 * @param x - x value that the returned Coords will contain.
 	 * @param y - y value that the returned Coords will contain. */
-	public <T extends Number> Coords set(T x, T y) {
-		this.x = copy(x);
-		this.y = copy(y);
+	public Coords set(int x, int y) {
+		xf = x;
+		yf = y;
+		xi = x;
+		yi = y;
+		return this;
+	}
+	/** Sets the values of this Coords instance.   
+	 * @param x - x value that the returned Coords will contain.
+	 * @param y - y value that the returned Coords will contain. */
+	public Coords set(float x, float y) {
+		v = Values.FLOAT;
+		xf = x;
+		yf = y;
 		return this;
 	}
 	public Coords add(SpritePlus sprite) {
-		return set( f(x) + sprite.getX() , f(y) + sprite.getY() );
+		return set( xf + sprite.getX() , yf + sprite.getY() );
 	}
 	public Coords add(float f) {
-		return set( f(x) + f, f(y) + f);
+		return set( xf + f, yf + f );
 	}
-	public Coords add(Coords other) {
-		return set( f(x) + f(other.x) , f(y) + f(other.y) );
+	private Coords add(Coords other) {
+		return set( xf + other.xf() , yf + other.yf() );
 	}
 	public Coords sub(Coords other) {
-		return set( f(x) - f(other.x) , f(y) - f(other.y) );
-	}
-	public Coords mul(int m) {
-		return set( f(x) * m , f(y) * m );
+		return set( xf - other.xf , yf - other.yf );
 	}
 	public Coords div(int d) {
-		return set( f(x) / d , f(y) / d );
+		return set( xf / d , yf / d );
 	}
 	public float angle() {
-		float angle = MathUtils.atan2(f(y), f(x)) * MathUtils.radiansToDegrees;
+		float angle = MathUtils.atan2(yf, xf) * MathUtils.radiansToDegrees;
 		return (angle < 0) ? angle + 360 : angle;
 	}
-	public static void freeAll(final Array<Coords> list) {
-		
-		Core.threadPool.execute(new Runnable(){
-			@Override
-			public void run() {
-				pool.freeAll(list);
-			}
-		});
+	
+	
+	public static void freeAll(Array<Coords> list) {
+		if ( list == null ) return;
+		Coords.freeAll(list.toArray());
 	}
 	public static void freeAll(final Coords...list) {
-		
 		Core.threadPool.execute(new Runnable(){
 			@Override
 			public void run() {
@@ -219,17 +244,15 @@ public class Coords implements Poolable {
 	public synchronized void free() {
 		pool.free(this);
 	}
-	/** Method called automatically when Coords are returned to their pool.*/
-	@SuppressWarnings("unchecked")
 	@Override
 	public void reset() {
-		if ( x.t instanceof Integer ) 
-			freeIntValues.addAll((Values<Integer>) x, (Values<Integer>) y);
-		else if ( x.t instanceof Float )
-			freeFloatValues.addAll((Values<Float>) x, (Values<Float>) y);
+		xf = -10f;
+		yf = -10f;
+		xi = -10;
+		yi = -10;
 	}
 	@Override
 	public String toString() {
-		return " (" + MathUtils.round(f(x) * 100f) / 100f  + ", " + MathUtils.round(f(y) * 100f) / 100f + ")";
+		return " (" + MathUtils.round( xf() * 100f ) / 100f  + ", " + MathUtils.round( yf() * 100f ) / 100f + ")";
 	}
 }

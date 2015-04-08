@@ -1,5 +1,7 @@
 package org.jabelpeeps.jabeltris;
 
+import org.jabelpeeps.jabeltris.FourSwapMethods.Group;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
@@ -94,44 +96,33 @@ public abstract class LevelMaster implements Screen, Serializable {
 			return false;
 		}
 	}
-		
 	public class RotatingSquareHints implements HintMethodVisitor {
 		@Override
 		public boolean greet(int x, int y, Shape s) {
-			
+			Array<Coords> coords = null;
 			boolean returntrue = false;
-			Coords 	seg0 = Coords.get(), 
-					seg1 = Coords.get(), 
-					seg2 = Coords.get(), 
-					seg3 = Coords.get();
 			
-			for ( int[] dir : Core.LEFT_UP_RIGHT_DOWN ) {
-													// loop 1) sm = 1  sl = 1  now = true
-				int sm = dir[0] - dir[1] ;			// loop 2) sm = -1 sl = 1  now = false
-				int sl = dir[1] + dir[0] ;			// loop 3) sm = -1 sl = -1 now = true
-				boolean now = sm * sl > 0;			// loop 4) sm = 1  sl = -1 now = false
+			for ( Group each : Group.values() ) {
 				
-				if ( s.isBlank(x+sm, y) || s.isBlank(x+sm, y+sl) || s.isBlank(x, y+sl) ) continue;
+				Coords.freeAll(coords);
+				coords = each.get4(x, y, s.game);
 				
-				seg0.set( x 				, y 				);
-				seg1.set( x + (now? sm:0)	, y + (now? 0:sl) 	);
-				seg2.set( x + sm 			, y + sl 			);
-				seg3.set( x + (now? 0:sm)	, y + (now? sl:0) 	);
+				if ( coords == null ) continue;
 				
 				boolean pairInS1 = false, pairInS2 = false, pairInS3 = false;
 		
-				if ( s.game.getShape(seg1).matches(s) ) pairInS1 = true; 
-				if ( s.game.getShape(seg2).matches(s) ) pairInS2 = true;
-				if ( s.game.getShape(seg3).matches(s) ) pairInS3 = true;	
+				if ( s.game.getShape(coords.items[1]).matches(s) ) pairInS1 = true; 
+				if ( s.game.getShape(coords.items[2]).matches(s) ) pairInS2 = true;
+				if ( s.game.getShape(coords.items[3]).matches(s) ) pairInS3 = true;	
 		
 				if ( pairInS1 && pairInS2 && pairInS3 ) continue;
 				
-				if ( s.hint4(pairInS1, pairInS2, pairInS3, seg0, seg1, seg2, seg3) ) {
+				if ( s.hint4(pairInS1, pairInS2, pairInS3, coords.toArray()) ) {
 					returntrue = true;
 					break;
 				}
 			}
-			Coords.freeAll(seg0, seg1, seg2, seg3);
+			Coords.freeAll(coords);
 			return returntrue;
 		}
 	}

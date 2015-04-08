@@ -34,11 +34,11 @@ public abstract class FourBarAbstract extends Shape {
 	
 		if ( !pairInS1 && !pairInS3 ) {
 			for ( int i = 0; i <= 3; i++ ) 
-				if ( shapeMatch( list[i].x.i() , list[i].y.i() ) > 0f ) return true;
+				if ( shapeMatch( list[i].xi() , list[i].yi() ) > 0f ) return true;
 		}
 		Coords centreOfGroup = Coords.getCentre(list).add(0.5f);
-		int x = centreOfGroup.x.i();
-		int y = centreOfGroup.y.i();
+		int x = centreOfGroup.xi();
+		int y = centreOfGroup.yi();
 		centreOfGroup.free();
 		
 		if ( m( v(x+1, y), v(x+1, y-1) ) ) return true;

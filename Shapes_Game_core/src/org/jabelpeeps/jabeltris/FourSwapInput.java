@@ -15,9 +15,9 @@ public class FourSwapInput extends InputAdapter {
 	private boolean rotationActive = false;
 	private float initialAngle, deltaAngle;
 
-	private final Coords pointer1 = Coords.get();
-	private final Coords pointer2 = Coords.get();
-	private final Coords touch = Coords.ints();
+	private final Coords pointer1 = Coords.floats();
+	private final Coords pointer2 = Coords.floats();
+	private final Coords touch = Coords.floats();
 	
 	public FourSwapInput(PlayArea g, GameLogic l) {
 		game = g;
@@ -34,6 +34,7 @@ public class FourSwapInput extends InputAdapter {
 		boolean validtouch = true;
 
 		game.cameraUnproject(x, y, touch);
+		touch.updateAllValues();
 		
 		if ( game.hasShapeSelected() ) {
 			
@@ -56,13 +57,13 @@ public class FourSwapInput extends InputAdapter {
 			pointer1.set(selected);
 			game.unSelectShape();		
 			selected.free();
-			initialAngle = pointer2.set(touch).sub(pointer1).angle();
+			initialAngle = pointer2.set(touch.xf, touch.yf).sub(pointer1).angle();
 		} else {
 			game.cameraUnproject(Gdx.input.getX(0), Gdx.input.getY(0), pointer1);
 			game.cameraUnproject(Gdx.input.getX(1), Gdx.input.getY(1), pointer2);
 			initialAngle = pointer2.sub(pointer1).angle();
 		}
-		Array<Coords> shapeCoords = get4ValidCoords(pointer1, initialAngle);
+		Array<Coords> shapeCoords = special.get4Coords(pointer1, initialAngle);
 		
 		if ( shapeCoords == null ) {
 			setPointersDown(false, false);
@@ -78,38 +79,6 @@ public class FourSwapInput extends InputAdapter {
 		Coords.freeAll(shapeCoords);
 		return true;
 	}
-	
-	private Array<Coords> get4ValidCoords(Coords c, float angle) {
-		
-		boolean setAllowed = true;
-		Array<Coords> setOf4 = new Array<Coords>(true, 4, Coords.class);
-		int x = c.x.i();
-		int y = c.y.i();
-		
-		switch ( (int)(angle / 90) ) {
-		case 0:
-			setOf4.addAll(Coords.ints(x, y), Coords.ints(x+1, y), Coords.ints(x+1, y+1), Coords.ints(x, y+1) );
-			break;
-		case 1:
-			setOf4.addAll(Coords.ints(x, y), Coords.ints(x, y+1), Coords.ints(x-1, y+1), Coords.ints(x-1, y) );
-			break;
-		case 2:
-			setOf4.addAll(Coords.ints(x, y), Coords.ints(x-1, y), Coords.ints(x-1, y-1), Coords.ints(x, y-1) );
-			break;
-		case 3:
-			setOf4.addAll(Coords.ints(x, y), Coords.ints(x, y-1), Coords.ints(x+1, y-1), Coords.ints(x+1, y) );
-			break;
-		}
-		for ( Coords each : setOf4 ) 
-			if ( game.getShape(each).isBlank() ) 
-				setAllowed = false;
-		
-		if ( !setAllowed ) 
-			Coords.freeAll(setOf4);
-			
-		return ( setAllowed ? setOf4 : null );
-	}
-	
 	@Override
 	public boolean touchDragged (int x, int y, int pointer) {
 		return touchDragged((float)x, (float)y, pointer);
@@ -121,9 +90,9 @@ public class FourSwapInput extends InputAdapter {
 		game.cameraUnproject(x, y, touch);
 		
 		if ( pointer == 0 && twoPointersDown )
-			pointer1.set(touch.x.f(), touch.y.f());
+			pointer1.set(touch.xf, touch.yf);
 		else        								
-			pointer2.set(touch.x.f(), touch.y.f());			
+			pointer2.set(touch.xf, touch.yf);			
 		
 		deltaAngle = ( pointer2.sub(pointer1).angle() - initialAngle );
 

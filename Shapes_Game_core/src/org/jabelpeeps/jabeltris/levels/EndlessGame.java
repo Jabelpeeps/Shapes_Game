@@ -9,6 +9,7 @@ import org.jabelpeeps.jabeltris.MainMenu;
 import org.jabelpeeps.jabeltris.PlayArea;
 import org.jabelpeeps.jabeltris.SelectShape;
 import org.jabelpeeps.jabeltris.Shape;
+import org.jabelpeeps.jabeltris.TwoSwapInput;
 
 import com.badlogic.gdx.graphics.Color;
 
@@ -16,8 +17,8 @@ public abstract class EndlessGame extends LevelMaster {
 	
 	public EndlessGame() {
 		super();
-//		Shape.addHintVisitor( new StandardMoveHints() );
-		Shape.addHintVisitor( new RotatingSquareHints() );
+		Shape.addHintVisitor( new StandardMoveHints() );
+//		Shape.addHintVisitor( new RotatingSquareHints() );
 	}
 	protected void initialise(Color baseColor) {
 		game = new PlayArea();
@@ -27,8 +28,8 @@ public abstract class EndlessGame extends LevelMaster {
 		logic.setEndlessPlayMode(true);
 		setupInput(	new BorderButtonsInput(game, logic),
 					new FourSwapInput(game, logic),
-					new SelectShape(game, logic)//,
-//					new TwoSwapInput(game, logic) 
+					new SelectShape(game, logic),
+					new TwoSwapInput(game, logic) 
 					);
 		logic.start();
 	}

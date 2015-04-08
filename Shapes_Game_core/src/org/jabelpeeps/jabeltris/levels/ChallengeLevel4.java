@@ -20,6 +20,7 @@ public class ChallengeLevel4 extends ChallengeLevelAbstract {
 		super();
 		title = "Challenge Level 4";
 		firstMessage = title + "\n\n";
+		Shape.addHintVisitor( new RotatingSquareHints() );
 	}
 	public ChallengeLevel4(boolean playNext) {
 		this();
@@ -27,7 +28,6 @@ public class ChallengeLevel4 extends ChallengeLevelAbstract {
 		game = new PlayArea(9, 9);
 		game.baseColor = new Color(0.75f, 1f, 1f, 0.75f);
 		game.initialise(this);
-		Shape.addHintVisitor( new RotatingSquareHints() );
 		logic = new InteractiveGameLogic(game);
 		logic.waitForStartSignal();
 		logic.setEndlessPlayMode(true);

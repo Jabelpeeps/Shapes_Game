@@ -23,6 +23,7 @@ public class WallPaperMode extends LevelMaster {
 		game.baseColor = new Color(0.75f, 1f, 0.75f, 1f);
 		game.initialise(this);
 		logic = new DemoGameLogic(game);
+//		Shape.clearHintVisitorList();
 //		Shape.addHintVisitor( new StandardMoveHints() );
 		Shape.addHintVisitor( new RotatingSquareHints() );
 		setupInput(new BorderButtonsInput(game, logic));

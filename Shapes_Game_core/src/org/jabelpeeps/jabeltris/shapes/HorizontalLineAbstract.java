@@ -19,22 +19,23 @@ public abstract class HorizontalLineAbstract extends Shape {
 	@Override
 	protected boolean hint4(boolean pairInS1, boolean pairInS2, boolean pairInS3, Coords...list) {
 	
+		Coords centreOfGroup = Coords.getCentre(list).add(0.5f);
+		int x = centreOfGroup.xi();
+		int y = centreOfGroup.yi();
+		centreOfGroup.free();
+		
 		if ( pairInS1 || pairInS3 ) {
-			
-			Coords centreOfGroup = Coords.getCentre(list).add(0.5f);
-			int x = centreOfGroup.x.i();
-			int y = centreOfGroup.y.i();
-			centreOfGroup.free();
-			
 			if ( m( v(x+1, y) ) ) return true;
 			if ( m( v(x-2, y) ) ) return true;	
 			if ( m( v(x+1, y-1) ) ) return true;
 			if ( m( v(x-2, y-1) ) ) return true;
-		}	
-		for ( int i = 0; i <= 3; i++ ) 
-			if ( shapeMatch( list[i].x.i() , list[i].y.i() ) > 0f ) 
-				return true;
-		
+			
+		} else {
+			if ( m( v(x+1, y), v(x+2, y) ) ) return true;
+			if ( m( v(x-2, y), v(x-3, y) ) ) return true;	
+			if ( m( v(x+1, y-1), v(x+2, y-1) ) ) return true;
+			if ( m( v(x-2, y-1), v(x-3, y-1) ) ) return true;
+		}
 		return false;
 	}
 }

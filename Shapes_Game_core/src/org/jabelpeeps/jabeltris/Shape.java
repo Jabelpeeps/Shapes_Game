@@ -48,13 +48,14 @@ public abstract class Shape extends SpritePlus implements Runnable, Serializable
 
 		/** The 'm' method is called from the various shape objects, to check for matches with their neighbours. */		
 		protected boolean m(Coords... xy) {
+			if ( Core.LOGGING ) mCalls++;
+			
 			int matchesNeeded = xy.length;
-			mCalls++;
 			for ( Coords each : xy ) {
 				Shape tmpShape = game.getShape(each);
-				if ( tmpShape.matches(this) && tmpShape != this ) 
-					matchesNeeded-- ;
-//				each.free(); 
+				if ( !tmpShape.matches(this) || tmpShape == this ) 
+					break;					
+				matchesNeeded-- ;
 			}
 			Coords.freeAll(xy);
 			return ( matchesNeeded == 0 );
@@ -106,7 +107,7 @@ public abstract class Shape extends SpritePlus implements Runnable, Serializable
 				animation.cancel(false);
 		}	
 		protected Coords v(int x, int y) {
-			return Coords.ints(x, y);
+			return Coords.get(x, y);
 		}
 		protected boolean matches(Shape other) {
 			return type == other.type;

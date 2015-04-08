@@ -7,9 +7,9 @@ public class SpritePlus extends Sprite {
 	
 	protected PlayArea game;
 	protected int x_offset, y_offset;
-	private Coords savedXY = Coords.get();
-	private Coords newXY = Coords.get();
-	private Coords savedOrigin = Coords.get();
+	private Coords savedXY = Coords.floats();
+	private Coords newXY = Coords.floats();
+	private Coords savedOrigin = Coords.floats();
 	
 	public SpritePlus setPlayArea(PlayArea p) {
 		game = p;
@@ -37,13 +37,6 @@ public class SpritePlus extends Sprite {
 	public void setOrigin(float x, float y) {      
 		super.setOrigin( ( x - getX() ) * 4 + 2 , ( y - getY() ) * 4 + 2 );
 	}
-	/**<p>NB This method has a slightly different action to the method in the Sprite Class.</p>
-	*  <p>It sets origin of the Shape relative to the playArea rather than the Shape
-	*  itself.  The coordinates are therefore calibrated in PlayArea tiles, not pixels.</p>*/
-	public SpritePlus setOrigin(Coords origin) {
-		setOrigin( origin.x.f(), origin.y.f() );
-		return this;
-	}
 	@Override
 	public float getOriginX() {
 		return super.getOriginX() / 4 - 0.5f + getX();
@@ -60,7 +53,7 @@ public class SpritePlus extends Sprite {
 		return this;
 	}
 	public SpritePlus setOriginToSavedOrigin() {
-		setOrigin(savedOrigin.x.f(), savedOrigin.y.f());
+		setOrigin(savedOrigin.xf, savedOrigin.yf);
 		return this;
 	}
 	public SpritePlus rotateInSquare(float angle, Coords centre) {
@@ -70,10 +63,10 @@ public class SpritePlus extends Sprite {
 		return rotateAbout(angle, radius, centre);
 	}
 	public SpritePlus rotateAbout(float angle, float radiusadjustment, Coords centre) {
-		float adjX = savedXY.x.f() - centre.x.f() ;
-		float adjY = savedXY.y.f() - centre.y.f() ;
-		setPosition( centre.x.f() + (adjX * MathUtils.cosDeg(angle) - adjY * MathUtils.sinDeg(angle)) * radiusadjustment, 
-					 centre.y.f() + (adjX * MathUtils.sinDeg(angle) + adjY * MathUtils.cosDeg(angle)) * radiusadjustment );
+		float adjX = savedXY.xf - centre.xf ;
+		float adjY = savedXY.yf - centre.yf ;
+		setPosition( centre.xf + (adjX * MathUtils.cosDeg(angle) - adjY * MathUtils.sinDeg(angle)) * radiusadjustment, 
+					 centre.yf + (adjX * MathUtils.sinDeg(angle) + adjY * MathUtils.cosDeg(angle)) * radiusadjustment );
 		return this;
 	}
 	@Override
@@ -98,6 +91,12 @@ public class SpritePlus extends Sprite {
 	public Coords getXY() {
 		return Coords.get( getX() , getY() );
 	}
+	/** Returns a new Instance of Coords (from Coords's static internal pool) that has 
+	 * been pre-set with the x & y values of this Shape.
+	 * @return Use free() method on returned object when you are finished with it. */
+	public Coords getXYi() {
+		return Coords.get( (int) getX() , (int) getY() );
+	}
 	public int getXi() {
 		return (int) getX();
 	}
@@ -111,7 +110,7 @@ public class SpritePlus extends Sprite {
 		return setPosition(newXY);
 	}
 	public SpritePlus setPosition(Coords xy) {
-		setPosition(xy.x.f(), xy.y.f());
+		setPosition(xy.xf(), xy.yf());
 		return this;
 	}
 	@Override
@@ -134,7 +133,7 @@ public class SpritePlus extends Sprite {
 	}
 	/** Saves the position specified in the supplied {@link Coords} for later retrieval by {@link #getNewXY()} */
 	public SpritePlus setNewXY(Coords xy) {
-		newXY.set(xy);
+		newXY.set( xy );
 		return this;
 	}
 	/** Saves the position specified in a {@link Coords} instance for later retrieval by {@link #getNewXY()} */
@@ -154,9 +153,7 @@ public class SpritePlus extends Sprite {
 	}
 	@Override
 	protected void finalize() {
-		savedXY.free();
-		newXY.free();
-		savedOrigin.free();
+		Coords.freeAll(savedXY, newXY, savedOrigin);
 	}
 	@Override
 	public String toString() {
