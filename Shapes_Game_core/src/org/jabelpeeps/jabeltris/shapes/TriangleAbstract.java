@@ -43,11 +43,10 @@ public abstract class TriangleAbstract extends Shape {
 		
 		if ( pairInS1 || pairInS3 ) {
 			
-			Coords centreOfGroup = Coords.getCentre(list).add(0.5f);
-			int x = centreOfGroup.xi();
-			int y = centreOfGroup.yi();
-			centreOfGroup.free();
-	
+			Coords centreOfGroup = list[4];
+			int x = centreOfGroup.xi;
+			int y = centreOfGroup.yi;
+			
 			if ( pairInS2 && ( m( v(x+1, y) ) 
 							|| m( v(x-2, y) ) 
 							|| m( v(x, y+1) ) 

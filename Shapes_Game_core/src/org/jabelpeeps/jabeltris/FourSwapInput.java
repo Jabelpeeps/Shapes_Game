@@ -15,9 +15,9 @@ public class FourSwapInput extends InputAdapter {
 	private boolean rotationActive = false;
 	private float initialAngle, deltaAngle;
 
-	private final Coords pointer1 = Coords.floats();
-	private final Coords pointer2 = Coords.floats();
-	private final Coords touch = Coords.floats();
+	private final Coords pointer1 = Coords.get();
+	private final Coords pointer2 = Coords.get();
+	private final Coords touch = Coords.get();
 	
 	public FourSwapInput(PlayArea g, GameLogic l) {
 		game = g;
@@ -34,7 +34,6 @@ public class FourSwapInput extends InputAdapter {
 		boolean validtouch = true;
 
 		game.cameraUnproject(x, y, touch);
-		touch.updateAllValues();
 		
 		if ( game.hasShapeSelected() ) {
 			
@@ -63,19 +62,21 @@ public class FourSwapInput extends InputAdapter {
 			game.cameraUnproject(Gdx.input.getX(1), Gdx.input.getY(1), pointer2);
 			initialAngle = pointer2.sub(pointer1).angle();
 		}
-		Array<Coords> shapeCoords = special.get4Coords(pointer1, initialAngle);
+		Array<Coords> shapeCoords = FourGroup.get4plusC(pointer1, initialAngle, game);
 		
 		if ( shapeCoords == null ) {
 			setPointersDown(false, false);
 			return false;
 		}
+		Coords centre = shapeCoords.pop();
 		special.setupRotationGroups(shapeCoords);
 		logic.acceptVisitor( new BlinkSpecialShapeList(80, 2) );
 			
 		if ( onePointerDown )
-			pointer1.set(special.getGroupCentre());
+			pointer1.set(centre);
 		
 		rotationActive = true;
+		centre.free();
 		Coords.freeAll(shapeCoords);
 		return true;
 	}

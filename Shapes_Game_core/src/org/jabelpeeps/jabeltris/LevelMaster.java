@@ -1,7 +1,5 @@
 package org.jabelpeeps.jabeltris;
 
-import org.jabelpeeps.jabeltris.FourSwapMethods.Group;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
@@ -85,47 +83,6 @@ public abstract class LevelMaster implements Screen, Serializable {
 		this.rand  = Core.rand;
 		Shape.clearHintVisitorList();
 	}
-//-----------------------------------------------Some visitors------
-	public class StandardMoveHints implements HintMethodVisitor {
-		@Override
-		public boolean greet(int x, int y, Shape s) {
-			if ( !s.isBlank(x+1, y) && s.shapeMatch(x+1, y) > 0f ) return true;
-			if ( !s.isBlank(x, y+1) && s.shapeMatch(x, y+1) > 0f ) return true;
-			if ( !s.isBlank(x-1, y) && s.shapeMatch(x-1, y) > 0f ) return true;
-			if ( !s.isBlank(x, y-1) && s.shapeMatch(x, y-1) > 0f ) return true;
-			return false;
-		}
-	}
-	public class RotatingSquareHints implements HintMethodVisitor {
-		@Override
-		public boolean greet(int x, int y, Shape s) {
-			Array<Coords> coords = null;
-			boolean returntrue = false;
-			
-			for ( Group each : Group.values() ) {
-				
-				Coords.freeAll(coords);
-				coords = each.get4(x, y, s.game);
-				
-				if ( coords == null ) continue;
-				
-				boolean pairInS1 = false, pairInS2 = false, pairInS3 = false;
-		
-				if ( s.game.getShape(coords.items[1]).matches(s) ) pairInS1 = true; 
-				if ( s.game.getShape(coords.items[2]).matches(s) ) pairInS2 = true;
-				if ( s.game.getShape(coords.items[3]).matches(s) ) pairInS3 = true;	
-		
-				if ( pairInS1 && pairInS2 && pairInS3 ) continue;
-				
-				if ( s.hint4(pairInS1, pairInS2, pairInS3, coords.toArray()) ) {
-					returntrue = true;
-					break;
-				}
-			}
-			Coords.freeAll(coords);
-			return returntrue;
-		}
-	}
 // ---------------------------------------------Methods----------	
 	protected void setupInput(InputProcessor...list) {
 		setupInput(new Array<InputProcessor>(list));
@@ -168,8 +125,8 @@ public abstract class LevelMaster implements Screen, Serializable {
 		
 		boolean batchStarted = false;
 		if ( !batch.isDrawing() ) {
-				batchStarted = true;
-				batch.begin();
+			batchStarted = true;
+			batch.begin();
 		}
 		for ( Sprite each : game.getAllBoardTiles() ) 
 			each.draw(batch, alpha);
@@ -184,7 +141,7 @@ public abstract class LevelMaster implements Screen, Serializable {
 	Shape makeNewShape(int x, int y, int x_offset, int y_offset, PlayArea p) {
 		return (Shape) getNewShape().setPlayArea(p).setOffsets(x_offset, y_offset).setOriginAndBounds(x, y);
 	}
-	protected abstract Shape getNewShape();
+	protected abstract Shape getNewShape();				
 	
 	protected void recordCompleted() {
 		prefs.putString(this.getClass().getSimpleName(),"Completed");
@@ -195,7 +152,7 @@ public abstract class LevelMaster implements Screen, Serializable {
 		if ( Gdx.input.justTouched() ) {
 			cameraUnproject();
 			
-			if ( touch.y < 0 || game.getHintListSize() == 0 ) {
+			if ( touch.y < 0 || logic.getTotalHints() == 0 ) {
 				levelIsFinished = true;
 				logic.shutDown();
 			} 
@@ -223,7 +180,9 @@ public abstract class LevelMaster implements Screen, Serializable {
 	
 	@Override
 	public void hide() {
-		if ( Core.LOGGING ) System.out.println("mCalls = " + Shape.mCalls);
+		if ( Core.LOGGING ) {
+			System.out.println("mCalls = " + Shape.mCalls);
+		}
 		if ( !levelIsFinished && levelStage != 0 ) {
 			levelStage = 0;
 			pause();
@@ -262,12 +221,11 @@ public abstract class LevelMaster implements Screen, Serializable {
 		synchronized( logic ) {
 			json.writeValue("level", getClass().getSimpleName());
 			json.writeValue("game", game);
+			json.writeValue("logic", logic);
 			json.writeValue("levelStage", levelStage);
 			json.writeValue("alpha", alpha);
 			json.writeValue("playOn", playOn);
 			json.writeValue("playingLearningLevels", playingLearningLevels);
-			json.writeValue("logic", logic.getClass().getSimpleName());
-			json.writeValue("endlessPlayMode", logic.getEndlessPlayMode());
 			
 			if ( Gdx.input.getInputProcessor() instanceof InputMultiplexer ) {
 				json.writeArrayStart("input");
@@ -288,14 +246,18 @@ public abstract class LevelMaster implements Screen, Serializable {
 		
 		game = new PlayArea();
 		game.read(json, jsonData.get("game"));
-		game.initialise(this);
-		game.setupBoard();
-		game.setupShapeTile();
+		logic = new GameLogic(game, this);
+		logic.read(json, jsonData.get("logic"));
+		
+		game.initialise(this, logic);
+		game.setupBoardTile();
+		game.refillShapeTile();
 		game.setPlayAreaReady();
 		
 		try {
 			blanksearch:
 			for ( Field each : ClassReflection.getDeclaredFields(this.getClass()) ) {
+				
 				if ( each.getName().equals("blanks") ) {
 					Field blanksref = ClassReflection.getDeclaredField(this.getClass(), "blanks");
 					blanksref.setAccessible(true);
@@ -303,16 +265,12 @@ public abstract class LevelMaster implements Screen, Serializable {
 					game.setBlanks(blanksfound);
 					break blanksearch;
 				}
-			}
-			Class<?> logicclass = ClassReflection.forName(Core.PACKAGE + jsonData.getString("logic"));
-			Constructor logicconstructor = ClassReflection.getConstructor(logicclass, PlayArea.class);
-			logic = (GameLogic) logicconstructor.newInstance(game);
-						
+			}						
 			if ( jsonData.get("input").isArray() ) {
 				String[] inputs = jsonData.get("input").asStringArray();
 				Array<InputProcessor> listofinputs = new Array<InputProcessor>(4);
 				
-				for (String each : inputs) {
+				for ( String each : inputs ) {
 					Class<?> inputclass = ClassReflection.forName(Core.PACKAGE + each);
 					Constructor inputconstructor = ClassReflection.getConstructor(inputclass, PlayArea.class, GameLogic.class);
 					listofinputs.add((InputProcessor) inputconstructor.newInstance(game, logic));
@@ -326,11 +284,8 @@ public abstract class LevelMaster implements Screen, Serializable {
 			}	
 		} catch (ReflectionException e) {  e.printStackTrace();	}
 		
-		game.findHintsOnBoard();
+		game.findHintsInAllshape();
 		game.spinShapesIntoPlace();
-		
-		logic.setEndlessPlayMode(jsonData.getBoolean("endlessPlayMode"));
-		logic.handOverBoard = true;
 		logic.start();
     }
 }

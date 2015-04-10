@@ -19,6 +19,7 @@ public class PlayArea implements Serializable {
 
 // ---------------------------------------------Fields------------
 	private LevelMaster level;
+	private GameLogic logic;
 	private SpritePlus[][] boardTile;
 	public Color baseColor;
 	protected Shape[][] shapeTile;
@@ -26,7 +27,6 @@ public class PlayArea implements Serializable {
 	
 	private Array<Shape> matchList = new Array<Shape>(false, 32, Shape.class);
 	private Array<Shape> newShapeList = new Array<Shape>(false, 32);
-	private Array<Shape> hintList = new Array<Shape>(false, 32, Shape.class);
 	private Array<Shape> allShapes = new Array<Shape>(false, 128, Shape.class);
 	private Array<SpritePlus> allBaseTiles = new Array<SpritePlus>(false, 128, SpritePlus.class);
 	
@@ -58,8 +58,9 @@ public class PlayArea implements Serializable {
 	}
 //-----------------------------------------------------Methods-------
 
-	public void initialise(LevelMaster l) {
-		level = l;
+	public void initialise(LevelMaster lev, GameLogic logi) {
+		level = lev;
+		logic = logi;
 		shapeTile = new Shape[x_size][y_size];
 		boardTile = new SpritePlus[x_size][y_size];
 		listoflists.add(bottomLeft);
@@ -100,6 +101,7 @@ public class PlayArea implements Serializable {
 			for ( JsonValue each = list.child; each != null; each = each.next ) {
 				Class<?> shapeclass = ClassReflection.forName( Core.PACKAGE + "shapes." + each.getString("Shape") );
 				Shape tmpShape = (Shape) ClassReflection.newInstance( shapeclass );
+				
 				tmpShape.setPlayArea(this).setOffsets(x_offset, y_offset).setOriginAndBounds();
 				tmpShape.read( json, each );
 				allShapes.add(tmpShape);
@@ -107,12 +109,12 @@ public class PlayArea implements Serializable {
 		} catch (ReflectionException e) {  e.printStackTrace();	}
 	}
 	
-	public void setupShapeTile() {
+	public void refillShapeTile() {
 		for ( Shape each : allShapes ) 
 			shapeTile[ each.getXi() ][ each.getYi() ] = each;
 	}
 
-	void setupBoard() {
+	void setupBoardTile() {;
 		SpritePlus tmpSprite;
 		for( int i = 0; i < x_size; i++ ) {
 	    	for( int j = 0; j < y_size; j++ ) {
@@ -141,21 +143,6 @@ public class PlayArea implements Serializable {
 				shapeTile[i][j].setPosition(i, j);
 	}
 	
-	int findHintsOnBoard() {   			// adds potential moves to hintList.
-		hintList.clear();
-		long starttime = 0;
-		if ( Core.LOGGING ) starttime = TimeUtils.nanoTime();
-		
-		for ( Shape each : allShapes ) 
-			each.addHintsToList();
-		
-		if ( Core.LOGGING ) System.out.println("findHintsOnBoard execution time = " + 
-				TimeUtils.nanosToMillis( TimeUtils.timeSinceNanos(starttime) ) + " milliSecs");
-		hintList.shuffle();
-		Gdx.graphics.requestRendering();
-		return hintList.size;
-	}
-	
 	void spinShapesIntoPlace() {
 		spinShapesIntoPlace(allShapes);
 	}
@@ -178,7 +165,6 @@ public class PlayArea implements Serializable {
 		swirlShapesIntoPlace(list, false);
 	}
 	void swirlShapesIntoPlace(Array<Shape> list, boolean placingAllShapes) {
-		list.shuffle();
 		long time;
 		for ( Shape each : list ) 
 			each.setNewXY().setScale(1f);
@@ -188,6 +174,7 @@ public class PlayArea implements Serializable {
 			divideListByQuadrant(list);
 		} else {
 			time = 50;
+			list.shuffle();
 			oddShapes.addAll(list);
 		}
 		allocateOddShapes();
@@ -264,7 +251,7 @@ public class PlayArea implements Serializable {
 			for ( Entry<Shape, Integer> each : shapesInMotion ) {
 				moveShape( each.key.getX() , y_size , each.key , a - each.value + 1 );
 				
-				if ( each.key.getNewXY().yf() == each.key.getY() ) 
+				if ( each.key.getNewXY().yf == each.key.getY() ) 
 					tmpShape = each.key;	
 			}
 			if ( tmpShape != null )	
@@ -323,7 +310,7 @@ public class PlayArea implements Serializable {
 			}
 			Gdx.graphics.requestRendering();
 			Core.delay(20);
-		}
+		}		
 		for ( Shape each : copyMatchList ) {		// replaces matched shapes with newly generated ones.
 			int x = each.getXi();
 			int y = each.getYi();
@@ -333,7 +320,7 @@ public class PlayArea implements Serializable {
 		}
 		long time = (long) (( Core.rand.nextGaussian() + 1.5) * 150);
 		Core.delay(time);	
-		
+
 		allShapes.addAll(newShapeList);	
 		swirlShapesIntoPlace(newShapeList);	
 		
@@ -530,7 +517,7 @@ public class PlayArea implements Serializable {
 			if ( !firstloop ) {
 				for ( Shape each : allShapes ) {
 					Coords saved = each.getSavedXY();
-					shapeTile[ saved.xi() ][ saved.yi() ] = each;
+					shapeTile[ saved.xi ][ saved.yi ] = each;
 				}
 			}
 			firstloop = false;
@@ -560,19 +547,39 @@ public class PlayArea implements Serializable {
 			eachList.clear();
 	}
 
-	int findHintsOnShapeTile() {   			// adds potential moves to hintList.
+	private int findHintsOnShapeTile() {   			// adds potential moves to hintList(s).
 		long starttime = 0;
 		if ( Core.LOGGING ) starttime = TimeUtils.nanoTime();
-		hintList.clear();
+		logic.clearAllHints();
+		int numberOfHints = 0;
+		
 		for ( int i = 0; i < x_size; i++ ) 
 			for (int j = 0; j < y_size; j++ ) 
-				shapeTile[i][j].addHintsToList(i, j);
+				if ( shapeTile[i][j].addHintsToList(i, j) )
+					numberOfHints++;
 		
 		if ( Core.LOGGING ) System.out.println("findHintsOnShapeTile execution time = " + 
 								TimeUtils.nanosToMillis( TimeUtils.timeSinceNanos(starttime) ) + " milliSecs");
-		hintList.shuffle();
-		return hintList.size;
+		
+		return numberOfHints;
 	}
+	
+	int findHintsInAllshape() {   			// adds potential moves to hintList(s).
+		long starttime = 0;
+		if ( Core.LOGGING ) starttime = TimeUtils.nanoTime();
+		logic.clearAllHints();
+		int numberOfHints = 0;
+		
+		for ( Shape each : allShapes ) 
+			if ( each.addHintsToList() )
+				numberOfHints++;
+		
+		if ( Core.LOGGING ) System.out.println("findHintsOnBoard execution time = " + 
+				TimeUtils.nanosToMillis( TimeUtils.timeSinceNanos(starttime) ) + " milliSecs");
+		
+		return numberOfHints;
+	}
+	
 	public void setBlanks(int[][] blanks) {
 		for ( int[] each : blanks ) {
 			int x = each[0];
@@ -603,15 +610,13 @@ public class PlayArea implements Serializable {
 								 : shapeTile[x][y];
 	}
 	public Shape getShape(Coords each) {      			
-		return (each.values() == "FLOAT") ? getShape( each.xi() , each.yi() )
-										  : getShape( each.xi , each.yi );
+		return getShape( each.xi , each.yi );
 	}
 	public SpritePlus getBoardTile(int x, int y) {
 		return boardTile[x][y];
 	}
 	public SpritePlus getBoardTile(Coords each) {
-		return (each.values() == "FLOAT") ? getBoardTile( each.xi() , each.yi() )
-										  : getBoardTile( each.xi , each.yi );
+		return getBoardTile( each.xi , each.yi );
 	}
 	public void selectShape(Coords each) {
 		selected = getShape(each).select();
@@ -626,12 +631,6 @@ public class PlayArea implements Serializable {
 	public Shape getSelectedShape() {
 		return selected;
 	}
-	public int getXoffset() {
-		return x_offset;
-	}
-	public int getYoffset() {
-		return y_offset;
-	}
 	public int getShapesCleared() {						// used to report various stats for 
 		return totalShapesCleared;						// display purposes (atm).
 	}													//
@@ -640,21 +639,12 @@ public class PlayArea implements Serializable {
 	}													//	
 	public int getScore() {								// 
 		return score;									//
-	}
-	public int getHintListSize() {						// This group of calls are used by 
-		return hintList.size;							// DemoGameLogic to extract the
+	}					
+	public int getMatchListSize() {						// This group of calls are used by 
+		return matchList.size;							// demo GameLogic to extract the
 	}													// information it needs to choose its
-	public int getMatchListSize() {						// next moves, and also reset the values
-		return matchList.size;							// in private fields of this class.
-	}													//
-	public Shape[] getHintList() {						//
-		return hintList.toArray();						//
-	}													//
-	public void clearMatchList() {						//
-		matchList.clear();								//
-	}
-	public void addHint(Shape s) {						// used by addHintToList() in Shape
-		hintList.add(s);
+	public void clearMatchList() {						// next moves, and also reset the values
+		matchList.clear();								// in private fields of this class.
 	}
 	public boolean playAreaIsReady() {
 		return readyForPlay;
@@ -672,7 +662,6 @@ public class PlayArea implements Serializable {
 		readyForPlay = false;
 		allBaseTiles = null;
 		allShapes = null;
-		hintList = null;
 		matchList = null;
 		newShapeList = null;
 		shapeTile = null;

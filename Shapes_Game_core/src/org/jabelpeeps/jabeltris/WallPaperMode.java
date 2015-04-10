@@ -21,11 +21,11 @@ public class WallPaperMode extends LevelMaster {
 		
 		game = new PlayArea( 10 , (int) (10f*h/w) );
 		game.baseColor = new Color(0.75f, 1f, 0.75f, 1f);
-		game.initialise(this);
-		logic = new DemoGameLogic(game);
-//		Shape.clearHintVisitorList();
-//		Shape.addHintVisitor( new StandardMoveHints() );
-		Shape.addHintVisitor( new RotatingSquareHints() );
+		logic = new GameLogic(game, this);
+		game.initialise(this, logic);
+		logic.inDemoMode = true;
+		logic.addGameMechanics( new TwoSwap(game, logic), 
+						  		new FourSwap(game, logic) );
 		setupInput(new BorderButtonsInput(game, logic));
 		logic.start();
 		levelIsFinished = true;
@@ -46,8 +46,8 @@ public class WallPaperMode extends LevelMaster {
 	}
 	@Override
 	public Shape getNewShape() {
-		
-		switch ( rand.nextInt(9) + 1 ) {
+
+			switch ( rand.nextInt(9) + 1 ) {
 		
 			case 1: 
 				return new HorizontalLineInverted();

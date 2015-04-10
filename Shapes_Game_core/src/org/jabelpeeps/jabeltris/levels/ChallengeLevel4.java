@@ -2,8 +2,9 @@ package org.jabelpeeps.jabeltris.levels;
 
 import org.jabelpeeps.jabeltris.BorderButtonsInput;
 import org.jabelpeeps.jabeltris.Core;
+import org.jabelpeeps.jabeltris.FourSwap;
 import org.jabelpeeps.jabeltris.FourSwapInput;
-import org.jabelpeeps.jabeltris.InteractiveGameLogic;
+import org.jabelpeeps.jabeltris.GameLogic;
 import org.jabelpeeps.jabeltris.PlayArea;
 import org.jabelpeeps.jabeltris.SelectShape;
 import org.jabelpeeps.jabeltris.Shape;
@@ -20,17 +21,17 @@ public class ChallengeLevel4 extends ChallengeLevelAbstract {
 		super();
 		title = "Challenge Level 4";
 		firstMessage = title + "\n\n";
-		Shape.addHintVisitor( new RotatingSquareHints() );
 	}
 	public ChallengeLevel4(boolean playNext) {
 		this();
 		playOn = playNext;
 		game = new PlayArea(9, 9);
 		game.baseColor = new Color(0.75f, 1f, 1f, 0.75f);
-		game.initialise(this);
-		logic = new InteractiveGameLogic(game);
+		logic = new GameLogic(game, this);
+		game.initialise(this, logic);
+		logic.addGameMechanic( new FourSwap(game, logic) );
 		logic.waitForStartSignal();
-		logic.setEndlessPlayMode(true);
+		logic.endlessPlayMode = true;
 		logic.start();
 	}
 // ---------------------------------------------Methods--------------
@@ -70,7 +71,7 @@ public class ChallengeLevel4 extends ChallengeLevelAbstract {
 			Core.textCentre("", 2);
 		else if ( matches > 29 ) {
 			levelStage = 7;
-			logic.setEndlessPlayMode(false);
+			logic.endlessPlayMode = false;
 		}	
 	}
 	@Override

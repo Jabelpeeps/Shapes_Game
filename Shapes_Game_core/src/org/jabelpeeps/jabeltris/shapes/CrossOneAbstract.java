@@ -30,11 +30,10 @@ public abstract class CrossOneAbstract extends Shape {
 
 		if ( pairInS2 || ( pairInS1 && pairInS3 ) ) {
 			
-			Coords centreOfGroup = Coords.getCentre(list).add(0.5f);
-			int x = centreOfGroup.xi();
-			int y = centreOfGroup.yi();
-			centreOfGroup.free();
-		
+			Coords centreOfGroup = list[4];
+			int x = centreOfGroup.xi;
+			int y = centreOfGroup.yi;
+			
 			if ( m( v(x+1, y), v(x, y+1) ) ) return true;
 			if ( m( v(x, y-2), v(x+1, y-1) ) ) return true;
 			if ( m( v(x-1, y+1), v(x-2, y) ) ) return true;

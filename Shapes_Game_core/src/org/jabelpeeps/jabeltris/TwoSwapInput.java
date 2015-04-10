@@ -25,7 +25,6 @@ public class TwoSwapInput extends SelectShape {
 		if ( !logic.hasVisitor() && pointer == 0 && leftButtonDown ) {
 
 			game.cameraUnproject(x, y, touch);
-			touch.updateAllValues();
 			
 			if 		(  !touch.isEqualTo(saved) 
 					&& !saved.isEqualTo(nill)
@@ -46,18 +45,17 @@ public class TwoSwapInput extends SelectShape {
 		private int c1x, c1y, c2x, c2y;
 		
 		DoSwapIfSwappable() {
-			c1x = saved.xi();
-			c1y = saved.yi();
-			c2x = touch.xi();
-			c2y = touch.yi();
+			c1x = saved.xi;
+			c1y = saved.yi;
+			c2x = touch.xi;
+			c2y = touch.yi;
 		}
 		@Override
 		public void greet() {
-
 			game.animateSwap(c1x, c1y, c2x, c2y);       // Swap the shapes... 
 					
 			if ( game.matchesFoundAndScored() ) 		// and score matches...
-				game.findHintsOnBoard();
+				game.findHintsInAllshape();
 			else {
 				Core.delay(80);
 				game.animateSwap(c1x, c1y, c2x, c2y);	// or swap back no match found

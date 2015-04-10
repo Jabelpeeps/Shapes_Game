@@ -2,7 +2,6 @@ package org.jabelpeeps.jabeltris.levels;
 
 import org.jabelpeeps.jabeltris.BorderButtonsInput;
 import org.jabelpeeps.jabeltris.Core;
-import org.jabelpeeps.jabeltris.InteractiveGameLogic;
 import org.jabelpeeps.jabeltris.LevelMaster;
 import org.jabelpeeps.jabeltris.MainMenu;
 import org.jabelpeeps.jabeltris.SelectShape;
@@ -98,6 +97,8 @@ public abstract class TrainingLevelAbstract extends LevelMaster {
 			cameraUnproject();
 			
 			if ( touch.y < 0 ) {
+				logic.endlessPlayMode = true;
+				logic.inDemoMode = true;
 				logic.sendStartSignal();
 				levelStage = 2;
 			}
@@ -115,7 +116,6 @@ public abstract class TrainingLevelAbstract extends LevelMaster {
 			
 			if ( touch.y < 0 ) {
 				levelStage = 3;
-				logic.shutDown();
 			}
 		}
 	}
@@ -125,15 +125,14 @@ public abstract class TrainingLevelAbstract extends LevelMaster {
 		Core.textCentre(title, 48);
 		Core.textCentre("Ending AutoPlay...", -2);
 		
-		if ( !logic.isAlive() ) levelStage++;
+		logic.inDemoMode = false;
+		if ( !logic.hasVisitor() ) levelStage++;
 	}
 	protected void stage4Tasks() {
-		logic = new InteractiveGameLogic(game, true);
-		logic.setEndlessPlayMode(true);
 		
 		Core.textCentre("Sets Matched:- 0", Core.topEdge - 5);
 		Core.textCentre("Target:- 20", Core.topEdge - 10);
-		Core.textCentre("Get Ready to Play...", -2);
+		Core.textCentre("Ready to Play...", -2);
 		
 		levelStage++;
 	}
@@ -141,7 +140,6 @@ public abstract class TrainingLevelAbstract extends LevelMaster {
 		setupInput(	new BorderButtonsInput(game, logic),
 				   	new SelectShape(game, logic),
 				   	new TwoSwapInput(game, logic) );
-		logic.start();
 		levelStage++;
 	}
 	protected abstract void stage6Tasks(int score);

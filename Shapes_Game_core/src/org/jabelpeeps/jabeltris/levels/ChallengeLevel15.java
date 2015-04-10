@@ -1,9 +1,10 @@
 package org.jabelpeeps.jabeltris.levels;
 
 import org.jabelpeeps.jabeltris.Core;
-import org.jabelpeeps.jabeltris.InteractiveGameLogic;
+import org.jabelpeeps.jabeltris.GameLogic;
 import org.jabelpeeps.jabeltris.PlayArea;
 import org.jabelpeeps.jabeltris.Shape;
+import org.jabelpeeps.jabeltris.TwoSwap;
 import org.jabelpeeps.jabeltris.shapes.MirrorEll;
 import org.jabelpeeps.jabeltris.shapes.RealEll;
 import org.jabelpeeps.jabeltris.shapes.TriangleRealT;
@@ -31,11 +32,11 @@ public class ChallengeLevel15 extends ChallengeLevelAbstract {
 		playOn = playNext;
 		game = new PlayArea(10, 10);
 		game.baseColor = new Color(0.75f, 1f, 1f, 1f);
-		game.initialise(this);
-		Shape.addHintVisitor( new StandardMoveHints() );
-		logic = new InteractiveGameLogic(game);
+		logic = new GameLogic(game, this);
+		game.initialise(this, logic);
+		logic.addGameMechanic( new TwoSwap(game, logic) );
 		logic.waitForStartSignal();
-		logic.setEndlessPlayMode(true);
+		logic.endlessPlayMode = true;
 		logic.start();
 		while ( !game.playAreaIsReady() )
 			Core.delay(10);
@@ -72,7 +73,7 @@ public class ChallengeLevel15 extends ChallengeLevelAbstract {
 			Core.textCentre("", 2);
 		else if ( matches > 29 ) {
 			levelStage = 7;
-			logic.setEndlessPlayMode(false);
+			logic.endlessPlayMode = false;
 		}	
 	}
 	@Override

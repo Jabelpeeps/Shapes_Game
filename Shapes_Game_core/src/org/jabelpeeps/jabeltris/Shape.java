@@ -30,16 +30,16 @@ public abstract class Shape extends SpritePlus implements Runnable, Serializable
 		public static void addHintVisitor(HintMethodVisitor visitor) {
 			boolean methodAlreadyAdded = false;
 			for ( HintMethodVisitor each : hintVisitorList ) {
-				if ( each.getClass().equals(visitor.getClass()) )
+				if ( each.equals(visitor) )
 					methodAlreadyAdded = true;
 			}
 			if ( !methodAlreadyAdded )
 				hintVisitorList.add(visitor);
 		}
-		public static void removeHintVisitor(String visitorName) {
+		public static void removeHintVisitor(HintMethodVisitor visitor) {
 			for ( HintMethodVisitor each : hintVisitorList ) 
-				if ( each.getClass().getSimpleName().equals(visitorName) )
-					hintVisitorList.removeValue(each, true);
+				if ( each.equals(visitor) )
+					hintVisitorList.removeValue(visitor, true);
 		}
 		public static void clearHintVisitorList() {
 			hintVisitorList.clear();
@@ -59,6 +59,9 @@ public abstract class Shape extends SpritePlus implements Runnable, Serializable
 			}
 			Coords.freeAll(xy);
 			return ( matchesNeeded == 0 );
+		}
+		protected boolean matches(Shape other) {
+			return type == other.type;
 		}
 		
 		protected Shape animate() {
@@ -109,9 +112,6 @@ public abstract class Shape extends SpritePlus implements Runnable, Serializable
 		protected Coords v(int x, int y) {
 			return Coords.get(x, y);
 		}
-		protected boolean matches(Shape other) {
-			return type == other.type;
-		}
 		public float checkMatch(int x, int y) {
 			return isBlank() ? 0f 
 							 : shapeMatch(x, y);
@@ -122,27 +122,28 @@ public abstract class Shape extends SpritePlus implements Runnable, Serializable
 		/** <p>Adds possible moves to the hintList based on the Shape's <b> currently displayed </b>
 		 * position.</p><p> DO NOT call unless all Shapes are displayed at their correct places; use 
 		 * {@link #addHintsToList(int, int)} instead.</p>*/
-		public void addHintsToList() {
-			addHintsToList( getXi(), getYi() );
+		public boolean addHintsToList() {
+			return addHintsToList( getXi(), getYi() );
 		}
 		/** <p>Provides a safe way to add possible moves to the hintList when the ShapeTile Array is
 		 * out of sync with the displayed positions of the Shapes.</p><p>  To achieve this, it needs to be 
 		 * supplied with its current position in the Array.</p> */
-		public void addHintsToList(int x, int y) {
-			if ( !isBlank() && hintMatch(x, y) ) 
-					game.addHint(this);
+		public boolean addHintsToList(int x, int y) {
+			return ( !isBlank() && hintMatch(x, y) );
 		}
 		/** <p>This method needs to be supplied with the current position on the ShapeTile Array, as the
 		 * values supplied by getX() & getY() cannot be relied upon in all circumstances. */
 		private boolean hintMatch(int x, int y) {
-			for ( HintMethodVisitor each : hintVisitorList ) 
-				if( each.greet(x, y, this) ) return true;
 			
-			return false;
+			for ( HintMethodVisitor each : hintVisitorList ) 
+				if ( each.greet(x, y, this) ) {
+					return true;
+				}
+			return false; 
 		}
 		/** Return true if the Shape at the supplied coordinates returns true its {@link #isBlank()} call. */
 		boolean isBlank(int x, int y) {
-				return game.getShape(x, y).isBlank();
+			return game.getShape(x, y).isBlank();
 		}
 		/** Returns false, unless overridden. (It is overridden in the Blank child class.) */
 		protected boolean isBlank() {

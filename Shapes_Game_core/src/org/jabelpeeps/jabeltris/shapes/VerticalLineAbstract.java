@@ -23,10 +23,9 @@ public abstract class VerticalLineAbstract extends Shape {
 	@Override
 	protected boolean hint4(boolean pairInS1, boolean pairInS2, boolean pairInS3, Coords...list) {
 		
-		Coords centreOfGroup = Coords.getCentre(list).add(0.5f);
-		int x = centreOfGroup.xi();
-		int y = centreOfGroup.yi();
-		centreOfGroup.free();
+		Coords centreOfGroup = list[4];
+		int x = centreOfGroup.xi;
+		int y = centreOfGroup.yi;
 		
 		if ( pairInS1 || pairInS3 ) {
 			if ( m( v(x, y+1) ) ) return true;

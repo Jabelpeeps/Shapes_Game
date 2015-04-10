@@ -1,153 +1,148 @@
 package org.jabelpeeps.jabeltris;
 
-import org.jabelpeeps.jabeltris.FourSwapMethods.Group;
-
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ArrayMap;
-import com.badlogic.gdx.utils.ObjectMap.Entry;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.Json.Serializable;
+import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.badlogic.gdx.utils.reflect.Constructor;
+import com.badlogic.gdx.utils.reflect.ReflectionException;
 
-public abstract class GameLogic extends Thread {
+public class GameLogic extends Thread implements Serializable {
 	
-	protected PlayArea game;
-	protected boolean backKeyWasPressed = false;
-	protected boolean startSignalSet = true;
-	protected boolean endlessPlayMode = false;
-	protected boolean handOverBoard = false;
-	protected boolean loopIsEnding = false;
-	private FourSwapMethods special;
+	private PlayArea game;
+	@SuppressWarnings("unused")
+	private LevelMaster level;
+	private boolean backKeyWasPressed = false;
+	private boolean startSignalSet = true;
+	private boolean loopIsEnding = false;
+	public boolean endlessPlayMode = false;
+	public boolean inDemoMode = false;
+	private boolean reloading = false;
+	private boolean visitorAccepted = false;
+	private LogicVisitor visitor;
+	protected Array<GameMechanic> mechanics = new Array<GameMechanic>(GameMechanic.class);
+	Array<Shape> combinedHintList = new Array<Shape>(false, 32, Shape.class);
 	
-	public GameLogic(PlayArea g) {		
+	public GameLogic(PlayArea g, LevelMaster l) {		
 		game = g;
+		level = l;
 		this.setDaemon(true);
 	}
-	public void takeBest2SwapMove() {
-		Shape[] localHintList = game.getHintList();
-		int bestMatches = 0;
-		Shape bestShape = null;
-		Shape bestWhich = null;
+	@Override
+	public void run() {
+		activateAllMechanics();
 		
-		for ( Shape eachShape : localHintList ) {
-			for ( int[] whichWay : Core.LEFT_UP_RIGHT_DOWN ) {
-				Shape whichShape = game.getShape( eachShape.getXi() + whichWay[0] , eachShape.getYi() + whichWay[1] );
-				
-				if ( whichShape.isBlank() ) continue;
-				
-				game.shapeTileArraySwap( eachShape , whichShape );
-				
-				if ( game.boardHasMatches(0) && ( game.getMatchListSize() > bestMatches ) ) {
-					bestMatches = game.getMatchListSize();
-					bestShape = eachShape;
-					bestWhich = whichShape;
-				}					
-				game.shapeTileArraySwap( eachShape , whichShape );
-				game.clearMatchList();
+		if ( !reloading ) {
+			game.fillBoard();
+			game.setupBoardTile();
+			game.setPlayAreaReady();
+		
+			if ( inDemoMode ) 
+				game.spinShapesIntoPlace();
+			else 
+				game.swirlShapesIntoPlace();
+		}
+		while ( !startSignalSet ) 
+			Core.delay(200);
+		
+		while ( !loopIsEnding ) {
+
+			synchronized( this ) {
+				if ( inDemoMode ) {
+					takeBestMoveFound();
+					while ( game.boardHasMatches(150) ) 
+						game.replaceMatchedShapes();
+					game.findHintsInAllshape();
+				} 
+				else if ( visitorAccepted ) {
+					visitor.greet();
+					visitor = null;
+					visitorAccepted = false;
+				}
+				if ( getTotalHints() <= 0 && ( endlessPlayMode || inDemoMode ) ) {
+					Core.delay(100);
+					game.shuffleBoard();
+				}
 			}
+			Core.delay(80);
+		}
+		return;    								
+	}
+	
+	void takeBestMoveFound() {
+		int bestMatches = 0;
+		GameMechanic bestMover = null;
+		
+		for ( GameMechanic each : mechanics ) {
+			int matchesFound = each.searchForMoves();
+			
+			if ( matchesFound > bestMatches 
+					|| ( matchesFound == bestMatches 
+					&& Core.rand.nextBoolean() ) ) {
+				bestMatches = matchesFound;
+				bestMover = each;
+			} 
 		}
 		long time = (long) (( Core.rand.nextGaussian() + 1.5) * 150);
 		Core.delay(time);
-		if ( loopIsEnding ) return;
 		
-		game.blinkList(100, 5, bestShape , bestWhich );
-		game.animateSwap( bestShape , bestWhich );
+		bestMover.takeMove();	
+		clearAllHints();
+	}
+	void clearAllHints() {
+		combinedHintList.clear();
+		
+		for ( GameMechanic each : mechanics )
+			each.clearHints();
+	}
+	public int getTotalHints() {
+		if ( combinedHintList.size < 1 )
+			combineHintLists();
+		return combinedHintList.size;
+	}	
+	private void combineHintLists() {
+		
+		for ( GameMechanic each : mechanics ) {
+			Array<Shape> eachList = each.getHintList();
+			combinedHintList.removeAll(eachList, true);
+			combinedHintList.addAll(eachList);
+		}
+	}
+	Shape getHint() {
+		getTotalHints();
+		combinedHintList.shuffle();
+		return combinedHintList.peek();
 	}
 	
-	public void takeBest4SwapMove() {
-		special = new FourSwapMethods(game);
-		Shape[] localHintList = game.getHintList();
-		int bestNumberOfMatches = 0;
-		ArrayMap<Shape, Coords> bestShapesAndNewCoords = new ArrayMap<Shape, Coords>(true, 4, Shape.class, Coords.class);
-		Array<Coords> tmpCoords = null;
-		IterateIn4 it4 = new IterateIn4();
-		
-		for ( Shape everyShape : localHintList ) {										// check each Shape on the hintList...
-			int x = everyShape.getXi();
-			int y = everyShape.getYi();
-						
-			checkGroups:
-			for ( Group group : Group.values() ) {									// ...along with each of the surrounding  
-		
-				Coords.freeAll(tmpCoords);
-				tmpCoords = group.get4(x, y, everyShape.game);
-					
-				if ( tmpCoords == null ) continue checkGroups;						// ...(if possible)...
-				
-				Shape[] shapeList = new Shape[4];
-				Coords[] coordList = tmpCoords.toArray();
-				
-				it4.set(0);
-				for ( Coords eachShape : coordList )
-					shapeList[it4.get()] = game.getShape(eachShape);
-				
-				for ( int i = 1; i <= 4; i++ ) {										// ...when rotated to each of the possible
-																						// three other positions (other than the 
-					it4.set(i);															// current). 
-					for ( Coords everyPos : coordList ) 										// When i = 4, the Shapes are put back into 
-						game.shapeTile[everyPos.xi()][everyPos.yi()] = shapeList[it4.get()];		// their starting positions.
-						
-					if ( i < 4 && game.boardHasMatches(0) 
-							   && ( game.getMatchListSize() > bestNumberOfMatches ) ) {
-						
-						bestNumberOfMatches = game.getMatchListSize();
-						it4.set(i);
-						bestShapesAndNewCoords.clear();
-						for ( Coords each : coordList ) {
-							bestShapesAndNewCoords.put(shapeList[it4.get()], Coords.copy(each));
-						}
-					}	
-					game.clearMatchList();
-				}
-			}
-		}
-		Coords.freeAll(tmpCoords);
-		if ( loopIsEnding ) return;
-		
-		Coords[] coords = bestShapesAndNewCoords.values;
-		Shape[] shapes = bestShapesAndNewCoords.keys;
-		
-		special.setupRotationGroups(coords, shapes);
-		
-		Shape tmpShape = shapes[0];
-		Coords target = coords[0];
-		boolean inPlace = false;
-		boolean direction = Core.rand.nextBoolean();
-		float deltaAngle = 0f;
-		int framecount = 0;
-		
-		game.blinkList(100, 3, special.shapeList);
-
-		while ( !inPlace ) {
-			framecount += 5;
-			deltaAngle = direction ? framecount
-								   : 360 - framecount;
-			special.rotateGroups(deltaAngle);
-			Gdx.graphics.requestRendering();
-			Core.delay(20);
-			
-			if ( 	MathUtils.isEqual(target.xi, tmpShape.getX(), 0.01f)
-				 && MathUtils.isEqual(target.yi, tmpShape.getY(), 0.01f) ) 
-				inPlace = true;
-		}
-		for ( Entry<Shape, Coords> each : bestShapesAndNewCoords ) 
-			each.key.setPosition(each.value);
-		
-		special.resetBaseTilesAndScales();		
-		Gdx.graphics.requestRendering();
-		special.clearRotationGroups();
-		
-		for ( int i = 0; i < 4; i++ )
-			game.shapeTile[coords[i].xi()][coords[i].yi()] = shapes[i];
-		
-		bestShapesAndNewCoords = null;
-		Coords.freeAll(coords);
-		Coords.freeAll(target);
-		Core.delay(20);
+	public void addGameMechanics(GameMechanic...list) {
+		for ( GameMechanic each : list )
+			addGameMechanic(each);
 	}
-	public boolean getEndlessPlayMode() {
-		return endlessPlayMode;
+	public void addGameMechanic(GameMechanic gm) {
+		boolean mechanicAlreadyAdded = false;
+		for ( GameMechanic each : mechanics ) {
+			if ( each.equals(visitor) )
+				mechanicAlreadyAdded = true;
+		}
+		if ( !mechanicAlreadyAdded )
+			mechanics.add(gm);
 	}
-	public void setEndlessPlayMode(boolean mode) {
+	protected void activateAllMechanics() {
+		for ( GameMechanic each : mechanics ) 
+			each.activate();
+	}
+	protected void toggleMechanic(int mech) {
+		if ( mech > mechanics.size ) return;
+		mechanics.items[mech - 1].toggleActive();
+	}
+	
+	public void acceptVisitor(LogicVisitor visitor) {
+		visitorAccepted = true;
+		this.visitor = visitor;
+	}
+	public boolean hasVisitor() {
+		return visitorAccepted || inDemoMode;
 	}
 	public void shutDown() {
 		loopIsEnding = true;
@@ -165,7 +160,30 @@ public abstract class GameLogic extends Thread {
 	public void sendStartSignal() {
 		startSignalSet = true;
 	}
-	public void acceptVisitor(LogicVisitor visitor) {
+	@Override
+	public void write(Json json) {
+			json.writeValue("endlessPlayMode", endlessPlayMode);
+			json.writeValue("inDemoMode", inDemoMode);
+			
+			json.writeArrayStart("mechanics");
+			for ( GameMechanic each : mechanics )
+				json.writeValue(each.getClass().getSimpleName());
+			json.writeArrayEnd();
 	}
-	public abstract boolean hasVisitor();
+	@Override
+	public void read(Json json, JsonValue jsonData) {
+		inDemoMode = jsonData.getBoolean("inDemoMode");
+		endlessPlayMode = jsonData.getBoolean("endlessPlayMode");
+		reloading = true;
+		try {
+			String[] mechs = jsonData.get("mechanics").asStringArray();
+			
+			for ( String each : mechs ) {
+				Class<?> mechanicclass = ClassReflection.forName(Core.PACKAGE + each);
+				Constructor mechanicconstructor = ClassReflection.getConstructor(mechanicclass, PlayArea.class, GameLogic.class);
+				mechanics.add((GameMechanic) mechanicconstructor.newInstance(game, this));
+				mechanics.peek().activate();
+			}
+		} catch (ReflectionException e) { e.printStackTrace(); }
+	}
 }

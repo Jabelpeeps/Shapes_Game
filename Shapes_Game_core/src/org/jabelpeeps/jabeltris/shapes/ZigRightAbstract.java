@@ -33,11 +33,11 @@ public abstract class ZigRightAbstract extends Shape {
 		
 		if ( !pairInS1 && !pairInS3 ) {
 			for ( int i = 0; i <= 3; i++ ) 
-				if ( shapeMatch( list[i].xi() , list[i].yi() ) > 0f ) return true;
+				if ( shapeMatch( list[i].xi , list[i].yi ) > 0f ) return true;
 		}
 		Coords centreOfGroup = Coords.getCentre(list).add(0.5f);
-		int x = centreOfGroup.xi();
-		int y = centreOfGroup.yi();
+		int x = centreOfGroup.xi;
+		int y = centreOfGroup.yi;
 		centreOfGroup.free();
 
 		if ( pairInS2 && ( m( v(x-2, y) ) 

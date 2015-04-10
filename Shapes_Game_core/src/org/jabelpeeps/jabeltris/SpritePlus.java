@@ -7,9 +7,9 @@ public class SpritePlus extends Sprite {
 	
 	protected PlayArea game;
 	protected int x_offset, y_offset;
-	private Coords savedXY = Coords.floats();
-	private Coords newXY = Coords.floats();
-	private Coords savedOrigin = Coords.floats();
+	private Coords savedXY = Coords.get();
+	private Coords newXY = Coords.get();
+	private Coords savedOrigin = Coords.get();
 	
 	public SpritePlus setPlayArea(PlayArea p) {
 		game = p;
@@ -91,12 +91,6 @@ public class SpritePlus extends Sprite {
 	public Coords getXY() {
 		return Coords.get( getX() , getY() );
 	}
-	/** Returns a new Instance of Coords (from Coords's static internal pool) that has 
-	 * been pre-set with the x & y values of this Shape.
-	 * @return Use free() method on returned object when you are finished with it. */
-	public Coords getXYi() {
-		return Coords.get( (int) getX() , (int) getY() );
-	}
 	public int getXi() {
 		return (int) getX();
 	}
@@ -110,7 +104,7 @@ public class SpritePlus extends Sprite {
 		return setPosition(newXY);
 	}
 	public SpritePlus setPosition(Coords xy) {
-		setPosition(xy.xf(), xy.yf());
+		setPosition( xy.xf , xy.yf );
 		return this;
 	}
 	@Override

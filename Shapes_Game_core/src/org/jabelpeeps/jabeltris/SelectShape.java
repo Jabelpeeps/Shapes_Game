@@ -7,9 +7,9 @@ public class SelectShape extends InputAdapter {
 // ---------------------------------------------Field(s)-------------
 		protected final GameLogic logic;
 		protected final PlayArea game;
-		static final Coords touch = Coords.floats();
-		static final Coords saved = Coords.ints();
-        static final Coords nill = Coords.ints();
+		static final Coords touch = Coords.get();
+		static final Coords saved = Coords.get();
+        static final Coords nill = Coords.get();
 		static boolean leftButtonDown = false;
 // ---------------------------------------------Constructor----------	
 		public SelectShape(PlayArea p, GameLogic l) {
@@ -24,7 +24,6 @@ public class SelectShape extends InputAdapter {
 				
 				leftButtonDown = true;
 				game.cameraUnproject(x, y, touch);
-				touch.updateAllValues();
 				
 				if ( !game.hasShapeSelected() )
 					saved.set(nill);

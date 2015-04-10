@@ -2,11 +2,12 @@ package org.jabelpeeps.jabeltris.levels;
 
 import org.jabelpeeps.jabeltris.BorderButtonsInput;
 import org.jabelpeeps.jabeltris.Core;
-import org.jabelpeeps.jabeltris.DemoGameLogic;
+import org.jabelpeeps.jabeltris.GameLogic;
 import org.jabelpeeps.jabeltris.LevelMaster;
 import org.jabelpeeps.jabeltris.MainMenu;
 import org.jabelpeeps.jabeltris.PlayArea;
 import org.jabelpeeps.jabeltris.Shape;
+import org.jabelpeeps.jabeltris.TwoSwap;
 import org.jabelpeeps.jabeltris.shapes.CrossOne;
 
 import com.badlogic.gdx.Screen;
@@ -18,7 +19,7 @@ public class TrainingLevel4 extends TrainingLevelAbstract implements Screen {
 	public Sprite tinyCrossOne = new Sprite(LevelMaster.invcrone);
 	private int[][] crossOneFilled = {{-1, 0}, {0, 0}, {1, 0}, {0, -1}, {0, 1}};
 	private int[][] crossOneUnfilled = {{-1, 0}, {0, -1}, {1, 0}, {0, 1}}; 
-	private final float SIZE = 2.5f;
+	private final static float SIZE = 2.5f;
 	private int[][] blanks = {	{0, 0}, {1, 0}, {0, 1}, {2, 0}, {1, 1}, {0, 2},
 								{0, 8}, {0, 7}, {1, 8}, {0, 6}, {1, 7}, {2, 8},
 								{8, 0}, {7, 0}, {8, 1}, {6, 0}, {7, 1}, {8, 2},
@@ -35,9 +36,10 @@ public class TrainingLevel4 extends TrainingLevelAbstract implements Screen {
 		playOn = playNext;
 		game = new PlayArea(9, 9);
 		game.baseColor = new Color(1f, 1f, 1f, 1f);
-		game.initialise(this);
-		Shape.addHintVisitor( new StandardMoveHints() );
-		logic = new DemoGameLogic(game);
+		logic = new GameLogic(game, this);
+		game.initialise(this, logic);
+		logic.addGameMechanic( new TwoSwap(game, logic) );
+		logic.inDemoMode = true;
 		logic.waitForStartSignal();
 		setupInput(new BorderButtonsInput(game, logic));
 		logic.start();
@@ -114,7 +116,7 @@ public class TrainingLevel4 extends TrainingLevelAbstract implements Screen {
 			Core.textCentre("Keep going...", 0);
 		} else if ( score > 19 ) {
 			levelStage = 7;
-			logic.setEndlessPlayMode(false);
+			logic.endlessPlayMode = false;
 		}
 	}
 

@@ -29,8 +29,11 @@ public class BorderButtonsInput extends InputAdapter {
 			if ( typed == Keys.B && !logic.hasVisitor() ) 
 				logic.acceptVisitor( new FreeMove() );
 			
-			if ( typed == Keys.V && !logic.hasVisitor() ) 
-				logic.acceptVisitor( new FreeRotation() );
+			if ( typed == Keys.NUM_1 )
+				logic.toggleMechanic(1);
+			
+			if ( typed == Keys.NUM_2 )
+				logic.toggleMechanic(2);
 			
 			return true;
 		}
@@ -44,23 +47,15 @@ public class BorderButtonsInput extends InputAdapter {
 	    class RequestHint implements LogicVisitor {
 			@Override
 			public void greet() {
-				game.getHintList()[0].blink(150, 3);
+				logic.getHint().blink(150, 3);
 			}
 	    }
 	    class FreeMove implements LogicVisitor {
 			@Override
 			public void greet() {
-				logic.takeBest2SwapMove();
+				logic.takeBestMoveFound();
 				game.matchesFoundAndScored();
-				game.findHintsOnBoard();
-			}
-	    }
-	    class FreeRotation implements LogicVisitor {
-			@Override
-			public void greet() {
-				logic.takeBest4SwapMove();
-				game.matchesFoundAndScored();
-				game.findHintsOnBoard();
+				game.findHintsInAllshape();
 			}
 	    }
 }

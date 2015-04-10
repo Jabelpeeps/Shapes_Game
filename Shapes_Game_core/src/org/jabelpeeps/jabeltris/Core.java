@@ -20,7 +20,7 @@ import com.badlogic.gdx.math.RandomXS128;
 public class Core extends Game {
 // --------------------------------------------------Fields------------	
 	protected final static String PACKAGE = "org.jabelpeeps.jabeltris.";
-	public final static boolean LOGGING = true;
+	public final static boolean LOGGING = false;
 	public final static int[][] LEFT_UP_RIGHT_DOWN = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
 	
 	protected static SpriteBatch batch;
