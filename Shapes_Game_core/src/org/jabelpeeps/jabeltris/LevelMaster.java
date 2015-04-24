@@ -1,5 +1,8 @@
 package org.jabelpeeps.jabeltris;
 
+import org.jabelpeeps.jabeltris.shapes.Blank;
+import org.jabelpeeps.jabeltris.shapes.BlankMobile;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
@@ -13,12 +16,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.math.RandomXS128;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.Json.Serializable;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.badlogic.gdx.utils.reflect.Constructor;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 
@@ -76,38 +77,43 @@ public abstract class LevelMaster implements Screen, Serializable {
 	protected Vector3 touch = new Vector3();
 // ---------------------------------------------Constructor--------	
 	protected LevelMaster() {
-		Gdx.graphics.setContinuousRendering(false);
+		Gdx.graphics.setContinuousRendering( false );
 		this.batch = Core.batch;
 		this.camera = Core.camera;
 		this.prefs = Core.prefs;
 		this.rand  = Core.rand;
+		GestureMultiplexer.getInstance().clear();
 		Shape.clearHintVisitorList();
 	}
-// ---------------------------------------------Methods----------	
+// ---------------------------------------------Methods----------
+	protected void setBlanks(int[][] blanks) {
+		setBlanks( blanks , false );
+	}
+	protected void setBlanks(int[][] blanks, boolean mobile) {
+		for ( int[] each : blanks ) 
+			setBlanks( each[0] , each[1] , mobile );
+	}
+	protected void setBlanks(int x, int y, boolean mobile) {
+		game.getBoardTile( x , y ).setAlpha( 0f );
+		game.shapeTilePut( x , y , mobile ? new BlankMobile( game ) 
+										  : Blank.get( game , false ) );
+	}
 	protected void setupInput(InputProcessor...list) {
-		setupInput(new Array<InputProcessor>(list));
+		InputMultiplexer multi = (list == null) ? new InputMultiplexer()
+												: new InputMultiplexer( list );
+		multi.addProcessor( 0 , new KeyBoardInput( game, logic ) );
+		multi.addProcessor( 1 , GestureMultiplexer.getInstance() );
+		Gdx.input.setInputProcessor( multi );
+		Gdx.input.setCatchBackKey( true );
 	}
-	protected void setupInput(Array<InputProcessor> list) { 
-		InputMultiplexer multiplexer = new InputMultiplexer();
-		
-		for ( InputProcessor each : list) 
-			multiplexer.addProcessor(each);
-	
-		setupInput(multiplexer);
-	}
-	protected void setupInput(InputProcessor sole) {
-		Gdx.input.setInputProcessor(sole);
-		Gdx.input.setCatchBackKey(true);
-	}
-	
 	protected void prepScreenAndCamera() {
-		Gdx.gl.glClearColor(0, 0, 0.3f, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		Gdx.gl.glClearColor( 0, 0, 0.3f, 1 );
+		Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT );
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
 	}
 	protected void cameraUnproject() {
-		touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+		touch.set( Gdx.input.getX(), Gdx.input.getY(), 0 );
 		camera.unproject(touch);
 	}
 	
@@ -139,12 +145,12 @@ public abstract class LevelMaster implements Screen, Serializable {
 	}
 	
 	Shape makeNewShape(int x, int y, int x_offset, int y_offset, PlayArea p) {
-		return (Shape) getNewShape().setPlayArea(p).setOffsets(x_offset, y_offset).setOriginAndBounds(x, y);
+		return (Shape) getNewShape().setPlayArea( p ).setOffsets( x_offset , y_offset ).setOriginAndBounds( x , y );
 	}
 	protected abstract Shape getNewShape();				
 	
 	protected void recordCompleted() {
-		prefs.putString(this.getClass().getSimpleName(),"Completed");
+		prefs.putString( this.getClass().getSimpleName() , "Completed" );
 		prefs.flush();
 	}
 	protected void levelNeedsFinishing() {
@@ -171,7 +177,7 @@ public abstract class LevelMaster implements Screen, Serializable {
 		} 
 		alpha = (alpha > 0f) ? (alpha - 0.02f) : 0f ;
 		prepScreenAndCamera();
-		renderBoard(alpha);
+		renderBoard( alpha );
 		Gdx.graphics.requestRendering();
 	}
 	protected abstract void menuScreen();
@@ -209,84 +215,56 @@ public abstract class LevelMaster implements Screen, Serializable {
 		if ( core.getScreen() instanceof WallPaperMode ) return;
 		
 		Json json = new Json();
-		String savegame = json.prettyPrint(this);
+		String savegame = json.prettyPrint( this );
 		
 		if ( Gdx.files.isLocalStorageAvailable() ) {
-			FileHandle handle = Gdx.files.local("savedLevel.sav");
-			handle.writeString(savegame, false);
+			FileHandle handle = Gdx.files.local( "savedLevel.sav" );
+			handle.writeString( savegame, false );
 		}
 	}
 	@Override
 	public void write(Json json) {
 		synchronized( logic ) {
-			json.writeValue("level", getClass().getSimpleName());
-			json.writeValue("game", game);
-			json.writeValue("logic", logic);
-			json.writeValue("levelStage", levelStage);
-			json.writeValue("alpha", alpha);
-			json.writeValue("playOn", playOn);
-			json.writeValue("playingLearningLevels", playingLearningLevels);
-			
-			if ( Gdx.input.getInputProcessor() instanceof InputMultiplexer ) {
-				json.writeArrayStart("input");
-				
-				for ( InputProcessor each : ( (InputMultiplexer) Gdx.input.getInputProcessor() ).getProcessors() ) 
-					json.writeValue(each.getClass().getSimpleName());
-				json.writeArrayEnd();
-			}
-			else json.writeValue("input", Gdx.input.getInputProcessor().getClass().getSimpleName());
+			json.writeValue( "level", getClass().getSimpleName() );
+			json.writeValue( "game", game );
+			json.writeValue( "logic", logic );
+			json.writeValue( "levelStage", levelStage );
+			json.writeValue( "alpha", alpha );
+			json.writeValue( "playOn", playOn );
+			json.writeValue( "playingLearningLevels", playingLearningLevels );
 		}
 	}
 	@Override
 	public void read(Json json, JsonValue jsonData) {
-		levelStage = jsonData.getInt("levelStage");
-		alpha = jsonData.getFloat("alpha");
-		playOn = jsonData.getBoolean("playOn");
-		playingLearningLevels = jsonData.getBoolean("playingLearningLevels");
+		levelStage = jsonData.getInt( "levelStage" );
+		alpha = jsonData.getFloat( "alpha" );
+		playOn = jsonData.getBoolean( "playOn" );
+		playingLearningLevels = jsonData.getBoolean( "playingLearningLevels" );
 		
 		game = new PlayArea();
-		game.read(json, jsonData.get("game"));
+		game.read( json, jsonData.get( "game" ) );
 		logic = new GameLogic(game, this);
-		logic.read(json, jsonData.get("logic"));
+		logic.read( json, jsonData.get( "logic" ) );
 		
-		game.initialise(this, logic);
-		game.setupBoardTile();
+		game.initialise( this, logic );
 		game.refillShapeTile();
-		game.setPlayAreaReady();
 		
 		try {
 			blanksearch:
-			for ( Field each : ClassReflection.getDeclaredFields(this.getClass()) ) {
+			for ( Field each : ClassReflection.getDeclaredFields( this.getClass() ) ) {
 				
-				if ( each.getName().equals("blanks") ) {
-					Field blanksref = ClassReflection.getDeclaredField(this.getClass(), "blanks");
-					blanksref.setAccessible(true);
-					int[][] blanksfound = (int[][]) blanksref.get(this);
-					game.setBlanks(blanksfound);
+				if ( each.getName().equals( "blanks" ) ) {
+					Field blanksref = ClassReflection.getDeclaredField( this.getClass() , "blanks" );
+					blanksref.setAccessible( true );
+					int[][] blanksfound = (int[][]) blanksref.get( this );
+					setBlanks( blanksfound );
 					break blanksearch;
 				}
-			}						
-			if ( jsonData.get("input").isArray() ) {
-				String[] inputs = jsonData.get("input").asStringArray();
-				Array<InputProcessor> listofinputs = new Array<InputProcessor>(4);
-				
-				for ( String each : inputs ) {
-					Class<?> inputclass = ClassReflection.forName(Core.PACKAGE + each);
-					Constructor inputconstructor = ClassReflection.getConstructor(inputclass, PlayArea.class, GameLogic.class);
-					listofinputs.add((InputProcessor) inputconstructor.newInstance(game, logic));
-				}
-				setupInput( listofinputs );
 			}
-			else {
-				Class<?> inputclass = ClassReflection.forName(Core.PACKAGE + jsonData.getString("input")); 
-				Constructor inputconstructor = ClassReflection.getConstructor(inputclass, PlayArea.class, GameLogic.class);
-				setupInput((InputProcessor) inputconstructor.newInstance(game, logic));
-			}	
-		} catch (ReflectionException e) {  e.printStackTrace();	}
+		} catch ( ReflectionException e ) {  e.printStackTrace(); }
 		
-		game.findHintsInAllshape();
-		game.spinShapesIntoPlace();
+		game.setPlayAreaReady();
+		setupInput();
 		logic.start();
     }
-}
-	
+}	

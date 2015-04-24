@@ -1,6 +1,6 @@
 package org.jabelpeeps.jabeltris;
 
-import org.jabelpeeps.jabeltris.levels.ChallengeLevel4;
+import org.jabelpeeps.jabeltris.levels.ChallengeLevel03;
 import org.jabelpeeps.jabeltris.levels.EndlessLevelClassic;
 import org.jabelpeeps.jabeltris.levels.EndlessLevelDark;
 import org.jabelpeeps.jabeltris.levels.TrainingLevel1;
@@ -105,7 +105,7 @@ public class MainMenu extends Core implements Screen {
 					+ "by Jabelpeeps Productions.", 48);
 		
 		font.setScale(0.3f);
-		if ( buttonCentre("[GOLD]Quick Start[]", 22) ) core.setScreen(new ChallengeLevel4(false));
+		if ( buttonCentre("[GOLD]Quick Start[]", 22) ) core.setScreen(new ChallengeLevel03(false));
 		if ( buttonCentre("[GOLD]Main Menu[]", 12) ) menuScreen = 1;
 		
 		font.setScale(0.2f);

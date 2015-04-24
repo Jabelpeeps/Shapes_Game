@@ -4,7 +4,7 @@ import org.jabelpeeps.jabeltris.Core;
 import org.jabelpeeps.jabeltris.GameLogic;
 import org.jabelpeeps.jabeltris.PlayArea;
 import org.jabelpeeps.jabeltris.Shape;
-import org.jabelpeeps.jabeltris.TwoSwap;
+import org.jabelpeeps.jabeltris.TwoSwapMech;
 import org.jabelpeeps.jabeltris.shapes.MirrorEll;
 import org.jabelpeeps.jabeltris.shapes.RealEll;
 import org.jabelpeeps.jabeltris.shapes.TriangleRealT;
@@ -30,17 +30,15 @@ public class ChallengeLevel15 extends ChallengeLevelAbstract {
 	public ChallengeLevel15(boolean playNext) {
 		this();
 		playOn = playNext;
-		game = new PlayArea(10, 10);
-		game.baseColor = new Color(0.75f, 1f, 1f, 1f);
-		logic = new GameLogic(game, this);
-		game.initialise(this, logic);
-		logic.addGameMechanic( new TwoSwap(game, logic) );
+		game = new PlayArea( 10 , 10 );
+		game.baseColor = new Color( 0.75f, 1f, 1f, 0.5f );
+		logic = new GameLogic( game , this );
+		game.initialise( this , logic );
+		setBlanks( blanks );
+		logic.addGameMechanic( new TwoSwapMech( game , logic ) );
 		logic.waitForStartSignal();
 		logic.endlessPlayMode = true;
 		logic.start();
-		while ( !game.playAreaIsReady() )
-			Core.delay(10);
-		game.setBlanks(blanks);
 	}
 // ---------------------------------------------Methods--------------
 	@Override
@@ -78,6 +76,6 @@ public class ChallengeLevel15 extends ChallengeLevelAbstract {
 	}
 	@Override
 	protected void nextLevel() {
-		core.setScreen(new TrainingLevel3(true));
+		core.setScreen( new TrainingLevel3( true ) );
 	}
 }

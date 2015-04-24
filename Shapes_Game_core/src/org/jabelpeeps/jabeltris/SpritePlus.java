@@ -10,7 +10,13 @@ public class SpritePlus extends Sprite {
 	private Coords savedXY = Coords.get();
 	private Coords newXY = Coords.get();
 	private Coords savedOrigin = Coords.get();
+	private float alpha;
+	private static int nextID;
+	private int thisID;
 	
+	public SpritePlus() {
+		thisID = nextID++;
+	}
 	public SpritePlus setPlayArea(PlayArea p) {
 		game = p;
 		return this;
@@ -141,9 +147,19 @@ public class SpritePlus extends Sprite {
 	public Coords getNewXY() {
 		return newXY;
 	}
+	public SpritePlus saveAlpha() {
+		alpha = getColor().a;
+		return this;
+	}
+	public SpritePlus adjustAlpha(float adjust) {
+		return setNewAlpha( alpha + adjust );
+	}
 	public SpritePlus setNewAlpha(float alpha) {
 		super.setAlpha(alpha);
 		return this;
+	}
+	public SpritePlus restoreAlpha() {
+		return setNewAlpha( alpha );
 	}
 	@Override
 	protected void finalize() {
@@ -155,5 +171,13 @@ public class SpritePlus extends Sprite {
 				getClass().getSimpleName() + 
 				" (" + (MathUtils.round(getX() * 100) / 100f) + ", " + (MathUtils.round(getY() * 100) / 100f) + ")"
 				;
+	}
+	@Override
+	public int hashCode() {
+		return thisID;
+	}
+	@Override
+	public boolean equals(Object other) {
+		return ( this == other );
 	}
 }

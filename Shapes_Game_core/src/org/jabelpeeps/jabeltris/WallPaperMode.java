@@ -19,14 +19,14 @@ public class WallPaperMode extends LevelMaster {
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
 		
-		game = new PlayArea( 10 , (int) (10f*h/w) );
-		game.baseColor = new Color(0.75f, 1f, 0.75f, 1f);
-		logic = new GameLogic(game, this);
-		game.initialise(this, logic);
+		game = new PlayArea( 10 , (int) ( 10f * h / w ) );
+		game.baseColor = new Color( 0.75f, 1f, 0.75f, 1f );
+		logic = new GameLogic( game , this );
+		game.initialise( this , logic );
 		logic.inDemoMode = true;
-		logic.addGameMechanics( new TwoSwap(game, logic), 
-						  		new FourSwap(game, logic) );
-		setupInput(new BorderButtonsInput(game, logic));
+		logic.addGameMechanics( new TwoSwapMech( game , logic ), 
+						  		new FourSwapMech( game , logic ) );
+		setupInput();
 		logic.start();
 		levelIsFinished = true;
 	}
@@ -34,9 +34,10 @@ public class WallPaperMode extends LevelMaster {
 	@Override
 	public void render(float delta) {
 		if ( !logic.isAlive() ) {
-			core.setScreen(new MainMenu(core));	
+			core.setScreen( new MainMenu( core ) );	
 			Gdx.graphics.requestRendering();
 			dispose();
+			return;
 		}
 		if ( logic.getBackKeyWasPressed() ) {
 			logic.shutDown();
@@ -48,17 +49,13 @@ public class WallPaperMode extends LevelMaster {
 	public Shape getNewShape() {
 
 			switch ( rand.nextInt(9) + 1 ) {
-		
 			case 1: 
 				return new HorizontalLineInverted();
-			case 2:
-			case 8:
+			case 2:	case 8:
 				return new CrossOneInverted();
-			case 3:
-			case 9:
+			case 3:	case 9:
 				return new CrossTwoInverted();				
-			case 4: 
-			case 5:
+			case 4: case 5:
 				return new TriangleInverted();				
 			case 6: 
 				return new SquareInverted();
@@ -67,7 +64,6 @@ public class WallPaperMode extends LevelMaster {
 		}
 		return null;
 	}
-
 	@Override
 	protected void nextLevel() {
 	}

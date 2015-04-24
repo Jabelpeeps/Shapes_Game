@@ -14,12 +14,26 @@ public abstract class BlankAbstract extends Shape {
 		return false;
 	}
 	@Override
-	public Shape select() {
+	protected Shape select() {
 		return this;
 	}
 	@Override
-	public Shape deselect() {
+	protected Shape deselect() {
 		return this;
 	}
-	public abstract void free();
+	@Override
+	protected boolean matches(Shape other) {
+		free();
+		return false;
+	}
+	@Override
+	protected boolean isBlank() {
+		free();
+		return true;
+	}
+	@Override 
+	protected abstract boolean isMobile();
+	
+	public void free() {
+	}
 }

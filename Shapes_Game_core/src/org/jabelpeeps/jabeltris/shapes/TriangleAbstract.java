@@ -42,7 +42,6 @@ public abstract class TriangleAbstract extends Shape {
 	protected boolean hint4(boolean pairInS1, boolean pairInS2, boolean pairInS3, Coords...list) {
 		
 		if ( pairInS1 || pairInS3 ) {
-			
 			Coords centreOfGroup = list[4];
 			int x = centreOfGroup.xi;
 			int y = centreOfGroup.yi;

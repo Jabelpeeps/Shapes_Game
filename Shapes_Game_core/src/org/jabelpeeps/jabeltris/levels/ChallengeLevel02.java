@@ -4,7 +4,7 @@ import org.jabelpeeps.jabeltris.Core;
 import org.jabelpeeps.jabeltris.GameLogic;
 import org.jabelpeeps.jabeltris.PlayArea;
 import org.jabelpeeps.jabeltris.Shape;
-import org.jabelpeeps.jabeltris.TwoSwap;
+import org.jabelpeeps.jabeltris.TwoSwapMech;
 import org.jabelpeeps.jabeltris.shapes.HorizontalLine;
 import org.jabelpeeps.jabeltris.shapes.Square;
 import org.jabelpeeps.jabeltris.shapes.Triangle;
@@ -12,12 +12,12 @@ import org.jabelpeeps.jabeltris.shapes.VerticalLine;
 
 import com.badlogic.gdx.graphics.Color;
 
-public class ChallengeLevel2 extends ChallengeLevelAbstract {
+public class ChallengeLevel02 extends ChallengeLevelAbstract {
 
 	private int[][] blanks = {{0, 0},{0, 9},{8, 0},{8, 9}};
 	
 // ---------------------------------------------Constructors--------
-	public ChallengeLevel2() {
+	public ChallengeLevel02() {
 		super();
 		title = "Challenge Level 2\nRe-Mix";
 		firstMessage = title + "\n\n"
@@ -26,20 +26,18 @@ public class ChallengeLevel2 extends ChallengeLevelAbstract {
 				+ ""
 				+ "";
 	}
-	public ChallengeLevel2(boolean playNext) {
+	public ChallengeLevel02(boolean playNext) {
 		this();
 		playOn = playNext;
-		game = new PlayArea(9, 10);
-		game.baseColor = new Color(0.75f, 1f, 1f, 1f);
-		logic = new GameLogic(game, this);
-		game.initialise(this, logic);
-		logic.addGameMechanic( new TwoSwap(game, logic) );
+		game = new PlayArea( 9 , 10 );
+		game.baseColor = new Color( 0.75f, 1f, 1f, 1f );
+		logic = new GameLogic( game , this );
+		game.initialise( this , logic );
+		setBlanks( blanks );
+		logic.addGameMechanic( new TwoSwapMech( game , logic ) );
 		logic.waitForStartSignal();
 		logic.endlessPlayMode = true;
 		logic.start();
-		while ( !game.playAreaIsReady() ) 
-			Core.delay(10);
-		game.setBlanks(blanks);
 	}
 // ---------------------------------------------Methods--------------
 	@Override
@@ -78,6 +76,6 @@ public class ChallengeLevel2 extends ChallengeLevelAbstract {
 	}
 	@Override
 	protected void nextLevel() {
-		core.setScreen(new ChallengeLevel15(true));
+		core.setScreen( new ChallengeLevel03( true ) );
 	}
 }

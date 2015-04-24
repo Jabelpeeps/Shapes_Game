@@ -31,25 +31,28 @@ public abstract class ZigLeftAbstract extends Shape {
 	@Override
 	protected boolean hint4(boolean pairInS1, boolean pairInS2, boolean pairInS3, Coords...list) {
 		
-		if ( !pairInS1 && !pairInS3 ) {
-			for ( int i = 0; i <= 3; i++ ) 
-				if ( shapeMatch( list[i].xi , list[i].yi ) > 0f ) return true;
-		}
-		Coords centreOfGroup = Coords.getCentre(list).add(0.5f);
-		int x = centreOfGroup.xi;
-		int y = centreOfGroup.yi;
-		centreOfGroup.free();
+		if ( pairInS1 || pairInS3 ) {
+			Coords centreOfGroup = list[4];
+			int x = centreOfGroup.xi;
+			int y = centreOfGroup.yi;
 
-		if ( pairInS2 && ( m( v(x+1, y) ) 
-						|| m( v(x, y-2) ) 
-						|| m( v(x-2, y-1) ) 
-						|| m( v(x-1, y+1) ) ) ) return true;
+			if ( pairInS2 && ( m( v(x+1, y) ) 
+							|| m( v(x, y-2) ) 
+							|| m( v(x-2, y-1) ) 
+							|| m( v(x-1, y+1) ) ) ) return true;
+			
+			if ( m( v(x+1, y-1), v(x+1, y-2) ) ) return true;
+			if ( m( v(x, y+1), v(x+1, y+1) ) ) return true;
+			if ( m( v(x-2, y), v(x-2, y+1) ) ) return true;
+			if ( m( v(x-1, y-2), v(x-2, y-2) ) ) return true;	
 		
-		if ( m( v(x+1, y-1), v(x+1, y-2) ) ) return true;
-		if ( m( v(x, y+1), v(x+1, y+1) ) ) return true;
-		if ( m( v(x-2, y), v(x-2, y+1) ) ) return true;
-		if ( m( v(x-1, y-2), v(x-2, y-2) ) ) return true;	
-	
+		} else {
+			for ( int i = 0; i <= 3; i++ ) {
+				if ( i == 2 && pairInS2 ) continue;
+				if ( shapeMatch( list[i].xi , list[i].yi ) > 0f ) 
+					return true;
+			}
+		}
 		return false;
 	}
 }

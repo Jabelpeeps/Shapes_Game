@@ -1,36 +1,34 @@
 package org.jabelpeeps.jabeltris.levels;
 
 import org.jabelpeeps.jabeltris.Core;
+import org.jabelpeeps.jabeltris.FourSwapMech;
 import org.jabelpeeps.jabeltris.GameLogic;
 import org.jabelpeeps.jabeltris.PlayArea;
 import org.jabelpeeps.jabeltris.Shape;
-import org.jabelpeeps.jabeltris.TwoSwap;
+import org.jabelpeeps.jabeltris.TwoSwapMech;
+import org.jabelpeeps.jabeltris.shapes.CrossOne;
+import org.jabelpeeps.jabeltris.shapes.CrossTwo;
 import org.jabelpeeps.jabeltris.shapes.Square;
 import org.jabelpeeps.jabeltris.shapes.Triangle;
 
 import com.badlogic.gdx.graphics.Color;
 
-public class ChallengeLevel1 extends ChallengeLevelAbstract {
-		
-// ---------------------------------------------Constructors--------	
-	public ChallengeLevel1() {
+public class ChallengeLevel03 extends ChallengeLevelAbstract {
+	
+	public ChallengeLevel03() {
 		super();
-		title = "Challenge Level 1\nFirst Mix!";
-		firstMessage = title + "\n\n"
-				+ "Ok.\n"
-				+ "No demo this time.\n"
-				+ "You know these shapes. "
-				+ "Your target is 30 matches, and"
-				+ " I'll be keeping score too...";
+		title = "Challenge Level 4";
+		firstMessage = title + "\n\n";
 	}
-	public ChallengeLevel1(boolean playNext) {
+	public ChallengeLevel03(boolean playNext) {
 		this();
 		playOn = playNext;
-		game = new PlayArea(7, 7);
-		game.baseColor = new Color(0.75f, 1f, 1f, 1f);
+		game = new PlayArea(9, 9);
+		game.baseColor = new Color(0.75f, 1f, 1f, 0.75f);
 		logic = new GameLogic(game, this);
 		game.initialise(this, logic);
-		logic.addGameMechanic( new TwoSwap(game, logic) );
+		logic.addGameMechanics( new TwoSwapMech(game, logic),
+							   	new FourSwapMech(game, logic) );
 		logic.waitForStartSignal();
 		logic.endlessPlayMode = true;
 		logic.start();
@@ -43,20 +41,26 @@ public class ChallengeLevel1 extends ChallengeLevelAbstract {
 			case 1:
 				return new Square("Red");
 			case 2:
-				return new Square("Blue");
+				return new CrossTwo("Blue");
 			case 3: 
 				return new Triangle("Yellow");
 			case 4:
-				return new Triangle("Green");
+				return new CrossOne("Green");
 		}
 		return null;
 	}
 	@Override
+	protected void stage1Tasks() {
+		levelStage++;
+		setupInput();
+		logic.sendStartSignal();
+	}
+	@Override
 	protected void stage3Tasks(int matches) {
 		Core.textCentre("Sets Matched:- " + matches + "/30", Core.topEdge - 10);
-		if ( matches < 6 ) 
+		if ( matches < 6 )
 			Core.textCentre("", 2);
-		else if ( matches < 11 ) 
+		else if ( matches < 11 )
 			Core.textCentre("[GOLD]Pro Tip[]:- ", 4);
 		else if ( matches < 16 )
 			Core.textCentre("", 4);
@@ -69,6 +73,6 @@ public class ChallengeLevel1 extends ChallengeLevelAbstract {
 	}
 	@Override
 	protected void nextLevel() {
-		core.setScreen(new TrainingLevel3(true));
+		core.setScreen( new TrainingLevel3( true ) );
 	}
 }

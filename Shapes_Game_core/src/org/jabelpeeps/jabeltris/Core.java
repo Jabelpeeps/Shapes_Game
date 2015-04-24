@@ -21,7 +21,6 @@ public class Core extends Game {
 // --------------------------------------------------Fields------------	
 	protected final static String PACKAGE = "org.jabelpeeps.jabeltris.";
 	public final static boolean LOGGING = false;
-	public final static int[][] LEFT_UP_RIGHT_DOWN = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
 	
 	protected static SpriteBatch batch;
 	protected static OrthographicCamera camera;
@@ -38,7 +37,15 @@ public class Core extends Game {
 	protected static boolean previewMode;
 	public static float bottomEdge, topEdge;
 	
+	public static interface HintVisitor {
+		public boolean greet(int x, int y, Shape s);
+	}
+	public static interface LogicInputVisitor {
+		public void greet();
+	}
+	
 // --------------------------------------------------Methods-----------
+	
 	@Override
 	public void create () {
 		
@@ -132,7 +139,7 @@ public class Core extends Game {
 	}
 	@Override
 	public void dispose () {
-		threadPool.shutdownNow();
+		threadPool.shutdown();
 		boardBase.dispose();
 		atlas.dispose();
 		manager.dispose();

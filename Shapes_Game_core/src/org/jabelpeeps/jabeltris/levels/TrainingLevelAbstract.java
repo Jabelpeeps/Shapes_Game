@@ -1,11 +1,8 @@
 package org.jabelpeeps.jabeltris.levels;
 
-import org.jabelpeeps.jabeltris.BorderButtonsInput;
 import org.jabelpeeps.jabeltris.Core;
 import org.jabelpeeps.jabeltris.LevelMaster;
 import org.jabelpeeps.jabeltris.MainMenu;
-import org.jabelpeeps.jabeltris.SelectShape;
-import org.jabelpeeps.jabeltris.TwoSwapInput;
 
 import com.badlogic.gdx.Gdx;
 
@@ -14,7 +11,6 @@ public abstract class TrainingLevelAbstract extends LevelMaster {
 	protected TrainingLevelAbstract() {
 		super();
 	}
-
 	@Override
 	public void render(float delta) {
 		
@@ -89,7 +85,8 @@ public abstract class TrainingLevelAbstract extends LevelMaster {
 		
 	protected void stage1Tasks() {
 		alpha = (alpha < 0.4f) ? (alpha + 0.005f) : 0.4f ;
-		
+
+		setupInput();
 		Core.textCentre(firstMessage, 48);
 		Core.textCentre("[GOLD]Touch here[] to start demo.", -2);
 		
@@ -114,9 +111,8 @@ public abstract class TrainingLevelAbstract extends LevelMaster {
 		if ( Gdx.input.justTouched() ) {
 			cameraUnproject();
 			
-			if ( touch.y < 0 ) {
+			if ( touch.y < 0 ) 
 				levelStage = 3;
-			}
 		}
 	}
 	protected void stage3Tasks() {
@@ -137,9 +133,6 @@ public abstract class TrainingLevelAbstract extends LevelMaster {
 		levelStage++;
 	}
 	protected void stage5Tasks() {
-		setupInput(	new BorderButtonsInput(game, logic),
-				   	new SelectShape(game, logic),
-				   	new TwoSwapInput(game, logic) );
 		levelStage++;
 	}
 	protected abstract void stage6Tasks(int score);

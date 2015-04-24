@@ -14,6 +14,7 @@ public class Coords {
 	
 	private static final float ROUNDING_ERROR = 0.001f;
 	private final static int POOLSIZE = 32;
+	
 	private static ThreadLocal<Coords[]> freeCoords = new ThreadLocal<Coords[]>() {
 			@Override protected Coords[] initialValue() { 
 				return new Coords[POOLSIZE]; 
@@ -24,10 +25,8 @@ public class Coords {
 	}};
 	private Coords() {}
 
-	public int xi = -10;
-	public int yi = -10;
-	protected float xf = -10f;
-	protected float yf = -10f;
+	public int xi = 10, yi = 10;
+	protected float xf = -10f, yf = -10f;
 
 	private Coords updateFloats() {
 		xf = xi;
@@ -150,7 +149,7 @@ public class Coords {
 	public Coords add(float f) {
 		return set( xf + f , yf + f );
 	}
-	private Coords add(Coords other) {
+	Coords add(Coords other) {
 		return set( xf + other.xf , yf + other.yf );
 	}
 	public Coords sub(float f) {

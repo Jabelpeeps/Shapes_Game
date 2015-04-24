@@ -1,16 +1,12 @@
 package org.jabelpeeps.jabeltris.levels;
 
-import org.jabelpeeps.jabeltris.BorderButtonsInput;
 import org.jabelpeeps.jabeltris.Core;
-import org.jabelpeeps.jabeltris.FourSwap;
-import org.jabelpeeps.jabeltris.FourSwapInput;
+import org.jabelpeeps.jabeltris.FourSwapMech;
 import org.jabelpeeps.jabeltris.GameLogic;
 import org.jabelpeeps.jabeltris.LevelMaster;
 import org.jabelpeeps.jabeltris.MainMenu;
 import org.jabelpeeps.jabeltris.PlayArea;
-import org.jabelpeeps.jabeltris.SelectShape;
-import org.jabelpeeps.jabeltris.TwoSwap;
-import org.jabelpeeps.jabeltris.TwoSwapInput;
+import org.jabelpeeps.jabeltris.TwoSwapMech;
 
 import com.badlogic.gdx.graphics.Color;
 
@@ -22,18 +18,14 @@ public abstract class EndlessGame extends LevelMaster {
 	protected void initialise(Color baseColor) {
 		game = new PlayArea();
 		game.baseColor = baseColor;
-		logic = new GameLogic(game, this);
-		game.initialise(this, logic);
-		logic.addGameMechanics( new TwoSwap(game, logic),
-						  		new FourSwap(game, logic) );
+		logic = new GameLogic( game , this );
+		game.initialise( this , logic );
+		logic.addGameMechanics( new TwoSwapMech( game , logic ),
+						  		new FourSwapMech( game , logic ) );
 		logic.endlessPlayMode = true;
-		setupInput(	new BorderButtonsInput(game, logic),
-					new FourSwapInput(game, logic),
-					new SelectShape(game, logic),
-					new TwoSwapInput(game, logic) );
+		setupInput();
 		logic.start();
 	}
-	
 	@Override
 	public void render(float delta) {
 		

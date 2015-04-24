@@ -1,12 +1,11 @@
 package org.jabelpeeps.jabeltris.levels;
 
-import org.jabelpeeps.jabeltris.BorderButtonsInput;
 import org.jabelpeeps.jabeltris.Core;
 import org.jabelpeeps.jabeltris.GameLogic;
 import org.jabelpeeps.jabeltris.MainMenu;
 import org.jabelpeeps.jabeltris.PlayArea;
 import org.jabelpeeps.jabeltris.Shape;
-import org.jabelpeeps.jabeltris.TwoSwap;
+import org.jabelpeeps.jabeltris.TwoSwapMech;
 import org.jabelpeeps.jabeltris.shapes.HorizontalLine;
 import org.jabelpeeps.jabeltris.shapes.VerticalLine;
 
@@ -29,10 +28,10 @@ public class TrainingLevel3 extends TrainingLevelAbstract {
 		game.baseColor = new Color(1f, 1f, 1f, 1f);
 		logic = new GameLogic(game, this);
 		game.initialise(this, logic);
-		logic.addGameMechanic( new TwoSwap(game, logic) );
+		logic.addGameMechanic( new TwoSwapMech(game, logic) );
 		logic.inDemoMode = true;
 		logic.waitForStartSignal();
-		setupInput(new BorderButtonsInput(game, logic));
+		setupInput();
 		logic.start();
 	}
 	public TrainingLevel3(boolean playNext, boolean learningLevels) {
@@ -79,6 +78,6 @@ public class TrainingLevel3 extends TrainingLevelAbstract {
 	}
 	@Override
 	protected void nextLevel() {
-		core.setScreen(new ChallengeLevel2(true));
+		core.setScreen(new ChallengeLevel02(true));
 	}
 }
